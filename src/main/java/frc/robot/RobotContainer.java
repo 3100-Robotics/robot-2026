@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.generated.TunerConstantsV0;
+import frc.robot.generated.TunerConstantsV1Protobot;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.util.datalog.StringLogEntry;
 
@@ -38,13 +38,42 @@ public class RobotContainer {
   private AutoChooser m_autoChooser = new AutoChooser();
   
   // Drivetrain
-  private final double m_maxSpeed = TunerConstantsV0.kSpeedAt12Volts.in(MetersPerSecond); // Get real max speed
+  private final double m_maxSpeed = TunerConstantsV1Protobot.kSpeedAt12Volts.in(MetersPerSecond); // Get real max speed
   private final double m_maxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
   private final SwerveRequest.FieldCentric m_driveFieldCentric = new SwerveRequest.FieldCentric()
     .withDeadband(m_maxSpeed * 0.09)
     .withRotationalDeadband(m_maxAngularRate * 0.09) // Experiment with best values for these but they worked on Hawksbill
     .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.OpenLoopVoltage); 
-  private Drivetrain m_drivetrain = TunerConstantsV0.createDrivetrain();
+  private Drivetrain m_drivetrain = TunerConstantsV1Protobot.createDrivetrain();
+
+
+
+
+
+
+    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+
+    /* Setting up bindings for necessary control of the swerve drive platform */
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+    private final Telemetry logger = new Telemetry(MaxSpeed);
+
+    private final CommandXboxController joystick = new CommandXboxController(0);
+
+    public final Drivetrain drivetrain = TunerConstants.createDrivetrain();
+
+
+
+
+
+
+
+
 
   public RobotContainer() {
     DriverStation.startDataLog(m_log1);
@@ -68,11 +97,10 @@ public class RobotContainer {
   private void configureBindings() {
     m_drivetrain.setDefaultCommand(
       m_drivetrain.applyRequest(
-        () -> {return m_driveFieldCentric
+        () -> m_driveFieldCentric
           .withVelocityX(m_driverCtl.getLeftX())
           .withVelocityY(m_driverCtl.getLeftY())
-          .withRotationalRate(m_driverCtl.getRightX());
-        }
+          .withRotationalRate(m_driverCtl.getRightX())
     ));
   }
 
