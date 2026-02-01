@@ -30,7 +30,7 @@ public class RobotContainer {
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
     
     // Drivetrain
-    private final double m_maxSpeed = TunerConstantsV1Protobot.kSpeedAt12Volts.in(MetersPerSecond); // Get real max speed
+    private final double m_maxSpeed = TunerConstantsV1Protobot.kSpeedAt12Volts.in(MetersPerSecond)/4; // Get real max speed
     private final double m_maxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
     private final SwerveRequest.FieldCentric m_driveFieldCentric = new SwerveRequest.FieldCentric()
         .withDeadband(m_maxSpeed * 0.09)

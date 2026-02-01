@@ -30,9 +30,9 @@ public class Locator extends SubsystemBase {
         FieldObject2d targetExtension = field.getObject("Extension");
 
         this.extentionPose = new Pose2d(
-            Math.cos(targetHub.getPose().getRotation().getRadians())+hubPose.getX(),
-            Math.sin(targetHub.getPose().getRotation().getRadians())+hubPose.getY(),
-            targetHub.getPose().getRotation()
+            2*Math.cos(targetHub.getPose().getRotation().getRadians())+hubPose.getX(),
+            2*Math.sin(targetHub.getPose().getRotation().getRadians())+hubPose.getY(),
+            targetHub.getPose().getRotation().rotateBy(Rotation2d.k180deg)
         );
 
         field.setRobotPose(robotPose);
@@ -46,5 +46,6 @@ public class Locator extends SubsystemBase {
         targetExtension.setPose(extentionPose);
 
         SmartDashboard.putData("ScratchState", field);
+        SmartDashboard.putNumber("distance", Math.sqrt(Math.pow(hubPose.getX()-extentionPose.getX(), 2)+Math.pow(hubPose.getY()-extentionPose.getY(), 2)));
     }
 }

@@ -54,7 +54,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
-    private final PIDController degreesHeadingController = new PIDController(0, 0.0, 0.0);
+    private final PIDController degreesHeadingController = new PIDController(0.1, 0.0, 0.0);
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -260,7 +260,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic() {
-        headingController.enableContinuousInput(0, 360);
+        degreesHeadingController.enableContinuousInput(0, 360);
         SmartDashboard.putBoolean("Yow", isAtPoseSetpoint());
         /*
          * Periodically try to apply the operator perspective.
