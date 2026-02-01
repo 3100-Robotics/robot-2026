@@ -21,6 +21,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.generated.TunerConstantsV1Protobot.TunerSwerveDrivetrain;
+import frc.robot.math.AngleUtils;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -48,9 +50,11 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
 
+    private Pose2d poseSetpoint = new Pose2d();
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
+    private final PIDController degreesHeadingController = new PIDController(0, 0.0, 0.0);
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -227,8 +231,37 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
+    public boolean isAtPoseSetpoint() {
+        Pose2d relativepose = poseSetpoint.relativeTo(getPos());
+        SmartDashboard.putNumber("rx", relativepose.getX());
+        SmartDashboard.putNumber("ry", relativepose.getY());
+        SmartDashboard.putNumber("rt", relativepose.getRotation().getDegrees());
+        SmartDashboard.putBoolean("yikes", AngleUtils.is_between(
+                    getPos().getRotation().getDegrees(),
+                    poseSetpoint.getRotation().getDegrees()+5,
+                    poseSetpoint.getRotation().getDegrees()-5
+                ));
+
+        return Math.abs(relativepose.getX()) < 0.01 && 
+                Math.abs(relativepose.getY()) < 0.01 &&
+                AngleUtils.is_between(
+                    getPos().getRotation().getDegrees(),
+                    poseSetpoint.getRotation().getDegrees()+5,
+                    poseSetpoint.getRotation().getDegrees()-5
+                );
+    }
+
+    public Command positionDrive(Supplier<Pose2d> pose) {
+        return run(() -> {
+            this.poseSetpoint = pose.get();
+            goToPos(poseSetpoint);
+        }).unless(this::isAtPoseSetpoint);
+    }
+
     @Override
     public void periodic() {
+        headingController.enableContinuousInput(0, 360);
+        SmartDashboard.putBoolean("Yow", isAtPoseSetpoint());
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -328,14 +361,16 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
     }
 
-    // public void goToPos(Pose2d new_pose) {
-    //     Pose2d current_pose = getState().Pose;
+    public void goToPos(Pose2d new_pose) {
+        Pose2d current_pose = getState().Pose;
 
-    //     // Generate the next speeds for the robot
-    //     ChassisSpeeds speeds = new ChassisSpeeds(
-    //             sample.vx + xController.calculate(current_pose.getX(), sample.x),
-    //             sample.vy + yController.calculate(current_pose.getY(), sample.y),
-    //             sample.omega + headingController.calculate(current_pose.getRotation().getRadians(), sample.heading)
-    //     );
-    // }
+        // Generate the next speeds for the robot
+        ChassisSpeeds speeds = new ChassisSpeeds(
+                xController.calculate(current_pose.getX(), new_pose.getX()),
+                yController.calculate(current_pose.getY(), new_pose.getY()),
+                degreesHeadingController.calculate(current_pose.getRotation().getDegrees(), new_pose.getRotation().getDegrees())
+        );
+
+        setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
+    }
 }

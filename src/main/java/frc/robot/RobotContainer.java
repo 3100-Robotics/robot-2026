@@ -64,33 +64,36 @@ public class RobotContainer {
 
     private Logging log = new Logging();
 
+    private Locator locator = new Locator(drivetrain::getPos);
 
 
 
 
-  public RobotContainer() {
-    DriverStation.startDataLog(m_log0);
+    public RobotContainer() {
+        DriverStation.startDataLog(m_log0);
 
-    if (Robot.isSimulation()) {
-      DriverStation.silenceJoystickConnectionWarning(true);
+        if (Robot.isSimulation()) {
+            DriverStation.silenceJoystickConnectionWarning(true);
+        }
+
+        configureBindings();
+
+        drivetrain.registerTelemetry(log::logCTREChassis);
     }
 
-    configureBindings();
+    private void configureBindings() {
+        drivetrain.setDefaultCommand(
+            drivetrain.applyRequest(
+                () -> m_driveFieldCentric
+                    .withVelocityX(driverCtl.getLeftX())
+                    .withVelocityY(driverCtl.getLeftY())
+                    .withRotationalRate(driverCtl.getRightX())
+        ));
 
-    drivetrain.registerTelemetry(log::logCTREChassis);
-  }
+        driverCtl.a().whileTrue(drivetrain.positionDrive(() -> locator.extentionPose));
+    }
 
-  private void configureBindings() {
-    drivetrain.setDefaultCommand(
-      drivetrain.applyRequest(
-        () -> m_driveFieldCentric
-          .withVelocityX(driverCtl.getLeftX())
-          .withVelocityY(driverCtl.getLeftY())
-          .withRotationalRate(driverCtl.getRightX())
-    ));
-  }
-
-  public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
-  }
+    public Command getAutonomousCommand() {
+       return Commands.print("No autonomous command configured");
+    }
 }

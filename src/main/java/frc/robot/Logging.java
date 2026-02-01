@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -29,7 +30,7 @@ public class Logging extends SubsystemBase {
     private final BooleanTopic doLoggingNT = evenTable.getBooleanTopic("DriveState/doLogging");
     private final BooleanPublisher doLoggingNTPub = doLoggingNT.publish();
     private final BooleanSubscriber doLoggingNTSub = doLoggingNT.subscribe(false);
-    private boolean doLogging = false;
+    private boolean doLogging = false; // the real value that gets payed attention to, as the drivers switch is locked to true during a match
 
 
     // Drivetrain logging/telemetry objects
@@ -39,12 +40,19 @@ public class Logging extends SubsystemBase {
     private final DoubleArrayLogEntry chassisVelocityLog = new DoubleArrayLogEntry(m_log0, "DriveState/chassisVelocity");
     private final StructPublisher<ChassisSpeeds> chassisVelocityNT = evenTable.getStructTopic("DriveState/chassisVelocity", ChassisSpeeds.struct).publish();
 
-    private final DoubleArrayPublisher fieldPub = evenTable.getDoubleArrayTopic("DriveState/Pose/Robot").publish();
-    private final StringPublisher fieldTypePub = evenTable.getStringTopic("DriveState/Pose/.type").publish();
+
+    // Drivetrain Pose
+    private final DoubleArrayPublisher fieldPub = evenTable.getDoubleArrayTopic("DriveState/Pose/Robot")
+        .publish(); // If its not called exactly `robot` elastic wont render it as the big one
+    private final StringPublisher fieldTypePub = evenTable.getStringTopic("DriveState/Pose/.type")
+        .publish(); // Tells Elastic how to render it
     private final double[] poseArray = new double[3];
 
-    // Match time
-    private final DoublePublisher matchTime = evenTable.getDoubleTopic("MatchTime").publish();
+    // Match time and shifts
+    private final DoublePublisher matchTimePub = evenTable.getDoubleTopic("MatchTime").publish();
+    private final DoublePublisher shiftTimePub = evenTable.getDoubleTopic("ShiftTime").publish();
+    private double shiftTime;
+    private double matchTime;
 
     // Who won auton?
     private final StringArrayPublisher autonWinner = evenTable.getStringArrayTopic("AutonWinner").publish();
@@ -53,9 +61,25 @@ public class Logging extends SubsystemBase {
     private final String[] autonWinnerColorRed = new String[] {"#FF0000", "#000000"};
     private final String[] autonWinnerColorBlue = new String[] {"#000000", "#0000FF"};
 
+
+    // YUP WE DOING SIGNLETONS LET IT RIDE
+    private static Logging instance;
+
+    public static Logging getLTInstance() {
+        if (instance != null) {
+            return instance;
+        } else {
+            return new Logging();
+        }
+    }
+
     public Logging() {
         // Initialize the doLogging switch
         doLoggingNTPub.set(doLogging);
+    }
+
+    public NetworkTable getRootTable() {
+        return evenTable;
     }
 
     @Override
@@ -70,7 +94,26 @@ public class Logging extends SubsystemBase {
         }
 
         // Give driver match time
-        matchTime.set(DriverStation.getMatchTime());
+        matchTime = DriverStation.getMatchTime();
+        matchTimePub.set(matchTime);
+        if (DriverStation.isAutonomous()) {
+            shiftTimePub.set(matchTime);
+        } else {
+            if (matchTime > 130) {
+                shiftTimePub.set(matchTime-130);
+            } else if (matchTime > 105) {
+                shiftTimePub.set(matchTime-105);
+            } else if (matchTime > (80)) {
+                shiftTimePub.set(matchTime-80);
+            } else if (matchTime > (55)) {
+                shiftTimePub.set(matchTime-55);
+            } else if (matchTime > (30)) {
+                shiftTimePub.set(matchTime-30);
+            } else { 
+                shiftTimePub.set(-3100);
+            }
+        }
+        // Give the driver shift time
         composeGameMessage();
     }
 
