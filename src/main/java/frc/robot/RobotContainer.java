@@ -12,6 +12,10 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import choreo.auto.AutoChooser;
+import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -67,11 +71,21 @@ public class RobotContainer {
 
     private Locator locator = new Locator(drivetrain::getPos);
 
+    public final AutoChooser autoSelector = new AutoChooser();
 
+    private final AutoFactory autoFactory;
 
 
     public RobotContainer() {
         DriverStation.startDataLog(m_log0);
+
+        autoFactory = new AutoFactory(
+            drivetrain::getPos, // A function that returns the current robot pose
+            drivetrain::resetPose, // A function that resets the current robot pose to the provided Pose2d
+            drivetrain::followTrajectory, // The drive subsystem trajectory follower
+            true, // If alliance flipping should be enabled
+            drivetrain // The drive subsystem
+        );
 
         if (Robot.isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
@@ -96,5 +110,21 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
        return Commands.print("No autonomous command configured");
+    }
+
+    public AutoRoutine leave() {
+        AutoRoutine routine = autoFactory.newRoutine("leave");
+
+        AutoTrajectory leaveTraj = routine.trajectory("leave");
+        leaveTraj.getInitialPose();
+
+        routine.active().onTrue(
+                Commands.sequence(
+                        leaveTraj.resetOdometry(),
+                        leaveTraj.cmd()
+                )
+        );
+
+        return routine;
     }
 }
