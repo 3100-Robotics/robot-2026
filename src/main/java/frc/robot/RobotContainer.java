@@ -4,6 +4,9 @@
 
 // TODO: Break out auton stuff to a seperate file
 
+// THIS ROBOT KILLS FASCISTS
+
+
 package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -16,15 +19,19 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import choreo.trajectory.Trajectory;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstantsV1Protobot;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.Shooter;
 import edu.wpi.first.util.datalog.StringLogEntry;
 
 public class RobotContainer {
@@ -33,21 +40,28 @@ public class RobotContainer {
 
     private final CommandXboxController driverCtl = new CommandXboxController(0);
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
-    
+
+    // Shooter
+    private final Shooter shooter = new Shooter();
+
+
     // Drivetrain
-    private final double m_maxSpeed = TunerConstantsV1Protobot.kSpeedAt12Volts.in(MetersPerSecond)/4; // Get real max speed
+    private final double m_maxSpeed = TunerConstantsV1Protobot.kSpeedAt12Volts.in(MetersPerSecond)/4; // TODO: Get real max speed
     private final double m_maxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
     private final SwerveRequest.FieldCentric m_driveFieldCentric = new SwerveRequest.FieldCentric()
         .withDeadband(m_maxSpeed * 0.09)
         .withRotationalDeadband(m_maxAngularRate * 0.09) // Experiment with best values for these but they worked on Hawksbill
-        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.OpenLoopVoltage); 
-    private Drivetrain drivetrain = TunerConstantsV1Protobot.createDrivetrain();
+        .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.OpenLoopVoltage);
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final Drivetrain drivetrain = TunerConstantsV1Protobot.createDrivetrain();
 
 
-    // Other Subsystems
-    // private final Intake intake = new Intake();
+    // Indexer
+    private final Indexer indexer = new Indexer();
 
-
+    // Intake
+    private final Intake intake = new Intake();
 
 
 
@@ -66,26 +80,13 @@ public class RobotContainer {
     // private final CommandXboxController joystick = new CommandXboxController(0);
 
 
-
     private Logging log = new Logging();
 
     private Locator locator = new Locator(drivetrain::getPos);
 
-    public final AutoChooser autoSelector = new AutoChooser();
-
-    private final AutoFactory autoFactory;
-
 
     public RobotContainer() {
         DriverStation.startDataLog(m_log0);
-
-        autoFactory = new AutoFactory(
-            drivetrain::getPos, // A function that returns the current robot pose
-            drivetrain::resetPose, // A function that resets the current robot pose to the provided Pose2d
-            drivetrain::followTrajectory, // The drive subsystem trajectory follower
-            true, // If alliance flipping should be enabled
-            drivetrain // The drive subsystem
-        );
 
         if (Robot.isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
@@ -105,26 +106,16 @@ public class RobotContainer {
                     .withRotationalRate(driverCtl.getRightX())
         ));
 
+        driverCtl.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        driverCtl.b().whileTrue(drivetrain.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(-driverCtl.getLeftY(), -driverCtl.getLeftX()))
+        ));
+        driverCtl.leftBumper().whileTrue(Commands.run(drivetrain::seedFieldCentric));
+
         driverCtl.a().whileTrue(drivetrain.positionDrive(() -> locator.extentionPose));
     }
 
     public Command getAutonomousCommand() {
        return Commands.print("No autonomous command configured");
-    }
-
-    public AutoRoutine leave() {
-        AutoRoutine routine = autoFactory.newRoutine("leave");
-
-        AutoTrajectory leaveTraj = routine.trajectory("leave");
-        leaveTraj.getInitialPose();
-
-        routine.active().onTrue(
-                Commands.sequence(
-                        leaveTraj.resetOdometry(),
-                        leaveTraj.cmd()
-                )
-        );
-
-        return routine;
     }
 }

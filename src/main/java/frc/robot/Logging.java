@@ -55,6 +55,7 @@ public class Logging extends SubsystemBase {
     private double matchTime;
 
     // Who won auton?
+    // TODO: Move a lot of crap to constants file
     private final StringArrayPublisher autonWinner = evenTable.getStringArrayTopic("AutonWinner").publish();
     private final String[] autonWinnerColorNone = new String[] {"#FF0000", "#0000FF"};
     private final String[] autonWinnerColorError = new String[] {"#00FF00", "#00FF00"};
@@ -84,8 +85,9 @@ public class Logging extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Should we be logging? Ask the driver/programmer 
-        // unless FMS is attatched. Logging must be done if it is
+        /* Should we be logging? Ask the driver/programmer 
+            unless FMS is attatched. Logging must be done if it is
+        */
         if (DriverStation.isFMSAttached()) {
             doLogging = true;
             doLoggingNTPub.set(doLogging);
