@@ -34,7 +34,7 @@ public class Logging extends SubsystemBase {
     private final BooleanTopic doLoggingNT = evenTable.getBooleanTopic("DriveState/doLogging");
     private final BooleanPublisher doLoggingNTPub = doLoggingNT.publish();
     private final BooleanSubscriber doLoggingNTSub = doLoggingNT.subscribe(false);
-    private boolean doLogging = false; // the real value that gets payed attention to, as the drivers switch is locked to true during a match
+    private boolean doLogging = false; // The real value that gets payed attention to, as the drivers switch is locked to true during a match
 
 
     // Drivetrain logging/telemetry objects

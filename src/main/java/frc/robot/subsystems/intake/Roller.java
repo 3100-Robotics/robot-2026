@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -52,18 +53,28 @@ public class Roller extends SubsystemBase {
     private final FlyWheelConfig rollerConfig = new FlyWheelConfig(rollerMotorController)
         .withMOI(KilogramSquareMeters.of(0.0006203525))
         .withUpperSoftLimit(RPM.of(6000))
+        .withLowerSoftLimit(RPM.of(-6000))
         .withTelemetry(Constants.Intake.telemetryYAMSRoller+"Mech", Constants.getAppropriateTelemetryLevel());
 
-    private FlyWheel roller = new FlyWheel(rollerConfig);
+    public FlyWheel roller = new FlyWheel(rollerConfig);
 
     private Command dbgUp = roller.setSpeed(RPM.of(3000)).withName("dbgUp");
     private Command dbgDown = roller.set(0).andThen(Commands.waitSeconds(0.01)).andThen(roller.setSpeed(RPM.of(0))).withName("dbgDown");
 
 
     public Roller() {
+        setName("intakeRoller");
         Logging.registerDebugCommand(Constants.Intake.telemetryNameRoller+"dbgUp", dbgUp);
         Logging.registerDebugCommand(Constants.Intake.telemetryNameRoller+"dbgDown", dbgDown);
     }
+
+    // public Command runAtSpeed(AngularVelocity speed) {
+    //     return roller.setSpeed(speed).withName(String.format("runningAt_%f", speed.in(RPM)));
+    // }
+
+    // public Command stop() {
+    //     return roller.set(0).withName("stopped");
+    // }
 
     @Override
     public void periodic() {
