@@ -21,7 +21,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -233,14 +232,6 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     public boolean isAtPoseSetpoint() {
         Pose2d relativepose = poseSetpoint.relativeTo(getPos());
-        SmartDashboard.putNumber("rx", relativepose.getX());
-        SmartDashboard.putNumber("ry", relativepose.getY());
-        SmartDashboard.putNumber("rt", relativepose.getRotation().getDegrees());
-        SmartDashboard.putBoolean("yikes", AngleUtils.is_between(
-                    getPos().getRotation().getDegrees(),
-                    poseSetpoint.getRotation().getDegrees()+5,
-                    poseSetpoint.getRotation().getDegrees()-5
-                ));
 
         return Math.abs(relativepose.getX()) < 0.01 && 
                 Math.abs(relativepose.getY()) < 0.01 &&
@@ -261,7 +252,6 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     @Override
     public void periodic() {
         degreesHeadingController.enableContinuousInput(0, 360);
-        SmartDashboard.putBoolean("Yow", isAtPoseSetpoint());
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.

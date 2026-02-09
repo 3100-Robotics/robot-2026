@@ -1,46 +1,47 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.ClosedLoopConfig;
-import com.revrobotics.spark.config.FeedForwardConfig;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
+
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import yams.gearing.GearBox;
+import yams.gearing.MechanismGearing;
+import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
+import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Indexer extends SubsystemBase {
     // floorMotor is the main motor that the others follow
-    private SparkMax floorMotor = new SparkMax(40, MotorType.kBrushless);
-    private SparkMax ceilingMotor  = new SparkMax(41, MotorType.kBrushless);
-    private SparkMax verticalMotor = new SparkMax(42, MotorType.kBrushless);
+    private SparkMax rawFloorMotor = new SparkMax(40, MotorType.kBrushless);
+    private SparkMax rawCeilingMotor  = new SparkMax(41, MotorType.kBrushless);
+    private SparkMax rawKickerMotor = new SparkMax(42, MotorType.kBrushless);
 
-    private SparkBaseConfig rootConfig = new SparkMaxConfig()
-        .voltageCompensation(12)
-        .inverted(false)
-        .smartCurrentLimit(30)
-        .apply(
-            new ClosedLoopConfig()
-            .p(1)
-            .i(0)
-            .d(0)
-            .apply(new FeedForwardConfig()
-                .kS(0)
-                .kG(0)
-                .kV(0)
-            )
-        )
+    private SmartMotorControllerConfig rootConfig = new SmartMotorControllerConfig()
+        .withControlMode(ControlMode.CLOSED_LOOP)
+        .withStatorCurrentLimit(Amps.of(40))
+
+        // Feedback Constants (PID Constants)
+        .withClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        // Feedforward Constants
+        .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+        .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+        // Telemetry name and verbosity level
+        .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
+        .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+        // Motor properties to prevent over currenting.
+        .withMotorInverted(false)
+        .withIdleMode(MotorMode.COAST)
     ;
 
-    private SparkBaseConfig ceilingMotorConfig = new SparkMaxConfig()
-        .apply(rootConfig)
-        .inverted(true)
-    ;
+    private SmartMotorControllerConfig floorMotorConfig = new SmartMotorControllerConfig();
 
-    private SparkBaseConfig verticalMotorConfig = new SparkMaxConfig()
-        .apply(rootConfig)
-        .inverted(true)
-    ;
 
     public Indexer() {
 

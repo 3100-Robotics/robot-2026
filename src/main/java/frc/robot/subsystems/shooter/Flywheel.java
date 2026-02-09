@@ -1,15 +1,11 @@
 package frc.robot.subsystems.shooter;
 
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.ClosedLoopConfig;
-import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
-import static edu.wpi.first.units.Units.RPM;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -26,9 +22,13 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Logging;
 
 public class Flywheel extends SubsystemBase {
     private final DCMotor GEARBOX = DCMotor.getNEO(2);
+
+    private final int flywheelIndex;
 
     private SparkMax motor0;
     private SparkMax motor1;
@@ -36,14 +36,16 @@ public class Flywheel extends SubsystemBase {
     private SparkMaxSim motorsSim;
     private FlywheelSim flywheelModel;
 
-    // private Command spinUp = run(
-    //     () -> motor0
-    //         .getClosedLoopController()
-    //         .setSetpoint(1000, ControlType.kVelocity)
-    //     ).withName("spinUp");
-    // private Command spinDown = run(() -> motor0.set(0)).withName("spinDown");
+    private Command dbgUp = run(
+        // () -> motor0
+        //     .getClosedLoopController()
+        //     .setSetpoint(1000, ControlType.kVelocity)
+        () -> motor0.set(1)
+        ).withName("dbgUp");
+    private Command dbgDown = run(() -> motor0.set(0)).withName("dbgDown");
 
-    public Flywheel(int id0, int id1) {
+    public Flywheel(int flywheelIndex, int id0, int id1) {
+        this.flywheelIndex = flywheelIndex;
         motor0 = new SparkMax(id0, MotorType.kBrushless);
         motor1 = new SparkMax(id1, MotorType.kBrushless);
 
@@ -74,24 +76,25 @@ public class Flywheel extends SubsystemBase {
 
         SparkBaseConfig auxConfig = new SparkMaxConfig()
             .apply(configroot)
-            .follow(5, true)
+            .follow(id0, true)
         ;
 
         // Persist parameters to retain configuration in the event of a power cycle
         motor0.configure(configroot, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         motor1.configure(auxConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[flywheelIndex]+"dbgUp", dbgUp);
+        Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[flywheelIndex]+"dbgDown", dbgDown);
     }
 
     @Override
     public void periodic() {
         motor1.resumeFollowerMode();
-        // SmartDashboard.putData(spinUp);
-        // SmartDashboard.putData(spinDown);
-        // SmartDashboard.putBoolean("is the follower following", motor1.isFollower());
-        // SmartDashboard.putNumber("Left Out", motor0.getAppliedOutput());
-        // SmartDashboard.putNumber("Right Out", motor1.getAppliedOutput());
-        // SmartDashboard.putNumber("Angular", flywheelModel.getAngularVelocityRPM());
-        motor1.resumeFollowerMode();
+        SmartDashboard.putBoolean("is the follower following", motor1.isFollower());
+        SmartDashboard.putNumber("Left Out", motor0.getAppliedOutput());
+        SmartDashboard.putNumber("Right Out", motor1.getAppliedOutput());
+        SmartDashboard.putNumber("Angular", flywheelModel.getAngularVelocityRPM());
+        // motor1.resumeFollowerMode();
     }
 
     @Override

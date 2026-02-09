@@ -44,8 +44,5 @@ public class Locator extends SubsystemBase {
             )
         );
         targetExtension.setPose(extentionPose);
-
-        SmartDashboard.putData("ScratchState", field);
-        SmartDashboard.putNumber("distance", Math.sqrt(Math.pow(hubPose.getX()-extentionPose.getX(), 2)+Math.pow(hubPose.getY()-extentionPose.getY(), 2)));
     }
 }

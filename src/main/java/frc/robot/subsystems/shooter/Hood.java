@@ -4,9 +4,6 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Volts;
-
-import java.time.Period;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -67,10 +64,6 @@ public class Hood extends SubsystemBase {
     @Override
     public void periodic() {
         hood.getMechanismSetpoint().ifPresent(setpoint -> SmartDashboard.putNumber("hoodSetpoint", setpoint.in(Degrees)));
-        // SmartDashboard.putNumber("wrealAngle", hood.getAngle().in(Degrees));
-
-        // SmartDashboard.putData(setAngle);
-        // SmartDashboard.putData(setAngle2);
 
         hood.updateTelemetry();
     }
@@ -79,51 +72,4 @@ public class Hood extends SubsystemBase {
     public void simulationPeriodic() {
         hood.simIterate();
     }
-
-    // SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)
-    //     .withClosedLoopController(10, 0, 0)//, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
-    //     .withFeedforward(new ArmFeedforward(0, 0.865000, 50, 0))
-    //     .withSoftLimit(Degrees.of(-30), Degrees.of(100))
-    //     .withGearing(new MechanismGearing(0.01373626373))
-    //     .withIdleMode(MotorMode.COAST)
-    //     .withTelemetry("hoodMOTOR", TelemetryVerbosity.HIGH)
-    //     .withStatorCurrentLimit(Amps.of(40))
-    //     .withMotorInverted(false)
-    //     // .withClosedLoopRampRate(Seconds.of(0.25))
-    //     // .withOpenLoopRampRate(Seconds.of(0.25))
-    //     .withControlMode(ControlMode.CLOSED_LOOP);
-    // SmartMotorController smartMotorController = new TalonFXWrapper(armMotor,
-    //                                                                 DCMotor.getKrakenX60(1),
-    //                                                                 motorConfig);
-    // ArmConfig armCfg = new ArmConfig(smartMotorController)
-    //     .withLength(Inches.of(8.900512))
-    //     .withMOI(KilogramSquareMeters.of(0.0190245794))
-    //     .withHardLimit(Degrees.of(-100), Degrees.of(200))
-    //     .withStartingPosition(Degrees.of(0)); // Parallel to the ground
-    //     ;
-
-    // private Arm arm = new Arm(armCfg);
-
-    // private Command setAngle2 = setAngle(Degrees.of(90)).withName("Arm Angle 2");
-    // private Command setAngle1 = setAngle(Degrees.of(0)).withName("Arm Angle 1");
-
-    // public Hood() {
-    //     // setDefaultCommand(setAngle1);
-    // }
-
-    // public Command setAngle(Angle angle) { return arm.setAngle(angle);}
-    // public Command set(double dutycycle) { return arm.set(dutycycle);}
-
-    // @Override
-    // public void periodic() {
-    //     SmartDashboard.putData(setAngle2);
-    //     SmartDashboard.putData(setAngle1);
-    //     arm.updateTelemetry();
-    // }
-
-    // @Override
-    // public void simulationPeriodic() {
-    //     // This method will be called once per scheduler run during simulation
-    //     arm.simIterate();
-    // }
 }

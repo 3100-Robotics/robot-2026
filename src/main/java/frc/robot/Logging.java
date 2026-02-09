@@ -1,7 +1,10 @@
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -14,11 +17,12 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Logging extends SubsystemBase {
@@ -63,6 +67,9 @@ public class Logging extends SubsystemBase {
     private final String[] autonWinnerColorBlue = new String[] {"#000000", "#0000FF"};
 
 
+    // Debug commands get put on the dashboard
+    public List<Pair<String, Command>> debugCommands = new ArrayList<>();
+
     // YUP WE DOING SIGNLETONS LET IT RIDE
     private static Logging instance;
 
@@ -79,12 +86,23 @@ public class Logging extends SubsystemBase {
         doLoggingNTPub.set(doLogging);
     }
 
+    public static void registerDebugCommand(String path, Command command) {
+        getLTInstance().debugCommands.add(Pair.of(path, command));
+    }
+
     public NetworkTable getRootTable() {
         return evenTable;
     }
 
     @Override
     public void periodic() {
+        if (Constants.doLiveTuning) {
+            for (Pair<String, Command> debugCommand : debugCommands) {
+                SmartDashboard.putData(debugCommand.getFirst(), debugCommand.getSecond());
+            }
+        }
+
+
         /* Should we be logging? Ask the driver/programmer 
             unless FMS is attatched. Logging must be done if it is
         */
