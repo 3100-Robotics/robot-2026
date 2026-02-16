@@ -3,7 +3,7 @@ package frc.robot;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
-    public static final boolean doLiveTuning = false;
+    public static final boolean doLiveTuning = true;
 
     public static TelemetryVerbosity getAppropriateTelemetryLevel() {
         return doLiveTuning ? TelemetryVerbosity.HIGH : TelemetryVerbosity.MID;
@@ -17,9 +17,9 @@ public class Constants {
         public static int flywheel3MotorID = 54;
 
         public static String telemetryNameRoot = "Shooter/";
-        public static String telemetryNameFlywheelA = telemetryNameRoot+"Flywheel_L/";
-        public static String telemetryNameFlywheelB = telemetryNameRoot+"Flywheel_R/";
-        public static String telemetryNamesFlywheel[] = {telemetryNameFlywheelA, telemetryNameFlywheelB};
+        public static String telemetryNameFlywheelL = telemetryNameRoot+"Flywheel_L/";
+        public static String telemetryNameFlywheelR = telemetryNameRoot+"Flywheel_R/";
+        public static String telemetryNamesFlywheel[] = {telemetryNameFlywheelL, telemetryNameFlywheelR};
         public static String telemetryNameHood = telemetryNameRoot+"Hood/";
     }
 
@@ -32,6 +32,8 @@ public class Constants {
         public static String telemetryNameFloor = telemetryNameRoot+"Floor/";
         public static String telemetryNameCeiling = telemetryNameRoot+"Ceiling/";
         public static String telemetryNameKicker = telemetryNameRoot+"Kicker/";
+
+        public static String telemetryYAMSName = "Roller_";
     }
 
     public static class Intake {

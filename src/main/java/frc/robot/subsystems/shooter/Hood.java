@@ -12,6 +12,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Logging;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
@@ -31,8 +33,11 @@ public class Hood extends SubsystemBase {
 
         .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "182:10")))
         .withControlMode(ControlMode.CLOSED_LOOP)
+
+        .withClosedLoopController(50, 0, 0)
         .withSimClosedLoopController(50, 0, 0)
         .withFeedforward(new ArmFeedforward(0, 0, 0))
+        .withSimFeedforward(new ArmFeedforward(0, 0, 0))
 
         .withMotorInverted(true)
 
@@ -54,11 +59,13 @@ public class Hood extends SubsystemBase {
     // Arm Mechanism
     private Arm hood = new Arm(hoodConfig);
 
-    private Command setAngle = hood.setAngle(Degrees.of(20)).withName("angle 1");
-    private Command setAngle2 = hood.setAngle(Degrees.of(65)).withName("angle 2");
+    private Command dbg_angle_0 = hood.setAngle(Degrees.of(20)).withName("angle 11");
+    private Command dbg_angle_1 = hood.setAngle(Degrees.of(50)).withName("angle 21");
 
     public Hood() {
-
+        setName("shooterHood");
+        Logging.registerDebugCommand(Constants.Shooter.telemetryNameHood+dbg_angle_0.getName(), dbg_angle_0);
+        Logging.registerDebugCommand(Constants.Shooter.telemetryNameHood+dbg_angle_1.getName(), dbg_angle_1);
     }
 
     @Override

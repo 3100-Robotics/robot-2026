@@ -23,21 +23,23 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstantsV1Protobot;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.Shooter;
 
 public class RobotContainer {
     private final CommandXboxController driverCtl = new CommandXboxController(0);
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
 
     // Shooter
-    // private final Shooter shooter = new Shooter();
+    private final Shooter shooter = new Shooter();
 
 
     // Indexer
     // private final Indexer indexer = new Indexer();
 
     // Intake
-    private final Intake intake = new Intake();
+    // private final Intake intake = new Intake();
 
     private Logging log = new Logging();
 
@@ -56,8 +58,8 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Intake bindings
-        driverCtl.x().whileTrue(intake.stow());
-        driverCtl.y().whileTrue(intake.runAtSpeed(RPM.of(3000)));
+        // driverCtl.x().whileTrue(intake.stow());
+        // driverCtl.y().whileTrue(intake.runAtSpeed(RPM.of(3000)));
     }
 
     public Command getAutonomousCommand() {
