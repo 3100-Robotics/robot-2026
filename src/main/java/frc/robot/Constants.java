@@ -10,6 +10,9 @@ public class Constants {
     }
 
     public static class Shooter {
+        /*
+         * Flywheel L IS left flywheel IS flywheel 0
+         */
         public static int hoodMotorID = 50;
         public static int flywheel0MotorID = 51;
         public static int flywheel1MotorID = 52;
@@ -21,6 +24,10 @@ public class Constants {
         public static String telemetryNameFlywheelR = telemetryNameRoot+"Flywheel_R/";
         public static String telemetryNamesFlywheel[] = {telemetryNameFlywheelL, telemetryNameFlywheelR};
         public static String telemetryNameHood = telemetryNameRoot+"Hood/";
+
+        public static String telemetryYAMSFlywheelL = "FlywheelL_";
+        public static String telemetryYAMSFlywheelR = "FlywheelR_";
+        public static String telemetryYAMSFlywheelList[] = {telemetryYAMSFlywheelL, telemetryYAMSFlywheelR};
     }
 
     public static class Indexer {

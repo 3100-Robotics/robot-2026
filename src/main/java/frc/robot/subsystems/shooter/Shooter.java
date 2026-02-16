@@ -11,6 +11,6 @@ public class Shooter extends SubsystemBase {
      * functions
      */
     private final Hood hood = new Hood();
-    private final Flywheel flywheelL = new Flywheel(0, 51, 52);
-    private final Flywheel flywheelR = new Flywheel(1, 53, 54);
+    private final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, false);
+    private final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, true);
 }
