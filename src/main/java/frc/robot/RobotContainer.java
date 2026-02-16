@@ -32,11 +32,11 @@ public class RobotContainer {
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
 
     // Shooter
-    private final Shooter shooter = new Shooter();
+    // private final Shooter shooter = new Shooter();
 
 
     // Indexer
-    // private final Indexer indexer = new Indexer();
+    private final Indexer indexer = new Indexer();
 
     // Intake
     // private final Intake intake = new Intake();
