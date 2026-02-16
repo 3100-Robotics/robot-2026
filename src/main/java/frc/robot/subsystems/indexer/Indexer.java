@@ -86,7 +86,7 @@ public class Indexer extends SubsystemBase {
     private Roller ceilingRollers;
     private Roller kickerRollers;
 
-    private Command stop;
+    public Command stop;
     private Command runAll;
 
     public Indexer() {

@@ -5,10 +5,13 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -59,11 +62,16 @@ public class Hood extends SubsystemBase {
     // Arm Mechanism
     private Arm hood = new Arm(hoodConfig);
 
-    private Command dbg_angle_0 = hood.setAngle(Degrees.of(20)).withName("angle 11");
-    private Command dbg_angle_1 = hood.setAngle(Degrees.of(50)).withName("angle 21");
+    private Command dbg_angle_0 = hood.setAngle(Degrees.of(20)).withName("angle 1");
+    private Command dbg_angle_1 = hood.setAngle(Degrees.of(50)).withName("angle 2");
 
-    public Hood() {
+    public Supplier<Angle> angleProvider = () -> Degrees.of(0);
+    public Command continuousAngle = hood.setAngle(angleProvider);
+    public Command stop = hood.runTo(hood.getAngle(), Degrees.of(90)).andThen(hood.set(0));
+
+    public Hood(Supplier<Angle> angle) {
         setName("shooterHood");
+        angleProvider = angle;
         Logging.registerDebugCommand(Constants.Shooter.telemetryNameHood+dbg_angle_0.getName(), dbg_angle_0);
         Logging.registerDebugCommand(Constants.Shooter.telemetryNameHood+dbg_angle_1.getName(), dbg_angle_1);
     }

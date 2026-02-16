@@ -47,7 +47,7 @@ public class Logging extends SubsystemBase {
 
     // Drivetrain Pose
     private final DoubleArrayPublisher fieldPub = evenTable.getDoubleArrayTopic("DriveState/Pose/Robot")
-        .publish(); // If its not called exactly `robot` elastic wont render it as the big one
+        .publish(); // If its not called exactly `robot` elastic wont render it as the robot
     private final StringPublisher fieldTypePub = evenTable.getStringTopic("DriveState/Pose/.type")
         .publish(); // Tells Elastic how to render it
     private final double[] poseArray = new double[3];
@@ -74,15 +74,15 @@ public class Logging extends SubsystemBase {
     private static Logging instance;
 
     public static Logging getLTInstance() {
-        if (instance != null) {
-            return instance;
-        } else {
-            return new Logging();
+        if (instance == null) {
+            instance = new Logging();
         }
+        return instance;
     }
 
     public Logging() {
         // Initialize the doLogging switch
+        instance = this;
         doLoggingNTPub.set(doLogging);
     }
 

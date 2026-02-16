@@ -59,6 +59,9 @@ public class DoubleFlywheel extends SubsystemBase {
     private Command dbg_speed_1;
     private Command dbg_speed_2;
 
+    public Command stop;
+    public Command run;
+
     public DoubleFlywheel(int flywheelIndex, int id0, int id1, boolean inversion) {
         this.flywheelIndex = flywheelIndex;
 
@@ -87,6 +90,9 @@ public class DoubleFlywheel extends SubsystemBase {
         Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[this.flywheelIndex]+dbg_speed_0.getName(), dbg_speed_0);
         Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[this.flywheelIndex]+dbg_speed_1.getName(), dbg_speed_1);
         Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[this.flywheelIndex]+dbg_speed_2.getName(), dbg_speed_2);
+
+        stop = flywheel.runTo(RPM.of(0), RPM.of(6000)).andThen(flywheel.set(0));
+        run = flywheel.run(RPM.of(6000));
     }
 
     @Override

@@ -1,13 +1,16 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import edu.wpi.first.units.measure.Angle;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
-    public static final boolean doLiveTuning = false;
+    public static final boolean doLiveTuning = true;
 
     public static TelemetryVerbosity getAppropriateTelemetryLevel() {
         return doLiveTuning ? TelemetryVerbosity.HIGH : TelemetryVerbosity.MID;
@@ -28,6 +31,9 @@ public class Constants {
          * Flywheel L IS the left flywheel IS flywheel 0
          * Flywheel R IS the right flywheel IS flywheel 1
          */
+        public static Angle maxHoodAngle = Degrees.of(50);
+        public static Angle minHoodAngle = Degrees.of(0);
+
         public static int hoodMotorID = 50;
         public static int flywheel0MotorID = 51;
         public static int flywheel1MotorID = 52;

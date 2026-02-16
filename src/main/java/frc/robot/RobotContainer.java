@@ -7,6 +7,10 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
+
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,7 +23,7 @@ public class RobotContainer {
     private final CommandXboxController driverCtl = new CommandXboxController(0);
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
 
-    // Shooter
+    // Shooter (This one is Evens favorite)
     private final Shooter shooter = new Shooter();
 
     // Indexer
@@ -47,6 +51,33 @@ public class RobotContainer {
         // Intake bindings
         // driverCtl.x().whileTrue(intake.stow());
         // driverCtl.y().whileTrue(intake.runAtSpeed(RPM.of(3000)));
+
+
+        // Idle bindings
+        driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
+            Commands.parallel(
+                intake.deploy(),
+                indexer.stop,
+                shooter.idle
+            )
+        );
+
+        coDriverCtl.povDown().onTrue(
+            shooter.stopFlywheels
+        );
+
+        // driverCtl.a().whileTrue(); // Autoalign
+
+        // Intake
+        coDriverCtl.rightBumper().onTrue(Commands.parallel(intake.deploy(), intake.runAtSpeed(RPM.of(6000))));
+        coDriverCtl.leftBumper().onTrue(intake.stow());
+
+        coDriverCtl.povLeft().onTrue(
+            Commands.runOnce(() -> shooter.setAngle(Degrees.of(shooter.getAngle().in(Degrees) - 3)))
+        );
+        coDriverCtl.povRight().onTrue(
+            Commands.runOnce(() -> shooter.setAngle(Degrees.of(shooter.getAngle().in(Degrees) + 3)))
+        );
     }
 
     public Command getAutonomousCommand() {

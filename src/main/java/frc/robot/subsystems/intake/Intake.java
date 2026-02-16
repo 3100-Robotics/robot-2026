@@ -16,9 +16,6 @@ public class Intake extends SubsystemBase {
 
     public Intake() {
         setName("Intake");
-
-        pivotSub.setDefaultCommand(deploy());
-        rollerSub.setDefaultCommand(runAtSpeed(RPM.of(-50)));
     }
 
     public Command stow() {
