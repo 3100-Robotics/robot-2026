@@ -3,13 +3,9 @@ package frc.robot.subsystems.indexer;
 import com.revrobotics.spark.SparkMax;
 
 import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Second;
-
 import java.util.Optional;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;

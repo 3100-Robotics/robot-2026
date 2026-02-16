@@ -7,22 +7,10 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.generated.TunerConstantsV1Protobot;
-import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
@@ -32,14 +20,13 @@ public class RobotContainer {
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
 
     // Shooter
-    // private final Shooter shooter = new Shooter();
-
+    private final Shooter shooter = new Shooter();
 
     // Indexer
     private final Indexer indexer = new Indexer();
 
     // Intake
-    // private final Intake intake = new Intake();
+    private final Intake intake = new Intake();
 
     private Logging log = new Logging();
 

@@ -7,7 +7,7 @@ import java.util.List;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
-    public static final boolean doLiveTuning = true;
+    public static final boolean doLiveTuning = false;
 
     public static TelemetryVerbosity getAppropriateTelemetryLevel() {
         return doLiveTuning ? TelemetryVerbosity.HIGH : TelemetryVerbosity.MID;
