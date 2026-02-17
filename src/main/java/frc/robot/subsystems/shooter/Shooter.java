@@ -1,10 +1,13 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularMomentum;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,27 +25,34 @@ public class Shooter extends SubsystemBase {
      */
 
     private Angle hoodAngle = Degrees.of(0);
-    private Supplier<Angle> angleProvider = () -> hoodAngle;
+    private AngularVelocity flywheelSpeed = RPM.of(0);
 
-    private final Hood hood = new Hood(angleProvider);
+    private Supplier<Angle> angleProvider = () -> hoodAngle;
+    private Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
+
+    private final Hood hood = new Hood();
     private final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, false);
     private final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, true);
 
-    public Command idle = Commands.parallel(hood.stop, flywheelL.stop, flywheelR.stop);
-    // public Command stopFlywheels = Commands.parallel(flywheelL.stop, flywheelR.stop);
-    private Command spinUpFlywheels = Commands.parallel(flywheelL.runAtCurrentTarget, flywheelR.runAtCurrentTarget);
-
     public Shooter() {
+        flywheelL.setTarget(
+            () -> RPM.of(
+                SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
+            )
+        );
+
+        Logging.registerDebugValue(
+            Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), double.class
+        );
+
         Logging.registerDebugCommand(
             Constants.join('/', Constants.Shooter.nameRoot, "idle"), 
-            idle
+            hood.stop().alongWith(flywheelL.stop()).alongWith(flywheelR.stop())
         );
         Logging.registerDebugCommand(
-            Constants.join('/', Constants.Shooter.nameRoot, "spinUpFlywheels"), 
-            spinUpFlywheels
+            Constants.join('/', Constants.Shooter.nameRoot, "spinUpFlywheelsToDebugRPM"), 
+            flywheelL.runAtCurrentTarget().alongWith(flywheelR.runAtCurrentTarget())
         );
-
-        Logging.registerDebugValue("test5", int.class);
     }
 
     public void setHoodAngle(Angle newAngle) {
@@ -61,6 +71,6 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("test4", (double)Logging.getLTInstance().debugValues.get("test5"));
+        SmartDashboard.putNumber("test3", flywheelL.speedTargetProvider.get().in(RPM));
     }
 }

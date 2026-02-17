@@ -16,6 +16,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularMomentum;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -58,16 +59,13 @@ public class DoubleFlywheel extends SubsystemBase {
     ;
 
     private FlyWheelConfig flywheelConfig;
-    private FlyWheel flywheel;
+    public FlyWheel flywheel;
 
     private Command dbg_speed_0;
     private Command dbg_speed_1;
     private Command dbg_speed_2;
 
-    public Command stop;
-    public Command runAtCurrentTarget;
-
-    public Supplier<AngularVelocity> speedTarget = () -> RPM.of(0);
+    public Supplier<AngularVelocity> speedTargetProvider = () -> RPM.of(0);
 
     public DoubleFlywheel(int flywheelIndex, int id0, int id1, boolean inversion) {
         this.flywheelIndex = flywheelIndex;
@@ -107,13 +105,34 @@ public class DoubleFlywheel extends SubsystemBase {
         Logging.registerDebugCommand(
             Constants.Shooter.Main.flywheelNames[this.flywheelIndex]+dbg_speed_2.getName(), dbg_speed_2);
 
-        stop = flywheel.runTo(RPM.of(0), RPM.of(6000)).andThen(flywheel.set(0));
-        runAtCurrentTarget = flywheel.run(speedTarget);
+        // stop = flywheel.runTo(RPM.of(0), RPM.of(6000)).andThen(flywheel.set(0));
+        // runAtCurrentTarget = flywheel.run(speedTarget);
+    }
+
+    public void setTarget(Supplier<AngularVelocity> newSpeedTarget) {
+        speedTargetProvider = newSpeedTarget;
     }
 
     public Command runNewTarget(Supplier<AngularVelocity> newSpeedTarget) {
-        return runOnce(() -> speedTarget = newSpeedTarget)
-                .andThen(runAtCurrentTarget);
+        return runOnce(() -> speedTargetProvider = newSpeedTarget)
+                .andThen(runAtCurrentTarget());
+    }
+
+    public Command runAtCurrentTarget() {
+        return flywheel.run(speedTargetProvider);
+    }
+
+    public Command runAtCurrentTarget2() {
+        return Commands.parallel(
+            flywheel.setSpeed(speedTargetProvider)//,
+            // Commands.run(() -> SmartDashboard.putNumber("Number two three four", speedTargetProvider.get().in(RPM)))//,
+            // Commands.run(() -> System.out.println(flywheel))
+        );
+    }
+
+    public Command stop() {
+        return flywheel.runTo(RPM.of(0), RPM.of(6000))
+            .andThen(flywheel.set(0));
     }
 
     @Override

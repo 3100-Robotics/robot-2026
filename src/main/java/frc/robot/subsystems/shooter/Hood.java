@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -66,16 +67,28 @@ public class Hood extends SubsystemBase {
     private Command dbg_angle_1 = hood.setAngle(Degrees.of(50)).withName("angle 2");
 
     public Supplier<Angle> angleTargetProvider = () -> Degrees.of(0);
-    public Command continuousAngle = hood.setAngle(angleTargetProvider);
-    public Command stop = hood.runTo(hood.getAngle(), Degrees.of(90)).andThen(hood.set(0));
+    // public Command continuousAngle = hood.setAngle(angleTargetProvider);
+    // public Command stop = hood.runTo(hood.getAngle(), Degrees.of(90)).andThen(hood.set(0));
 
-    public Hood(Supplier<Angle> angle) {
+    public Hood() {
         setName("shooterHood");
-        angleTargetProvider = angle;
         Logging.registerDebugCommand(
             Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_0.getName()), dbg_angle_0);
         Logging.registerDebugCommand(
             Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_1.getName()), dbg_angle_1);
+    }
+
+    public Command runNewTarget(Supplier<Angle> newSpeedTarget) {
+        return runOnce(() -> angleTargetProvider = newSpeedTarget)
+                .andThen(runAtCurrentTarget());
+    }
+
+    public Command runAtCurrentTarget() {
+        return hood.setAngle(angleTargetProvider);
+    }
+
+    public Command stop() {
+        return hood.setAngle(hood.getAngle()).andThen(hood.set(0));
     }
 
     @Override

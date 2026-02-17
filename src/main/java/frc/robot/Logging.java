@@ -107,6 +107,19 @@ public class Logging extends SubsystemBase {
         getLTInstance().debugKeyTypes.add(Pair.of(path, type));
     }
 
+    // public static Object getDebugValue(String key) {
+    //     // type = debugValues.;
+    //     Object value = getLTInstance().debugValues.get(key);
+    //     switch (value.getClass().getName()) {
+    //         case "int":
+    //         case "double":
+    //             return (double)value;
+    //             // break;
+    //         default:
+                
+    //     }
+    // }
+
     public NetworkTable getRootTable() {
         return evenTable;
     }
