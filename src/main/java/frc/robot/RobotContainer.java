@@ -10,7 +10,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,61 +23,101 @@ public class RobotContainer {
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
 
     // Shooter (This one is Evens favorite)
-    private final Shooter shooter = new Shooter();
+    private Shooter shooter;
 
     // Indexer
-    private final Indexer indexer = new Indexer();
+    private Indexer indexer;
 
     // Intake
-    private final Intake intake = new Intake();
+    private Intake intake;
 
     private Logging log = new Logging();
 
     // private Locator locator = new Locator(drivetrain::getPos);
 
 
+    @SuppressWarnings("unused")
     public RobotContainer() {
+        // Gets rid of a extremely minor error message only sim,
+        // because it's a very (very!) worrying error on a real robot
         if (Robot.isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
 
-        configureBindings();
+        // Check if any subsystems are disabled
+        if (!Constants.enableShooter || 
+            !Constants.enableIndexer ||
+            !Constants.enableIntake ||
+            !Constants.enableDrivetrain) 
+        {
+            // If any subsystems are disabled live tuning must be on
+            // Crash the code because this is a hardcoded error in
+            // a deploy of the code and must be fixed.
+            if (!Constants.doLiveTuning) {
+                int e = 0;
+                var o = 1/e;
+            } else {
+                // Live tuning is enabled, dont bother configuring bindings,
+                // but go ahead and make the subsytems we want
+            }
+        }
+
+        if (Constants.enableShooter) {
+            shooter = new Shooter();
+        }
+
+        if (Constants.enableIndexer) {
+            indexer = new Indexer();
+        }
+
+        if (Constants.enableIntake) {
+            intake = new Intake();
+        }
+
+        if (Constants.enableDrivetrain) {
+            // drivetrain = new Drivetrain();
+        }
+
+        if (!Constants.doLiveTuning) {
+            // Only bother configuring bindings if live tuning off
+            // configureBindings();
+        }
 
         // drivetrain.registerTelemetry(log::logCTREChassis);
     }
 
-    private void configureBindings() {
-        // Intake bindings
-        // driverCtl.x().whileTrue(intake.stow());
-        // driverCtl.y().whileTrue(intake.runAtSpeed(RPM.of(3000)));
+    // private void configureBindings() {
+    //     // Intake bindings
+    //     // driverCtl.x().whileTrue(intake.stow());
+    //     // driverCtl.y().whileTrue(intake.runAtSpeed(RPM.of(3000)));
 
 
-        // Idle bindings
-        driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
-            Commands.parallel(
-                intake.deploy(),
-                indexer.stop,
-                shooter.idle
-            )
-        );
+    //     // Idle bindings
+    //     driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
+    //         Commands.parallel(
+    //             intake.deploy(),
+    //             indexer.stop,
+    //             shooter.idle
+    //         )
+    //     );
 
-        coDriverCtl.povDown().onTrue(
-            shooter.stopFlywheels
-        );
+    //     coDriverCtl.povDown().onTrue(
+    //         shooter.stopFlywheels
+    //     );
 
-        // driverCtl.a().whileTrue(); // Autoalign
+    //     // driverCtl.a().whileTrue(); // Autoalign
 
-        // Intake
-        coDriverCtl.rightBumper().onTrue(Commands.parallel(intake.deploy(), intake.runAtSpeed(RPM.of(6000))));
-        coDriverCtl.leftBumper().onTrue(intake.stow());
+    //     // Intake
+    //     coDriverCtl.rightBumper().onTrue(Commands.parallel(intake.deploy(), intake.runAtSpeed(RPM.of(6000))));
+    //     coDriverCtl.leftBumper().onTrue(intake.stow());
 
-        coDriverCtl.povLeft().onTrue(
-            Commands.runOnce(() -> shooter.setAngle(Degrees.of(shooter.getAngle().in(Degrees) - 3)))
-        );
-        coDriverCtl.povRight().onTrue(
-            Commands.runOnce(() -> shooter.setAngle(Degrees.of(shooter.getAngle().in(Degrees) + 3)))
-        );
-    }
+    //     coDriverCtl.povLeft().onTrue(
+    //         Commands.runOnce(() -> shooter.setHoodAngle(Degrees.of(shooter.getHoodAngle().in(Degrees) - 3)))
+    //     );
+    //     coDriverCtl.povRight().onTrue(
+    //         Commands.runOnce(() -> shooter.setHoodAngle(Degrees.of(shooter.getHoodAngle().in(Degrees) + 3)))
+    //     );
+    // }
 
     public Command getAutonomousCommand() {
        return Commands.print("No autonomous command configured");

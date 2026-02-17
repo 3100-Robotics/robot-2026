@@ -7,12 +7,17 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.AngularMomentum;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Logging;
@@ -60,7 +65,9 @@ public class DoubleFlywheel extends SubsystemBase {
     private Command dbg_speed_2;
 
     public Command stop;
-    public Command run;
+    public Command runAtCurrentTarget;
+
+    public Supplier<AngularVelocity> speedTarget = () -> RPM.of(0);
 
     public DoubleFlywheel(int flywheelIndex, int id0, int id1, boolean inversion) {
         this.flywheelIndex = flywheelIndex;
@@ -72,17 +79,20 @@ public class DoubleFlywheel extends SubsystemBase {
             flywheelMotorConfig
                 .withFollowers(Pair.of(vendorFollower, false))
                 .withMotorInverted(inversion)
-                .withTelemetry(Constants.Shooter.telemetryYAMSFlywheelList[this.flywheelIndex]+"Motor", Constants.getAppropriateTelemetryLevel())
+                .withTelemetry(Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"Motor", Constants.getAppropriateTelemetryLevel())
         );
 
         flywheelConfig = new FlyWheelConfig(flywheelMotor)
-            .withTelemetry(Constants.Shooter.telemetryYAMSFlywheelList[this.flywheelIndex]+"Mech", Constants.getAppropriateTelemetryLevel())
+            .withTelemetry(Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"Mech", Constants.getAppropriateTelemetryLevel())
             .withDiameter(Inches.of(4))
             .withMass(Pounds.of(1))
             .withUpperSoftLimit(RPM.of(6000))
         ;
         flywheel = new FlyWheel(flywheelConfig);
 
+        // If it actually trys to run at 0 it will jitter, so its easier to juts set duty cycle 0
+        // after using a control loop to 'set it to 0' with massive room for error, making
+        // the first half of the command terminate instantly
         dbg_speed_0 = flywheel.runTo(RPM.of(0), RPM.of(6000)).andThen(flywheel.set(0))
             .withName("dbg_speed_0");
         dbg_speed_1 = flywheel.run(RPM.of(2000))
@@ -90,12 +100,20 @@ public class DoubleFlywheel extends SubsystemBase {
         dbg_speed_2 = flywheel.run(RPM.of(4000))
             .withName("dbg_speed_2");
 
-        Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[this.flywheelIndex]+dbg_speed_0.getName(), dbg_speed_0);
-        Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[this.flywheelIndex]+dbg_speed_1.getName(), dbg_speed_1);
-        Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[this.flywheelIndex]+dbg_speed_2.getName(), dbg_speed_2);
+        Logging.registerDebugCommand(
+            Constants.Shooter.Main.flywheelNames[this.flywheelIndex]+dbg_speed_0.getName(), dbg_speed_0);
+        Logging.registerDebugCommand(
+            Constants.Shooter.Main.flywheelNames[this.flywheelIndex]+dbg_speed_1.getName(), dbg_speed_1);
+        Logging.registerDebugCommand(
+            Constants.Shooter.Main.flywheelNames[this.flywheelIndex]+dbg_speed_2.getName(), dbg_speed_2);
 
         stop = flywheel.runTo(RPM.of(0), RPM.of(6000)).andThen(flywheel.set(0));
-        run = flywheel.run(RPM.of(6000));
+        runAtCurrentTarget = flywheel.run(speedTarget);
+    }
+
+    public Command runNewTarget(Supplier<AngularVelocity> newSpeedTarget) {
+        return runOnce(() -> speedTarget = newSpeedTarget)
+                .andThen(runAtCurrentTarget);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package frc.robot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
@@ -55,7 +56,6 @@ public class Logging extends SubsystemBase {
     // Match time and shifts
     private final DoublePublisher matchTimePub = evenTable.getDoubleTopic("MatchTime").publish();
     private final DoublePublisher shiftTimePub = evenTable.getDoubleTopic("ShiftTime").publish();
-    private double shiftTime;
     private double matchTime;
 
     // Who won auton?
@@ -69,6 +69,10 @@ public class Logging extends SubsystemBase {
 
     // Debug commands get put on the dashboard
     public List<Pair<String, Command>> debugCommands = new ArrayList<>();
+    // Debug values to grab from dashboard
+    public List<Pair<String, Class<?>>> debugKeyTypes = new ArrayList<>();
+    // public List<Object> debugValues = new ArrayList<>();
+    public HashMap<String, Object> debugValues = new HashMap<>();
 
     // YUP WE DOING SIGNLETONS LET IT RIDE
     private static Logging instance;
@@ -90,8 +94,32 @@ public class Logging extends SubsystemBase {
         getLTInstance().debugCommands.add(Pair.of(path, command));
     }
 
+    public static void registerDebugValue(String path, Class<?> type) {
+        switch (type.getName()) {
+            case "int":
+            case "double":
+                SmartDashboard.putNumber(path, 0);
+                getLTInstance().debugValues.put(path, 0);
+                break;
+            default:
+                return;
+        }
+        getLTInstance().debugKeyTypes.add(Pair.of(path, type));
+    }
+
     public NetworkTable getRootTable() {
         return evenTable;
+    }
+
+    public void genericSmartDashboardUpdate(String path, Class<?> type, int index) {
+        switch (type.getName()) {
+            case "int":
+            case "double":
+                debugValues.put(path, SmartDashboard.getNumber(path, 0.31));
+                break;
+            default:
+                return;
+        }
     }
 
     @Override
@@ -100,11 +128,16 @@ public class Logging extends SubsystemBase {
             for (Pair<String, Command> debugCommand : debugCommands) {
                 SmartDashboard.putData(debugCommand.getFirst(), debugCommand.getSecond());
             }
+        
+            for (int i = 0; i < debugKeyTypes.size(); i++) {
+                Pair<String, Class<?>> debugKeyType = debugKeyTypes.get(i);
+                genericSmartDashboardUpdate(debugKeyType.getFirst(), debugKeyType.getSecond(), i);
+            }
         }
 
 
         /* Should we be logging? Ask the driver/programmer 
-            unless FMS is attatched. Logging must be done if it is
+        * unless FMS is attatched. Logging must be done if it is
         */
         if (DriverStation.isFMSAttached()) {
             doLogging = true;

@@ -44,7 +44,7 @@ public class Hood extends SubsystemBase {
 
         .withMotorInverted(true)
 
-        .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
+        .withTelemetry(Constants.Shooter.YAMS.nameHood, TelemetryVerbosity.HIGH)
         ;
     
     private final SmartMotorController armMotorController = new TalonFXWrapper(armMotor, DCMotor.getKrakenX60(1), armMotorConfig);
@@ -65,15 +65,17 @@ public class Hood extends SubsystemBase {
     private Command dbg_angle_0 = hood.setAngle(Degrees.of(20)).withName("angle 1");
     private Command dbg_angle_1 = hood.setAngle(Degrees.of(50)).withName("angle 2");
 
-    public Supplier<Angle> angleProvider = () -> Degrees.of(0);
-    public Command continuousAngle = hood.setAngle(angleProvider);
+    public Supplier<Angle> angleTargetProvider = () -> Degrees.of(0);
+    public Command continuousAngle = hood.setAngle(angleTargetProvider);
     public Command stop = hood.runTo(hood.getAngle(), Degrees.of(90)).andThen(hood.set(0));
 
     public Hood(Supplier<Angle> angle) {
         setName("shooterHood");
-        angleProvider = angle;
-        Logging.registerDebugCommand(Constants.Shooter.telemetryNameHood+dbg_angle_0.getName(), dbg_angle_0);
-        Logging.registerDebugCommand(Constants.Shooter.telemetryNameHood+dbg_angle_1.getName(), dbg_angle_1);
+        angleTargetProvider = angle;
+        Logging.registerDebugCommand(
+            Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_0.getName()), dbg_angle_0);
+        Logging.registerDebugCommand(
+            Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_1.getName()), dbg_angle_1);
     }
 
     @Override

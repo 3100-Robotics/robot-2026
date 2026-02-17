@@ -55,7 +55,10 @@ public class Constants {
         }
 
         public static class YAMS {
-            
+            public static String nameFlywheelL = joinYAMS(nameRoot, "FlywheelL_");
+            public static String nameFlywheelR = joinYAMS(nameRoot, "FlywheelL_");
+            public static String flywheelNames[] = {nameFlywheelL, nameFlywheelR};
+            public static String nameHood = joinYAMS(nameRoot, "Hood");
         }
 
         // public static String telemetryNameFlywheelL = telemetryNameRoot+"Flywheel_L/";
