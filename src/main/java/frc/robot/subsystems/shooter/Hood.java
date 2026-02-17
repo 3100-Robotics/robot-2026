@@ -34,7 +34,7 @@ public class Hood extends SubsystemBase {
         .withStatorCurrentLimit(Amps.of(40))
         .withSupplyCurrentLimit(Amps.of(40))
 
-        .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "182:10")))
+        .withGearing(new MechanismGearing(GearBox.fromStages("48:12", "182:10")))
         .withControlMode(ControlMode.CLOSED_LOOP)
 
         .withClosedLoopController(50, 0, 0)

@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import yams.mechanisms.config.FlyWheelConfig;
-import yams.mechanisms.velocity.FlyWheel;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.local.SparkWrapper;
@@ -26,8 +24,8 @@ public class Roller extends SubsystemBase {
     private Optional<TalonFX> vendorMotorTalonFX;
     public SmartMotorController motor;
     private SmartMotorControllerConfig motorConfig;
-    private FlyWheelConfig rollerConfig;
-    private FlyWheel rollerMech;
+    // private FlyWheelConfig rollerConfig;
+    // private FlyWheel rollerMech;
 
     private void CommonSetup(String name, DCMotor motors, SmartMotorControllerConfig motorConfig) {
         setName(Constants.Indexer.YAMS.get(name));

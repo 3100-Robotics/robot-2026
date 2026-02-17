@@ -12,6 +12,11 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 public class Constants {
     public static final boolean doLiveTuning = true;
 
+    public static final boolean enableShooter = true;
+    public static final boolean enableIndexer = false;
+    public static final boolean enableIntake = false;
+    public static final boolean enableDrivetrain = false;
+
     public static TelemetryVerbosity getAppropriateTelemetryLevel() {
         return doLiveTuning ? TelemetryVerbosity.HIGH : TelemetryVerbosity.MID;
     }
@@ -40,15 +45,27 @@ public class Constants {
         public static int flywheel2MotorID = 53;
         public static int flywheel3MotorID = 54;
 
-        public static String telemetryNameRoot = "Shooter/";
-        public static String telemetryNameFlywheelL = telemetryNameRoot+"Flywheel_L/";
-        public static String telemetryNameFlywheelR = telemetryNameRoot+"Flywheel_R/";
-        public static String telemetryNamesFlywheel[] = {telemetryNameFlywheelL, telemetryNameFlywheelR};
-        public static String telemetryNameHood = telemetryNameRoot+"Hood/";
+        public static String nameRoot = "Shooter";
 
-        public static String telemetryYAMSFlywheelL = "FlywheelL_";
-        public static String telemetryYAMSFlywheelR = "FlywheelR_";
-        public static String telemetryYAMSFlywheelList[] = {telemetryYAMSFlywheelL, telemetryYAMSFlywheelR};
+        public static class Main {
+            public static String nameFlywheelL = join('/', nameRoot, "Flywheel_L");
+            public static String nameFlywheelR = join('/', nameRoot, "Flywheel_R");
+            public static String flywheelNames[] = {nameFlywheelL, nameFlywheelR};
+            public static String nameHood = "Hood";
+        }
+
+        public static class YAMS {
+            
+        }
+
+        // public static String telemetryNameFlywheelL = telemetryNameRoot+"Flywheel_L/";
+        // public static String telemetryNameFlywheelR = telemetryNameRoot+"Flywheel_R/";
+        // public static String telemetryNamesFlywheel[] = {telemetryNameFlywheelL, telemetryNameFlywheelR};
+        // public static String telemetryNameHood = telemetryNameRoot+"Hood/";
+
+        // public static String telemetryYAMSFlywheelL = "FlywheelL_";
+        // public static String telemetryYAMSFlywheelR = "FlywheelR_";
+        // public static String telemetryYAMSFlywheelList[] = {telemetryYAMSFlywheelL, telemetryYAMSFlywheelR};
     }
 
     public static class Indexer {
