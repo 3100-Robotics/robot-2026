@@ -83,9 +83,12 @@ public class DoubleFlywheel extends SubsystemBase {
         ;
         flywheel = new FlyWheel(flywheelConfig);
 
-        dbg_speed_0 = flywheel.runTo(RPM.of(0), RPM.of(6000)).andThen(flywheel.set(0)).withName("dbg_speed_0");
-        dbg_speed_1 = flywheel.run(RPM.of(2000)).withName("dbg_speed_1");
-        dbg_speed_2 = flywheel.run(RPM.of(4000)).withName("dbg_speed_2");
+        dbg_speed_0 = flywheel.runTo(RPM.of(0), RPM.of(6000)).andThen(flywheel.set(0))
+            .withName("dbg_speed_0");
+        dbg_speed_1 = flywheel.run(RPM.of(2000))
+            .withName("dbg_speed_1");
+        dbg_speed_2 = flywheel.run(RPM.of(4000))
+            .withName("dbg_speed_2");
 
         Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[this.flywheelIndex]+dbg_speed_0.getName(), dbg_speed_0);
         Logging.registerDebugCommand(Constants.Shooter.telemetryNamesFlywheel[this.flywheelIndex]+dbg_speed_1.getName(), dbg_speed_1);
