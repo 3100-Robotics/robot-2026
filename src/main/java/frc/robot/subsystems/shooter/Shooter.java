@@ -30,14 +30,20 @@ public class Shooter extends SubsystemBase {
     private Supplier<Angle> angleProvider = () -> hoodAngle;
     private Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
 
-    private final Hood hood = new Hood();
-    private final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, false);
-    private final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, true);
+    // private final Hood hood = new Hood();
+    private final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true);
+    private final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false);
 
     public Shooter() {
         flywheelL.setTarget(
             () -> RPM.of(
-                SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
+                800 // SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
+            )
+        );
+
+        flywheelR.setTarget(
+            () -> RPM.of(
+                800 // SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
             )
         );
 
@@ -47,8 +53,10 @@ public class Shooter extends SubsystemBase {
 
         Logging.registerDebugCommand(
             Constants.join('/', Constants.Shooter.nameRoot, "idle"), 
-            hood.stop().alongWith(flywheelL.stop()).alongWith(flywheelR.stop())
+            // hood.stop().alongWith
+            flywheelL.stop().alongWith(flywheelR.stop())
         );
+
         Logging.registerDebugCommand(
             Constants.join('/', Constants.Shooter.nameRoot, "spinUpFlywheelsToDebugRPM"), 
             flywheelL.runAtCurrentTarget().alongWith(flywheelR.runAtCurrentTarget())
@@ -71,6 +79,6 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("test3", flywheelL.speedTargetProvider.get().in(RPM));
+        SmartDashboard.putNumber("flywheel left rpm", flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
     }
 }

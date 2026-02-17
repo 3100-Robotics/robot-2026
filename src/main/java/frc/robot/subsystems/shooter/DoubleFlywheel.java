@@ -44,10 +44,10 @@ public class DoubleFlywheel extends SubsystemBase {
     private SmartMotorControllerConfig flywheelMotorConfig  = new SmartMotorControllerConfig(this)
         .withControlMode(ControlMode.CLOSED_LOOP)
         // Feedback Constants (PID Constants)
-        .withClosedLoopController(50, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        .withClosedLoopController(0.0098, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
         .withSimClosedLoopController(50, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
         // Feedforward Constants
-        .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+        .withFeedforward(new SimpleMotorFeedforward(0, 0.128, 0))
         .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
         // Gearing from the motor rotor to final shaft.
         .withGearing(new MechanismGearing(GearBox.fromReductionStages(1, 1)))

@@ -31,13 +31,13 @@ public class Indexer extends SubsystemBase {
     SmartMotorControllerConfig baseRollerMotorConfig = new SmartMotorControllerConfig()
         .withControlMode(ControlMode.CLOSED_LOOP)
 
-        .withClosedLoopController(4, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-        .withSimClosedLoopController(0.01, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        // .withClosedLoopController(4, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        // .withSimClosedLoopController(0.01, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
 
-        .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
-        .withSimFeedforward(new SimpleMotorFeedforward(0, 0.2, 0))
+        // .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+        // .withSimFeedforward(new SimpleMotorFeedforward(0, 0.2, 0))
 
-        .withMomentOfInertia(KilogramSquareMeters.of(0.000001))
+        // .withMomentOfInertia(KilogramSquareMeters.of(0.000001))
 
         .withMotorInverted(false)
         .withIdleMode(MotorMode.COAST)
@@ -50,32 +50,40 @@ public class Indexer extends SubsystemBase {
      * Until we can get real physical values, these are complete trash and
      * any pid tuned from them will be nowhere near where we need it  
      */
-    FlyWheelConfig baseRollerConfig = new FlyWheelConfig()
-        .withDiameter(Inches.of(4))
-        .withMass(Pounds.of(1))
-        .withUpperSoftLimit(RPM.of(6000))
-    ;
+    // FlyWheelConfig baseRollerConfig = new FlyWheelConfig()
+    //     .withDiameter(Inches.of(4))
+    //     .withMass(Pounds.of(1))
+    //     .withUpperSoftLimit(RPM.of(6000))
+    // ;
 
     private SmartMotorControllerConfig floorMotorConfig = baseRollerMotorConfig.clone()
         .withGearing(new MechanismGearing(GearBox.fromStages("20:24")))
+
+        .withMotorInverted(true)
     
-        .withClosedLoopController(4, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        .withClosedLoopController(0.01, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
         .withSimClosedLoopController(0.05, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
 
-        .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+        .withFeedforward(new SimpleMotorFeedforward(0, 0.15, 0))
         .withSimFeedforward(new SimpleMotorFeedforward(0, 0.1, 0))
     ;
 
     private SmartMotorControllerConfig ceilingMotorConfig = baseRollerMotorConfig.clone()
-        .withClosedLoopController(4, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        .withClosedLoopController(0.01, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
         .withSimClosedLoopController(0.01, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
 
-        .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+        .withFeedforward(new SimpleMotorFeedforward(0, 0.12, 0))
         .withSimFeedforward(new SimpleMotorFeedforward(0, 0.105, 0))
 
         .withGearing(new MechanismGearing(GearBox.fromStages("20:24")));
 
     private SmartMotorControllerConfig kickerMotorConfig = baseRollerMotorConfig.clone()
+        .withClosedLoopController(0.01, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        .withSimClosedLoopController(0.01, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+
+        .withFeedforward(new SimpleMotorFeedforward(0, 0.2, 0))
+        .withSimFeedforward(new SimpleMotorFeedforward(0, 0.105, 0))
+
         .withGearing(new MechanismGearing(GearBox.fromStages("36:24")));
 
     private TalonFX vendorFloorMotor = new TalonFX(Constants.Indexer.floorMotorID);
@@ -101,9 +109,9 @@ public class Indexer extends SubsystemBase {
         ).withName(Constants.join('/', Constants.Indexer.nameRoot, "stop"));
 
         runAll = Commands.parallel(
-            floorRollers.runAtSpeed(RPM.of(4000)),
-            ceilingRollers.runAtSpeed(RPM.of(3000)),
-            kickerRollers.runAtSpeed(RPM.of(2000))
+            floorRollers.runAtSpeed(RPM.of(2377)),
+            ceilingRollers.runAtSpeed(RPM.of(4414)),
+            kickerRollers.runAtSpeed(RPM.of(4414))
         ).withName(Constants.join('/', Constants.Indexer.nameRoot, "runAll"));
 
         Logging.registerDebugCommand(stop.getName(), stop);

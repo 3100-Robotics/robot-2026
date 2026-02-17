@@ -13,7 +13,7 @@ public class Constants {
     public static final boolean doLiveTuning = true;
 
     public static final boolean enableShooter = true;
-    public static final boolean enableIndexer = false;
+    public static final boolean enableIndexer = true;
     public static final boolean enableIntake = false;
     public static final boolean enableDrivetrain = false;
 
