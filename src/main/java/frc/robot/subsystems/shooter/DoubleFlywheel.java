@@ -44,8 +44,8 @@ public class DoubleFlywheel extends SubsystemBase {
     private SmartMotorControllerConfig flywheelMotorConfig  = new SmartMotorControllerConfig(this)
         .withControlMode(ControlMode.CLOSED_LOOP)
         // Feedback Constants (PID Constants)
-        .withClosedLoopController(0.0098, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-        .withSimClosedLoopController(50, 0, 0)//, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        .withClosedLoopController(0.0098, 0, 0)
+        .withSimClosedLoopController(50, 0, 0)
         // Feedforward Constants
         .withFeedforward(new SimpleMotorFeedforward(0, 0.128, 0))
         .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
@@ -54,8 +54,8 @@ public class DoubleFlywheel extends SubsystemBase {
         // Motor properties to prevent over currenting.
         .withIdleMode(MotorMode.COAST)
         .withStatorCurrentLimit(Amps.of(40))
-        .withClosedLoopRampRate(Seconds.of(0.25))
-        .withOpenLoopRampRate(Seconds.of(0.25))
+        // .withClosedLoopRampRate(Seconds.of(0.25))
+        // .withOpenLoopRampRate(Seconds.of(0.25))
     ;
 
     private FlyWheelConfig flywheelConfig;

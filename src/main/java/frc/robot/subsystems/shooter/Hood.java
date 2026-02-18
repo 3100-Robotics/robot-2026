@@ -25,6 +25,7 @@ import yams.mechanisms.positional.Arm;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
+import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
@@ -34,6 +35,8 @@ public class Hood extends SubsystemBase {
     private final SmartMotorControllerConfig armMotorConfig = new SmartMotorControllerConfig(this)
         .withStatorCurrentLimit(Amps.of(40))
         .withSupplyCurrentLimit(Amps.of(40))
+
+        .withIdleMode(MotorMode.BRAKE)
 
         .withGearing(new MechanismGearing(GearBox.fromStages("48:12", "182:10")))
         .withControlMode(ControlMode.CLOSED_LOOP)
