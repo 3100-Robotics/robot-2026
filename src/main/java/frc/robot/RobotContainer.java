@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.Hood;
 import frc.robot.subsystems.shooter.Shooter;
 
 public class RobotContainer {
@@ -24,6 +25,7 @@ public class RobotContainer {
 
     // Shooter (This one is Evens favorite)
     private Shooter shooter;
+    private Hood hood;
 
     // Indexer
     private Indexer indexer;
@@ -82,6 +84,8 @@ public class RobotContainer {
             // Only bother configuring bindings if live tuning off
             configureBindings();
         }
+
+        hood = new Hood();
 
         // drivetrain.registerTelemetry(log::logCTREChassis);
     }

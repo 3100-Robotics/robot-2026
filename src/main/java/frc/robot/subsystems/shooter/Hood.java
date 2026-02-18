@@ -33,17 +33,21 @@ public class Hood extends SubsystemBase {
     private TalonFX armMotor = new TalonFX(50);
 
     private final SmartMotorControllerConfig armMotorConfig = new SmartMotorControllerConfig(this)
-        .withStatorCurrentLimit(Amps.of(40))
-        .withSupplyCurrentLimit(Amps.of(40))
+        .withStatorCurrentLimit(Amps.of(120))
+        .withSupplyCurrentLimit(Amps.of(70))
 
-        .withIdleMode(MotorMode.BRAKE)
+        
+
+        .withIdleMode(MotorMode.COAST)
+
+        .withStartingPosition(Degrees.of(12.21))
 
         .withGearing(new MechanismGearing(GearBox.fromStages("48:12", "182:10")))
         .withControlMode(ControlMode.CLOSED_LOOP)
 
-        .withClosedLoopController(50, 0, 0)
-        .withSimClosedLoopController(50, 0, 0)
-        .withFeedforward(new ArmFeedforward(0, 0, 0))
+        .withClosedLoopController(400, 0, 0)
+        .withSimClosedLoopController(5, 0, 0)
+        .withFeedforward(new ArmFeedforward(60, 0, 0))
         .withSimFeedforward(new ArmFeedforward(0, 0, 0))
 
         .withMotorInverted(true)
@@ -54,9 +58,9 @@ public class Hood extends SubsystemBase {
     private final SmartMotorController armMotorController = new TalonFXWrapper(armMotor, DCMotor.getKrakenX60(1), armMotorConfig);
 
     private ArmConfig hoodConfig = new ArmConfig(armMotorController)
-        .withHardLimit(Degrees.of(12.667292), Degrees.of(12.667292+66.617755))
+        .withHardLimit(Degrees.of(12.667292), Degrees.of(40))
         // Starting position is where your arm starts
-        .withStartingPosition(Degrees.of(13))
+        // .withStartingPosition(Degrees.of(13))
         // Length and mass of your arm for sim.
         .withLength(Inches.of(8.900512))
         .withMOI(KilogramSquareMeters.of(0.0190245794))
@@ -66,8 +70,8 @@ public class Hood extends SubsystemBase {
     // Arm Mechanism
     private Arm hood = new Arm(hoodConfig);
 
-    private Command dbg_angle_0 = hood.setAngle(Degrees.of(20)).withName("angle 1");
-    private Command dbg_angle_1 = hood.setAngle(Degrees.of(50)).withName("angle 2");
+    private Command dbg_angle_0 = hood.setAngle(Degrees.of(12.3)).withName("angle 1");
+    private Command dbg_angle_1 = hood.setAngle(Degrees.of(40)).withName("angle 2");
 
     public Supplier<Angle> angleTargetProvider = () -> Degrees.of(0);
     // public Command continuousAngle = hood.setAngle(angleTargetProvider);
@@ -96,8 +100,9 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("angleHood", hood.getAngle().in(Degrees));
         hood.getMechanismSetpoint().ifPresent(setpoint -> SmartDashboard.putNumber("hoodSetpoint", setpoint.in(Degrees)));
-
+        
         hood.updateTelemetry();
     }
 
