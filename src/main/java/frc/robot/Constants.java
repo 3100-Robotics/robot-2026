@@ -1,12 +1,20 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
@@ -16,6 +24,16 @@ public class Constants {
     public static final boolean enableIndexer = true;
     public static final boolean enableIntake = false;
     public static final boolean enableDrivetrain = false;
+
+    public static final Distance fieldLength = Inches.of(651.22);
+    public static final Distance fieldWidth = Inches.of(317.69);
+
+    public static final Pose2d hubPoseBlue = new Pose2d(4.628518104553223, 4.035704612731934, new Rotation2d());
+    public static final Pose2d hubPoseRed = new Pose2d(4.628518104553223, 4.035704612731934, new Rotation2d())
+        .rotateAround(new Translation2d(
+            fieldLength.div(2),
+            fieldWidth.div(2)
+        ), Rotation2d.fromDegrees(180));
 
     public static TelemetryVerbosity getAppropriateTelemetryLevel() {
         return doLiveTuning ? TelemetryVerbosity.HIGH : TelemetryVerbosity.MID;
