@@ -28,7 +28,7 @@ public class Locator extends SubsystemBase {
 
     private Pose2d robotPose = new Pose2d();
     private Supplier<Pose2d> getRobotPose = () -> new Pose2d();
-    public Supplier<Distance> distanceToHub = () -> {
+    public final Supplier<Distance> distanceToHub = () -> {
         double distance = Math.sqrt(Math.pow(robotPose.getMeasureX().minus(hubPose.getMeasureX()).in(Inches), 2) + 
                   Math.pow(robotPose.getMeasureY().minus(hubPose.getMeasureY()).in(Inches), 2));
         return Inches.of(distance);
@@ -50,19 +50,19 @@ public class Locator extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("recvAllianceColor", hasAppliedAlliance);
-        
+
         if (!hasAppliedAlliance || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 alliance = Optional.of(allianceColor);
                 hasAppliedAlliance = true;
             });
+        
+            alliance.ifPresent(
+                allianceColor -> hubPose = allianceColor == Alliance.Red 
+                    ? Constants.hubPoseRed : 
+                    Constants.hubPoseBlue
+            );
         }
-
-        alliance.ifPresent(
-            allianceColor -> hubPose = allianceColor == Alliance.Red 
-                ? Constants.hubPoseRed : 
-                  Constants.hubPoseBlue
-        );
 
         robotPose = getRobotPose.get();
         FieldObject2d targetHub = field.getObject("Hub");

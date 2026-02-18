@@ -63,6 +63,10 @@ public class Shooter extends SubsystemBase {
         );
     }
 
+    public Angle calulateFireAngle() {
+        return Degrees.of(31);
+    }
+
     public void setHoodAngle(Angle newAngle) {
         if (newAngle.in(Degrees) > Constants.Shooter.maxHoodAngle.in(Degrees)) {
             hoodAngle = Constants.Shooter.maxHoodAngle;
