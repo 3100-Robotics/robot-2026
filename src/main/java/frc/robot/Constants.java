@@ -1,13 +1,16 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -15,6 +18,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.Command;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
@@ -56,6 +60,15 @@ public class Constants {
          */
         public static Angle maxHoodAngle = Degrees.of(50);
         public static Angle minHoodAngle = Degrees.of(0);
+
+        public static class Physical {
+            public static final List<Pair<Distance, Angle>> distanceAngleTable = new ArrayList<>();
+            static {
+                distanceAngleTable.add(Pair.of(Feet.of(1), Degrees.of(30)));
+                distanceAngleTable.add(Pair.of(Feet.of(1.1), Degrees.of(31)));
+                distanceAngleTable.add(Pair.of(Feet.of(2), Degrees.of(42)));
+            }
+        }
 
         public static int hoodMotorID = 50;
         public static int flywheel0MotorID = 51;

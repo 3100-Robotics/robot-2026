@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
@@ -29,8 +30,10 @@ public class Locator extends SubsystemBase {
     private Pose2d robotPose = new Pose2d();
     private Supplier<Pose2d> getRobotPose = () -> new Pose2d();
     public final Supplier<Distance> distanceToHub = () -> {
-        double distance = Math.sqrt(Math.pow(robotPose.getMeasureX().minus(hubPose.getMeasureX()).in(Inches), 2) + 
-                  Math.pow(robotPose.getMeasureY().minus(hubPose.getMeasureY()).in(Inches), 2));
+        double distance = Math.sqrt(
+            Math.pow(robotPose.getMeasureX().minus(hubPose.getMeasureX()).in(Inches), 2) + 
+            Math.pow(robotPose.getMeasureY().minus(hubPose.getMeasureY()).in(Inches), 2)
+        );
         return Inches.of(distance);
     };
 
@@ -50,6 +53,7 @@ public class Locator extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("recvAllianceColor", hasAppliedAlliance);
+        SmartDashboard.putNumber("robotDistanceToHubInches", distanceToHub.get().in(Feet));
 
         if (!hasAppliedAlliance || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
