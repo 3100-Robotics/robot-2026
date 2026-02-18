@@ -30,7 +30,7 @@ public class Shooter extends SubsystemBase {
     private Supplier<Angle> angleProvider = () -> hoodAngle;
     private Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
 
-    // private final Hood hood = new Hood();
+    private final Hood hood = new Hood();
     private final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true);
     private final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false);
 

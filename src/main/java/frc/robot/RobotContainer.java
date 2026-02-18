@@ -80,44 +80,44 @@ public class RobotContainer {
 
         if (!Constants.doLiveTuning) {
             // Only bother configuring bindings if live tuning off
-            // configureBindings();
+            configureBindings();
         }
 
         // drivetrain.registerTelemetry(log::logCTREChassis);
     }
 
-    // private void configureBindings() {
-    //     // Intake bindings
-    //     // driverCtl.x().whileTrue(intake.stow());
-    //     // driverCtl.y().whileTrue(intake.runAtSpeed(RPM.of(3000)));
+    private void configureBindings() {
+        // Intake bindings
+        // driverCtl.x().whileTrue(intake.stow());
+        // driverCtl.y().whileTrue(intake.runAtSpeed(RPM.of(3000)));
 
 
-    //     // Idle bindings
-    //     driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
-    //         Commands.parallel(
-    //             intake.deploy(),
-    //             indexer.stop,
-    //             shooter.idle
-    //         )
-    //     );
+        // Idle bindings
+        driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
+            Commands.parallel(
+                intake.deploy(),
+                indexer.stop
+                // shooter.idle
+            )
+        );
 
-    //     coDriverCtl.povDown().onTrue(
-    //         shooter.stopFlywheels
-    //     );
+        //coDriverCtl.povDown().onTrue(
+            // shooter.stopFlywheels
+        //);
 
-    //     // driverCtl.a().whileTrue(); // Autoalign
+        // driverCtl.a().whileTrue(); // Autoalign
 
-    //     // Intake
-    //     coDriverCtl.rightBumper().onTrue(Commands.parallel(intake.deploy(), intake.runAtSpeed(RPM.of(6000))));
-    //     coDriverCtl.leftBumper().onTrue(intake.stow());
+        // Intake
+        coDriverCtl.rightBumper().onTrue(Commands.parallel(intake.deploy(), intake.runAtSpeed(RPM.of(6000))));
+        coDriverCtl.leftBumper().onTrue(intake.stow());
 
-    //     coDriverCtl.povLeft().onTrue(
-    //         Commands.runOnce(() -> shooter.setHoodAngle(Degrees.of(shooter.getHoodAngle().in(Degrees) - 3)))
-    //     );
-    //     coDriverCtl.povRight().onTrue(
-    //         Commands.runOnce(() -> shooter.setHoodAngle(Degrees.of(shooter.getHoodAngle().in(Degrees) + 3)))
-    //     );
-    // }
+        coDriverCtl.povLeft().onTrue(
+            Commands.runOnce(() -> shooter.setHoodAngle(Degrees.of(shooter.getHoodAngle().in(Degrees) - 3)))
+        );
+        coDriverCtl.povRight().onTrue(
+            Commands.runOnce(() -> shooter.setHoodAngle(Degrees.of(shooter.getHoodAngle().in(Degrees) + 3)))
+        );
+    }
 
     public Command getAutonomousCommand() {
        return Commands.print("No autonomous command configured");

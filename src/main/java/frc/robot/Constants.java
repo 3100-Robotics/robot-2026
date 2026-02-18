@@ -106,6 +106,7 @@ public class Constants {
     public static class Intake {
         public static int pivotMotorID = 30;
         public static int rollerMotorID = 31;
+        public static int encoderID = 32;
 
         public static String telemetryNameRoot = "Intake/";
         public static String telemetryNamePivot = telemetryNameRoot+"Pivot/";

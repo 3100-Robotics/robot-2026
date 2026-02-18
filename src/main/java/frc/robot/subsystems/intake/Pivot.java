@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 import java.util.Optional;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -27,6 +28,7 @@ import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class Pivot extends SubsystemBase {
     private TalonFX pivotMotor = new TalonFX(30);
+    private CANcoder pivotEncoder = new CANcoder(32);
 
     private final SmartMotorControllerConfig pivotMotorConfig = new SmartMotorControllerConfig(this)
         .withStatorCurrentLimit(Amps.of(60))
@@ -36,6 +38,12 @@ public class Pivot extends SubsystemBase {
         .withControlMode(ControlMode.CLOSED_LOOP)
         .withSimClosedLoopController(5.5, 0, 1)
         .withFeedforward(new ArmFeedforward(0, 1.012000, 1))
+
+        .withEncoderInverted(false)
+        .withExternalEncoder(pivotEncoder)
+        .withExternalEncoderGearing(1)
+        .withExternalEncoderZeroOffset(Degrees.of(0))
+        .withUseExternalFeedbackEncoder(true)
 
         .withMotorInverted(false)
 
@@ -67,13 +75,13 @@ public class Pivot extends SubsystemBase {
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_1.getName(), dbg_angle_1);
     }
 
-    // public Command deploy() {
-    //     return pivot.setAngle(Degrees.of(5));
-    // }
+    public Command deploy() {
+        return pivot.setAngle(Degrees.of(5));
+    }
 
-    // public Command stow() {
-    //     return pivot.setAngle(Degrees.of(95)).until(() -> pivot.getAngle().in(Degrees) > 95);
-    // }
+    public Command stow() {
+        return pivot.setAngle(Degrees.of(95)).until(() -> pivot.getAngle().in(Degrees) > 95);
+    }
 
     @Override
     public void periodic() {

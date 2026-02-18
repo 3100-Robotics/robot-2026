@@ -124,9 +124,7 @@ public class DoubleFlywheel extends SubsystemBase {
 
     public Command runAtCurrentTarget2() {
         return Commands.parallel(
-            flywheel.setSpeed(speedTargetProvider)//,
-            // Commands.run(() -> SmartDashboard.putNumber("Number two three four", speedTargetProvider.get().in(RPM)))//,
-            // Commands.run(() -> System.out.println(flywheel))
+            flywheel.setSpeed(speedTargetProvider)
         );
     }
 
