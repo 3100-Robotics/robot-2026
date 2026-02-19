@@ -1,4 +1,4 @@
-# robot-2026: To be named after a turtle
+# robot-2026: Arkelon
 
 ## Changelog
 1/11/2026: Drivetrain code ripped from hawksbil because CTRE swerve generator <br> 
