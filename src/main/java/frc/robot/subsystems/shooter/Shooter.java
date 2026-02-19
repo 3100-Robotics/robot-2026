@@ -68,7 +68,22 @@ public class Shooter extends SubsystemBase {
     }
 
     public Angle calculateFireAngle() {
-        var trueDistance = Locator.getInstance().distanceToHub.get();
+        var distToHub = Locator.getInstance().distanceToHub.get();
+        var table = Constants.Shooter.Physical.distanceAngleTable;
+
+        double y = -31;
+        for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
+            if (distToHub.gte(table.get(i).getFirst()) && distToHub.lte(table.get(i+1).getFirst())) {
+                var x1 = table.get(i).getFirst().in(Feet);
+                var x2 = table.get(i+1).getFirst().in(Feet);
+                var y1 = table.get(i).getSecond().in(Degrees);
+                var y2 = table.get(i+1).getSecond().in(Degrees);
+
+                var m = (y2 - y1) / (x2 - x1);
+                var b = y1 - m * x1;
+                y = m * distToHub.in(Feet) + b;
+            }
+        }
 
         // var closest = Constants.Shooter.Physical.distanceAngleTable.get(0).getFirst();
         // var diffThreshhold = closest.minus(target).abs(Feet);
@@ -84,7 +99,7 @@ public class Shooter extends SubsystemBase {
 
 
 
-        return Degrees.of(31);
+        return Degrees.of(y);
     }
 
     public void setHoodAngle(Angle newAngle) {
@@ -106,6 +121,6 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putNumber("flywheel left rpm", flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
         SmartDashboard.putNumber("flywheel left rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
 
-        SmartDashboard.putNumber("angle target", calculateFireAngle().in(Degrees));
+        SmartDashboard.putNumber("angle target hood", calculateFireAngle().in(Degrees));
     }
 }
