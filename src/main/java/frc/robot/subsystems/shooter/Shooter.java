@@ -71,7 +71,7 @@ public class Shooter extends SubsystemBase {
         var distToHub = Locator.getInstance().distanceToHub.get();
         var table = Constants.Shooter.Physical.distanceAngleTable;
 
-        double y = -31;
+        double y = -31; // Todo better way to do this
         for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
             if (distToHub.gte(table.get(i).getFirst()) && distToHub.lte(table.get(i+1).getFirst())) {
                 var x1 = table.get(i).getFirst().in(Feet);
