@@ -77,11 +77,11 @@ public class Pivot extends SubsystemBase {
 
     @Override
     public void periodic() {
-        pivot.updateTelemetry();
+        // pivot.updateTelemetry();
     }
 
     @Override
     public void simulationPeriodic() {
-        pivot.simIterate();
+        // pivot.simIterate();
     }
 }

@@ -96,7 +96,8 @@ public class Vision extends SubsystemBase {
     public Vision(EstimateConsumer estConsumer) {
         photonEstimatorFrontRight = new PhotonPoseEstimator(
             tagLayout,
-            robotToFrontRight);
+            robotToFrontRight
+        );
 
         // photonEstimatorFrontLeft = new PhotonPoseEstimator(
         //     tagLayout,
@@ -176,7 +177,9 @@ public class Vision extends SubsystemBase {
     }
 
     private void updateEstimationStdDevs(
-            Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
+            Optional<EstimatedRobotPose> estimatedPose, 
+            List<PhotonTrackedTarget> targets
+    ) {
         if (estimatedPose.isEmpty()) {
             // No pose input. Default to single-tag std devs
             curStdDevs = kSingleTagStdDevs;

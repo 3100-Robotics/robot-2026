@@ -78,11 +78,11 @@ public class Roller extends SubsystemBase {
 
     @Override
     public void periodic() {
-        roller.updateTelemetry();
+        // roller.updateTelemetry();
     }
 
     @Override
     public void simulationPeriodic() {
-        roller.simIterate();
+        // roller.simIterate();
     }
 }

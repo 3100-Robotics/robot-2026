@@ -167,13 +167,13 @@ public class Shooter extends SubsystemBase {
             .alongWith(flywheelR.flywheel.setSpeed(speedProvider));
     }
 
-    
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("flywheel left rpm", flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
         SmartDashboard.putNumber("flywheel left rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
 
-        SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
-        SmartDashboard.putNumber("speed calc flywheel", calculateFireAngleAndSpeed().getSecond().in(RPM));
+        // SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
+        // SmartDashboard.putNumber("speed calc flywheel", calculateFireAngleAndSpeed().getSecond().in(RPM));
     }
 }

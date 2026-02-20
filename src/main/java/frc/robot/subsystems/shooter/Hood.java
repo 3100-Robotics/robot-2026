@@ -40,8 +40,6 @@ public class Hood extends SubsystemBase {
 
         .withIdleMode(MotorMode.COAST)
 
-        .withStartingPosition(Degrees.of(12.21))
-
         .withGearing(new MechanismGearing(GearBox.fromStages("48:12", "182:10")))
         .withControlMode(ControlMode.CLOSED_LOOP)
 
@@ -60,7 +58,7 @@ public class Hood extends SubsystemBase {
     private ArmConfig hoodConfig = new ArmConfig(armMotorController)
         .withHardLimit(Degrees.of(12.667292), Degrees.of(40))
         // Starting position is where your arm starts
-        // .withStartingPosition(Degrees.of(13))
+        .withStartingPosition(Degrees.of(12.667292))
         // Length and mass of your arm for sim.
         .withLength(Inches.of(8.900512))
         .withMOI(KilogramSquareMeters.of(0.0190245794))
@@ -70,27 +68,27 @@ public class Hood extends SubsystemBase {
     // Arm Mechanism
     public Arm hood = new Arm(hoodConfig);
 
-    private Command dbg_angle_0 = hood.setAngle(Degrees.of(12.3)).withName("lowestAngle");
-    private Command dbg_angle_1 = hood.setAngle(Degrees.of(40)).withName("highestAngle");
+    // private Command dbg_angle_0 = hood.setAngle(Degrees.of(12.3)).withName("lowestAngle");
+    // private Command dbg_angle_1 = hood.setAngle(Degrees.of(40)).withName("highestAngle");
 
     // public Command continuousAngle = hood.setAngle(angleTargetProvider);
     // public Command stop = hood.runTo(hood.getAngle(), Degrees.of(90)).andThen(hood.set(0));
 
     public Hood() {
         setName("shooterHood");
-        Logging.registerDebugCommand(
-            Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_0.getName()), dbg_angle_0);
-        Logging.registerDebugCommand(
-            Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_1.getName()), dbg_angle_1);
+        // Logging.registerDebugCommand(
+        //     Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_0.getName()), dbg_angle_0);
+        // Logging.registerDebugCommand(
+        //     Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_1.getName()), dbg_angle_1);
     }
 
     @Override
     public void periodic() {
-        hood.updateTelemetry();
+        // hood.updateTelemetry();
     }
 
     @Override
     public void simulationPeriodic() {
-        hood.simIterate();
+        // hood.simIterate();
     }
 }
