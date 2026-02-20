@@ -50,7 +50,7 @@ public class Hood extends SubsystemBase {
 
         .withMotorInverted(true)
 
-        .withTelemetry(Constants.Shooter.YAMS.nameHood, TelemetryVerbosity.HIGH)
+        .withTelemetry(Constants.Shooter.YAMS.nameHood, Constants.getAppropriateTelemetryLevel())
         ;
     
     private final SmartMotorController armMotorController = new TalonFXWrapper(armMotor, DCMotor.getKrakenX60(1), armMotorConfig);
@@ -63,7 +63,7 @@ public class Hood extends SubsystemBase {
         .withLength(Inches.of(8.900512))
         .withMOI(KilogramSquareMeters.of(0.0190245794))
         // Telemetry name and verbosity for the arm.
-        .withTelemetry("HoodMech", TelemetryVerbosity.HIGH);
+        .withTelemetry("HoodMech", Constants.getAppropriateTelemetryLevel());
 
     // Arm Mechanism
     public Arm hood = new Arm(hoodConfig);
@@ -84,7 +84,7 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // hood.updateTelemetry();
+        hood.updateTelemetry();
     }
 
     @Override

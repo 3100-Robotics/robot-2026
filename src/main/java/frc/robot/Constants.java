@@ -41,7 +41,7 @@ public class Constants {
         ), Rotation2d.fromDegrees(180));
 
     public static TelemetryVerbosity getAppropriateTelemetryLevel() {
-        return doLiveTuning ? TelemetryVerbosity.HIGH : TelemetryVerbosity.MID;
+        return doLiveTuning ? TelemetryVerbosity.HIGH : TelemetryVerbosity.LOW;
     }
 
     public static String join(char delimeter, String... strings) {
