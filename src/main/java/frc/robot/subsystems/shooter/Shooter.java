@@ -68,22 +68,22 @@ public class Shooter extends SubsystemBase {
     }
 
     public Angle calculateFireAngle() {
-        var distToHub = Locator.getInstance().distanceToHub.get();
-        var table = Constants.Shooter.Physical.distanceAngleTable;
+        // var distToHub = Locator.getInstance().distanceToHub.get();
+        // var table = Constants.Shooter.Physical.distanceAngleTable;
 
-        double y = -31; // Todo better way to do this
-        for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
-            if (distToHub.gte(table.get(i).getFirst()) && distToHub.lte(table.get(i+1).getFirst())) {
-                var x1 = table.get(i).getFirst().in(Feet);
-                var x2 = table.get(i+1).getFirst().in(Feet);
-                var y1 = table.get(i).getSecond().in(Degrees);
-                var y2 = table.get(i+1).getSecond().in(Degrees);
+        // double y = -31; // Todo better way to do this
+        // for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
+        //     if (distToHub.gte(table.get(i).getFirst()) && distToHub.lte(table.get(i+1).getFirst())) {
+        //         var x1 = table.get(i).getFirst().in(Feet);
+        //         var x2 = table.get(i+1).getFirst().in(Feet);
+        //         var y1 = table.get(i).getSecond().in(Degrees);
+        //         var y2 = table.get(i+1).getSecond().in(Degrees);
 
-                var m = (y2 - y1) / (x2 - x1);
-                var b = y1 - m * x1;
-                y = m * distToHub.in(Feet) + b;
-            }
-        }
+        //         var m = (y2 - y1) / (x2 - x1);
+        //         var b = y1 - m * x1;
+        //         y = m * distToHub.in(Feet) + b;
+        //     }
+        // }
 
         // var closest = Constants.Shooter.Physical.distanceAngleTable.get(0).getFirst();
         // var diffThreshhold = closest.minus(target).abs(Feet);
@@ -99,7 +99,7 @@ public class Shooter extends SubsystemBase {
 
 
 
-        return Degrees.of(y);
+        return Degrees.of(30);
     }
 
     public void setHoodAngle(Angle newAngle) {
@@ -114,6 +114,11 @@ public class Shooter extends SubsystemBase {
 
     public Angle getHoodAngle() {
         return hoodAngle;
+    }
+
+    @Override
+    public Command idle() {
+        return Commands.run(() -> {}, this);
     }
 
     @Override

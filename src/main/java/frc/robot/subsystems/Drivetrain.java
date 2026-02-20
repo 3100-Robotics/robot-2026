@@ -21,13 +21,16 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Locator;
-import frc.robot.generated.TunerConstantsV1Protobot.TunerSwerveDrivetrain;
+
+import frc.robot.generated.TunerConstantsV2.TunerSwerveDrivetrain;
 import frc.robot.math.AngleUtils;
 
 /**
@@ -49,11 +52,10 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
 
-    private Pose2d poseSetpoint = new Pose2d();
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController headingController = new PIDController(2, 0.0, 0.0);
-    private final PIDController degreesHeadingController = new PIDController(0.1, 0.0, 0.0);
+    private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -230,28 +232,8 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
-    public boolean isAtPoseSetpoint() {
-        Pose2d relativepose = poseSetpoint.relativeTo(getPos());
-
-        return Math.abs(relativepose.getX()) < 0.01 && 
-                Math.abs(relativepose.getY()) < 0.01 &&
-                AngleUtils.is_between(
-                    getPos().getRotation().getDegrees(),
-                    poseSetpoint.getRotation().getDegrees()+5,
-                    poseSetpoint.getRotation().getDegrees()-5
-                );
-    }
-
-    public Command positionDrive(Supplier<Pose2d> pose) {
-        return run(() -> {
-            this.poseSetpoint = pose.get();
-            goToPos(poseSetpoint);
-        }).unless(this::isAtPoseSetpoint);
-    }
-
     @Override
     public void periodic() {
-        degreesHeadingController.enableContinuousInput(0, 360);
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -259,25 +241,18 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
          * Otherwise, only check and apply the operator perspective if the DS is disabled.
          * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
          */
-        // if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
-        //     DriverStation.getAlliance().ifPresent(allianceColor -> {
-        //         setOperatorPerspectiveForward(
-        //             allianceColor == Alliance.Red
-        //                 ? kRedAlliancePerspectiveRotation
-        //                 : kBlueAlliancePerspectiveRotation
-        //         );
-        //         m_hasAppliedOperatorPerspective = true;
-        //     });
-        // }
-        Locator.getInstance().alliance.ifPresent(
-            allianceColor -> {
+        if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+            DriverStation.getAlliance().ifPresent(allianceColor -> {
+                SmartDashboard.putString("Color :)", allianceColor.toString());
                 setOperatorPerspectiveForward(
                     allianceColor == Alliance.Red
                         ? kRedAlliancePerspectiveRotation
                         : kBlueAlliancePerspectiveRotation
                 );
+                m_hasAppliedOperatorPerspective = true;
             }
-        );
+            );
+        }
     }
 
     private void startSimThread() {
@@ -357,19 +332,72 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
 
         // Apply the generated speeds
+
         setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
     }
 
-    public void goToPos(Pose2d new_pose) {
-        Pose2d current_pose = getState().Pose;
+    public boolean isAtPoseSetpoint() {
+        Pose2d relativepose = poseSetpoint.get().relativeTo(getPos());
+        boolean isAtPose = 
+                Math.abs(relativepose.getX()) < 0.1 && 
+                Math.abs(relativepose.getY()) < 0.1 &&
+                AngleUtils.is_between(
+                    getPos().getRotation().getDegrees(),
+                    poseSetpoint.get().getRotation().getDegrees()+5,
+                    poseSetpoint.get().getRotation().getDegrees()-5
+                );
+
+        SmartDashboard.putBoolean("within range", AngleUtils.is_between(
+                    getPos().getRotation().getDegrees(),
+                    poseSetpoint.get().getRotation().getDegrees()+10,
+                    poseSetpoint.get().getRotation().getDegrees()-10
+                ));
+        return isAtPose;
+    }
+
+    public void goToPose() {
+        // Get the current pose of the robot
+        Pose2d pose = getPos();
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-                xController.calculate(current_pose.getX(), new_pose.getX()),
-                yController.calculate(current_pose.getY(), new_pose.getY()),
-                degreesHeadingController.calculate(current_pose.getRotation().getDegrees(), new_pose.getRotation().getDegrees())
+            xController.calculate(pose.getX(), poseSetpoint.get().getX()),
+            yController.calculate(pose.getY(), poseSetpoint.get().getY()),
+            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())
         );
 
+        // Apply the generated speeds
         setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
+    }
+
+    public Command goToPoseCommand() {
+        return Commands.parallel(
+                run(() -> goToPose())
+                .until(this::isAtPoseSetpoint),
+                Commands.runOnce(() -> SmartDashboard.putString("gotoposestage", "stage 0"))
+            )
+            .andThen(Commands.runOnce(() -> SmartDashboard.putString("gotoposestage", "stage 1")))
+            .andThen(runOnce(() -> setControl(new SwerveRequest.Idle())))
+            ;
+    }
+
+    public Command goToPoseCommand(Supplier<Pose2d> newPose) {
+        return runOnce(() -> poseSetpoint = newPose).andThen(goToPoseCommand());
+    }
+
+    public Command pointAtPose(Pose2d target) {
+        return runOnce(() -> {
+            Pose2d currentPose = getPos();
+            poseSetpoint = () -> new Pose2d(
+                currentPose.getX(),
+                currentPose.getY(),
+                Rotation2d.fromRadians(
+                    Math.atan2(
+                        target.getY()-currentPose.getY(),
+                        target.getX()-currentPose.getX()
+                    )
+                )
+            );
+        }).andThen(Commands.runOnce(() -> SmartDashboard.putString("autostage", "pointed at thing setup"))).andThen(goToPoseCommand());
     }
 }

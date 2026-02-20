@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.RPM;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,10 +25,10 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 public class Constants {
     public static final boolean doLiveTuning = true;
 
-    public static final boolean enableShooter = false;
-    public static final boolean enableIndexer = false;
-    public static final boolean enableIntake = false;
-    public static final boolean enableDrivetrain = false;
+    public static final boolean enableShooter = true;
+    public static final boolean enableIndexer = true;
+    public static final boolean enableIntake = true;
+    public static final boolean enableDrivetrain = true;
 
     public static final Distance fieldLength = Inches.of(651.22);
     public static final Distance fieldWidth = Inches.of(317.69);
@@ -62,11 +63,18 @@ public class Constants {
         public static Angle minHoodAngle = Degrees.of(0);
 
         public static class Physical {
-            public static final List<Pair<Distance, Angle>> distanceAngleTable = new ArrayList<>();
+            public static final List<Pair<Distance, Double>> distanceAngleTable = new ArrayList<>();
+            public static final List<Pair<Distance, Double>> distanceSpeedTable = new ArrayList<>();
             static {
-                distanceAngleTable.add(Pair.of(Feet.of(1), Degrees.of(30)));
-                distanceAngleTable.add(Pair.of(Feet.of(1.1), Degrees.of(31)));
-                distanceAngleTable.add(Pair.of(Feet.of(2), Degrees.of(42)));
+                // Distance Angle
+                distanceAngleTable.add(Pair.of(Feet.of(1), 30.0));
+                distanceAngleTable.add(Pair.of(Feet.of(1.1), 31.0));
+                distanceAngleTable.add(Pair.of(Feet.of(2), 42.0));
+
+                // Distance Speed
+                distanceSpeedTable.add(Pair.of(Feet.of(1), 3000.0));
+                distanceSpeedTable.add(Pair.of(Feet.of(1.1), 4000.0));
+                distanceSpeedTable.add(Pair.of(Feet.of(2), 5000.0));
             }
         }
 

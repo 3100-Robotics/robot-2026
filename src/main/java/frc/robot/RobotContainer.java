@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Hood;
@@ -25,13 +26,15 @@ public class RobotContainer {
 
     // Shooter (This one is Evens favorite)
     private Shooter shooter;
-    private Hood hood;
 
     // Indexer
     private Indexer indexer;
 
     // Intake
     private Intake intake;
+
+    // Drivetrain
+    private Drivetrain drivetrain;
 
     private Logging log = new Logging();
 
@@ -78,16 +81,13 @@ public class RobotContainer {
 
         if (Constants.enableDrivetrain) {
             // drivetrain = new Drivetrain();
+            // drivetrain.registerTelemetry(log::logCTREChassis);
         }
 
         if (!Constants.doLiveTuning) {
             // Only bother configuring bindings if live tuning off
             configureBindings();
         }
-
-        hood = new Hood();
-
-        // drivetrain.registerTelemetry(log::logCTREChassis);
     }
 
     private void configureBindings() {
@@ -100,8 +100,8 @@ public class RobotContainer {
         driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
             Commands.parallel(
                 intake.deploy(),
-                indexer.stop
-                // shooter.idle
+                indexer.stop,
+                shooter.idle()
             )
         );
 
