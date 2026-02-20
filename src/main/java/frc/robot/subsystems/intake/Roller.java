@@ -78,11 +78,6 @@ public class Roller extends SubsystemBase {
 
     @Override
     public void periodic() {
-        roller.getMotorController().getMechanismSetpointVelocity()
-            .ifPresent(
-                setpoint -> SmartDashboard.putNumber(Constants.Intake.telemetryNameRoller+"RPM_Setpoint", setpoint.in(RPM))
-            );
-        SmartDashboard.putNumber(Constants.Intake.telemetryNameRoller+"RPM_Speed", roller.getSpeed().in(RPM));
         roller.updateTelemetry();
     }
 

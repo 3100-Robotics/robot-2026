@@ -4,6 +4,7 @@ import com.revrobotics.spark.SparkMax;
 
 import static edu.wpi.first.units.Units.RPM;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -24,10 +25,8 @@ public class Roller extends SubsystemBase {
     private Optional<TalonFX> vendorMotorTalonFX;
     public SmartMotorController motor;
     private SmartMotorControllerConfig motorConfig;
-    // private FlyWheelConfig rollerConfig;
-    // private FlyWheel rollerMech;
 
-    private void CommonSetup(String name, DCMotor motors, SmartMotorControllerConfig motorConfig) {
+    private void commonSetup(String name, DCMotor motors, SmartMotorControllerConfig motorConfig) {
         setName(Constants.Indexer.YAMS.get(name));
         this.motorConfig = motorConfig.clone()
             .withSubsystem(this)
@@ -54,24 +53,14 @@ public class Roller extends SubsystemBase {
     public Roller(String name, DCMotor motors, SparkMax vendorMotor, SmartMotorControllerConfig motorConfig) {
         this.vendorMotorSparkMax = Optional.of(vendorMotor);
         this.vendorMotorTalonFX = Optional.empty();
-        CommonSetup(name, motors, motorConfig);
+        commonSetup(name, motors, motorConfig);
     }
 
     public Roller(String name, DCMotor motors, TalonFX vendorMotor, SmartMotorControllerConfig motorConfig) {
         this.vendorMotorTalonFX = Optional.of(vendorMotor);
         this.vendorMotorSparkMax = Optional.empty();
-        CommonSetup(name, motors, motorConfig);
+        commonSetup(name, motors, motorConfig);
     }
-
-    // public Command stop() {
-    //     return motor.runTo(RPM.of(0), RPM.of(6000))
-    //         .andThen(rollerMech.set(0));
-    // }
-
-    // public Command runAtSpeed(AngularVelocity speed) {
-    //     return rollerMech.setSpeed(speed);
-    // }
-
 
     public Command stop() {
         return runOnce(motor::startClosedLoopController)
@@ -85,6 +74,10 @@ public class Roller extends SubsystemBase {
 
     public Command runAtSpeed(AngularVelocity speed) {
         return run(() -> motor.setVelocity(speed));
+    }
+
+    public Command runAtSpeed(Supplier<AngularVelocity> speed) {
+        return run(() -> motor.setVelocity(speed.get()));
     }
 
     @Override

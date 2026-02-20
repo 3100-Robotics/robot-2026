@@ -99,8 +99,8 @@ public class RobotContainer {
         // Idle bindings
         driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
             Commands.parallel(
-                intake.deploy(),
-                indexer.stop
+                intake.deploy()
+                // indexer.stop
                 // shooter.idle
             )
         );
