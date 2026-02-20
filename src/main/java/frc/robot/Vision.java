@@ -93,10 +93,7 @@ public class Vision extends SubsystemBase {
     public PhotonCameraSim cameraSimFrontRight;
     public PhotonCameraSim cameraSimFrontLeft;
 
-    private RobotContainer rcontainer;
-
-    public Vision(EstimateConsumer estConsumer, RobotContainer rcontainer) {
-        this.rcontainer = rcontainer;
+    public Vision(EstimateConsumer estConsumer) {
         photonEstimatorFrontRight = new PhotonPoseEstimator(
             tagLayout,
             robotToFrontRight);

@@ -55,7 +55,7 @@ public class RobotContainer {
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     // Vision
-    private Vision vision = new Vision(drivetrain::addVisionMeasurement, this);
+    private Vision vision = new Vision(drivetrain::addVisionMeasurement);
 
     private Logging log = new Logging();
 
@@ -101,8 +101,8 @@ public class RobotContainer {
         }
 
         if (Constants.enableDrivetrain) {
-            // drivetrain = new Drivetrain();
-            // drivetrain.registerTelemetry(log::logCTREChassis);
+            drivetrain = TunerConstantsV2.createDrivetrain();
+            drivetrain.registerTelemetry(log::logCTREChassis);
         }
 
         if (!Constants.doLiveTuning) {
