@@ -68,12 +68,11 @@ public class Hood extends SubsystemBase {
         .withTelemetry("HoodMech", TelemetryVerbosity.HIGH);
 
     // Arm Mechanism
-    private Arm hood = new Arm(hoodConfig);
+    public Arm hood = new Arm(hoodConfig);
 
-    private Command dbg_angle_0 = hood.setAngle(Degrees.of(12.3)).withName("angle 1");
-    private Command dbg_angle_1 = hood.setAngle(Degrees.of(40)).withName("angle 2");
+    private Command dbg_angle_0 = hood.setAngle(Degrees.of(12.3)).withName("lowestAngle");
+    private Command dbg_angle_1 = hood.setAngle(Degrees.of(40)).withName("highestAngle");
 
-    public Supplier<Angle> angleTargetProvider = () -> Degrees.of(0);
     // public Command continuousAngle = hood.setAngle(angleTargetProvider);
     // public Command stop = hood.runTo(hood.getAngle(), Degrees.of(90)).andThen(hood.set(0));
 
@@ -85,24 +84,8 @@ public class Hood extends SubsystemBase {
             Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_1.getName()), dbg_angle_1);
     }
 
-    public Command runNewTarget(Supplier<Angle> newSpeedTarget) {
-        return runOnce(() -> angleTargetProvider = newSpeedTarget)
-                .andThen(runAtCurrentTarget());
-    }
-
-    public Command runAtCurrentTarget() {
-        return hood.setAngle(angleTargetProvider);
-    }
-
-    public Command stop() {
-        return hood.setAngle(hood.getAngle()).andThen(hood.set(0));
-    }
-
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("angleHood", hood.getAngle().in(Degrees));
-        hood.getMechanismSetpoint().ifPresent(setpoint -> SmartDashboard.putNumber("hoodSetpoint", setpoint.in(Degrees)));
-        
         hood.updateTelemetry();
     }
 

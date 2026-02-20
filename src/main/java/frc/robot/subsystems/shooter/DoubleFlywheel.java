@@ -109,30 +109,6 @@ public class DoubleFlywheel extends SubsystemBase {
         // runAtCurrentTarget = flywheel.run(speedTarget);
     }
 
-    public void setTarget(Supplier<AngularVelocity> newSpeedTarget) {
-        speedTargetProvider = newSpeedTarget;
-    }
-
-    public Command runNewTarget(Supplier<AngularVelocity> newSpeedTarget) {
-        return runOnce(() -> speedTargetProvider = newSpeedTarget)
-                .andThen(runAtCurrentTarget());
-    }
-
-    public Command runAtCurrentTarget() {
-        return flywheel.run(speedTargetProvider);
-    }
-
-    public Command runAtCurrentTarget2() {
-        return Commands.parallel(
-            flywheel.setSpeed(speedTargetProvider)
-        );
-    }
-
-    public Command stop() {
-        return flywheel.runTo(RPM.of(0), RPM.of(6000))
-            .andThen(flywheel.set(0));
-    }
-
     @Override
     public void periodic() {
         // flywheel.getMechanismSetpoint().ifPresent(setpoint -> SmartDashboard.putNumber("hoodSetpoint", setpoint.in(RPM)));

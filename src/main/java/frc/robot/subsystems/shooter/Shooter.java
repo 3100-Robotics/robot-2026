@@ -39,32 +39,32 @@ public class Shooter extends SubsystemBase {
     private final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false);
 
     public Shooter() {
-        flywheelL.setTarget(
-            () -> RPM.of(
-                800 // SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
-            )
-        );
+        // flywheelL.setTarget(
+        //     () -> RPM.of(
+        //         800 // SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
+        //     )
+        // );
 
-        flywheelR.setTarget(
-            () -> RPM.of(
-                800 // SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
-            )
-        );
+        // flywheelR.setTarget(
+        //     () -> RPM.of(
+        //         800 // SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
+        //     )
+        // );
 
-        Logging.registerDebugValue(
-            Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), double.class
-        );
+        // Logging.registerDebugValue(
+        //     Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), double.class
+        // );
 
-        Logging.registerDebugCommand(
-            Constants.join('/', Constants.Shooter.nameRoot, "idle"), 
-            // hood.stop().alongWith
-            flywheelL.stop().alongWith(flywheelR.stop())
-        );
+        // Logging.registerDebugCommand(
+        //     Constants.join('/', Constants.Shooter.nameRoot, "idle"), 
+        //     // hood.stop().alongWith
+        //     flywheelL.stop().alongWith(flywheelR.stop())
+        // );
 
-        Logging.registerDebugCommand(
-            Constants.join('/', Constants.Shooter.nameRoot, "spinUpFlywheelsToDebugRPM"), 
-            flywheelL.runAtCurrentTarget().alongWith(flywheelR.runAtCurrentTarget())
-        );
+        // Logging.registerDebugCommand(
+        //     Constants.join('/', Constants.Shooter.nameRoot, "spinUpFlywheelsToDebugRPM"), 
+        //     flywheelL.runAtCurrentTarget().alongWith(flywheelR.runAtCurrentTarget())
+        // );
     }
 
     public Angle calculateFireAngle() {
