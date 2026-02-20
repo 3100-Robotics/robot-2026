@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
-    public static final boolean doLiveTuning = true;
+    public static final boolean doLiveTuning = false;
 
     public static final boolean enableShooter = true;
     public static final boolean enableIndexer = true;
@@ -143,16 +143,21 @@ public class Constants {
     }
 
     public static class Intake {
-        public static int pivotMotorID = 30;
-        public static int rollerMotorID = 31;
-        public static int encoderID = 32;
+        // Physical Constants
+        public static final Angle pivotDeployAngle = Degrees.of(4);
+        public static final Angle pivotStowAngle = Degrees.of(90);
 
-        public static String telemetryNameRoot = "Intake/";
-        public static String telemetryNamePivot = telemetryNameRoot+"Pivot/";
-        public static String telemetryNameRoller = telemetryNameRoot+"Roller/";
+        // Software Constants
+        public static final int pivotMotorID = 30;
+        public static final int rollerMotorID = 31;
+        public static final int encoderID = 32;
 
-        public static String telemetryYAMSPivot = "Pivot_";
-        public static String telemetryYAMSRoller = "Roller_";
+        public static final String telemetryNameRoot = "Intake/";
+        public static final String telemetryNamePivot = telemetryNameRoot+"Pivot/";
+        public static final String telemetryNameRoller = telemetryNameRoot+"Roller/";
+
+        public static final String telemetryYAMSPivot = "Pivot_";
+        public static final String telemetryYAMSRoller = "Roller_";
     }
 
     public static class Vision {

@@ -34,10 +34,12 @@ public class Pivot extends SubsystemBase {
         .withStatorCurrentLimit(Amps.of(60))
         .withSupplyCurrentLimit(Amps.of(60))
 
-        .withGearing(new MechanismGearing(GearBox.fromStages("4:1")))//, Sprocket.fromStages("4:1")))
+        .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "4:1", "12:48")))//, Sprocket.fromStages("4:1")))
         .withControlMode(ControlMode.CLOSED_LOOP)
-        .withSimClosedLoopController(5.5, 0, 1)
-        .withFeedforward(new ArmFeedforward(0, 1.012000, 1))
+        // .withSimClosedLoopController(5.5, 0, 1)
+        // .withFeedforward(new ArmFeedforward(0, 1.012000, 1))
+        .withClosedLoopController(0,0,0)
+        .withFeedforward(new ArmFeedforward(0, 0, 0))
 
         .withEncoderInverted(false)
         .withExternalEncoder(pivotEncoder)
@@ -67,28 +69,14 @@ public class Pivot extends SubsystemBase {
     private Command dbg_angle_0 = pivot.setAngle(Degrees.of(20)).withName("dbg_angle_0");
     private Command dbg_angle_1 = pivot.setAngle(Degrees.of(65)).withName("dbg_angle_1");
 
-    private Optional<Command> safecurrentcommand = Optional.empty();
-
     public Pivot() {
         setName("intakePivot");
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_0.getName(), dbg_angle_0);
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_1.getName(), dbg_angle_1);
     }
 
-    public Command deploy() {
-        return pivot.setAngle(Degrees.of(5));
-    }
-
-    public Command stow() {
-        return pivot.setAngle(Degrees.of(95)).until(() -> pivot.getAngle().in(Degrees) > 95);
-    }
-
     @Override
     public void periodic() {
-        safecurrentcommand = Optional.ofNullable(getCurrentCommand());
-        safecurrentcommand.ifPresent(state -> SmartDashboard.putString(Constants.Intake.telemetryNamePivot+"currentCommand", state.getName()));
-
-        pivot.getMechanismSetpoint().ifPresent(setpoint -> SmartDashboard.putNumber(Constants.Intake.telemetryNamePivot+"setpoint", setpoint.in(Degrees)));
         pivot.updateTelemetry();
     }
 
