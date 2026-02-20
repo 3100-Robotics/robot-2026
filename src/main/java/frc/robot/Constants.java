@@ -65,6 +65,7 @@ public class Constants {
         public static class Physical {
             public static final List<Pair<Distance, Double>> distanceAngleTable = new ArrayList<>();
             public static final List<Pair<Distance, Double>> distanceSpeedTable = new ArrayList<>();
+
             static {
                 // Distance Angle
                 distanceAngleTable.add(Pair.of(Feet.of(1), 30.0));

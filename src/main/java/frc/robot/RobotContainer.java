@@ -100,7 +100,8 @@ public class RobotContainer {
         driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
             Commands.parallel(
                 intake.deploy(),
-                indexer.stop,
+                intake.stop(),
+                indexer.idle(),
                 shooter.idle()
             )
         );
@@ -112,14 +113,46 @@ public class RobotContainer {
         // driverCtl.a().whileTrue(); // Autoalign
 
         // Intake
-        coDriverCtl.rightBumper().onTrue(Commands.parallel(intake.deploy(), intake.runAtSpeed(RPM.of(6000))));
+        coDriverCtl.rightBumper().onTrue(
+            Commands.parallel(
+                intake.deploy(),
+                intake.runAtSpeed(RPM.of(6000))
+            )
+        );
         coDriverCtl.leftBumper().onTrue(intake.stow());
 
+        // Adj hood down/up
         coDriverCtl.povLeft().onTrue(
-            Commands.runOnce(() -> shooter.setHoodAngle(Degrees.of(shooter.getHoodAngle().in(Degrees) - 3)))
+            Commands.runOnce(
+                () -> shooter.setHoodAngleSetpoint(
+                    Degrees.of(shooter.getHoodAngleSetpoint().in(Degrees) - 2)
+                )
+            )
         );
+
         coDriverCtl.povRight().onTrue(
-            Commands.runOnce(() -> shooter.setHoodAngle(Degrees.of(shooter.getHoodAngle().in(Degrees) + 3)))
+            Commands.runOnce(
+                () -> shooter.setHoodAngleSetpoint(
+                    Degrees.of(shooter.getHoodAngleSetpoint().in(Degrees) + 2)
+                )
+            )
+        );
+
+
+        // Adj flywheel slower/faster
+        coDriverCtl.leftBumper().onTrue(
+            Commands.runOnce(
+                () -> shooter.setSpeedSetpoint(
+                    RPM.of(shooter.getSpeedSetpoint().in(RPM) - 100)
+                )
+            )
+        );
+        coDriverCtl.rightBumper().onTrue(
+            Commands.runOnce(
+                () -> shooter.setSpeedSetpoint(
+                    RPM.of(shooter.getSpeedSetpoint().in(RPM) + 100)
+                )
+            )
         );
     }
 

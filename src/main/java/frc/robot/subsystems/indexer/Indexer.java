@@ -98,6 +98,23 @@ public class Indexer extends SubsystemBase {
     }
 
     @Override
+    public Command idle() {
+        return Commands.parallel(
+            floorRollers.stop(),
+            ceilingRollers.stop(),
+            kickerRollers.stop()
+        );
+    }
+
+    public Command run() {
+        return Commands.parallel(
+            floorRollers.runAtSpeed(RPM.of(2377)),
+            ceilingRollers.runAtSpeed(RPM.of(4414)),
+            kickerRollers.runAtSpeed(RPM.of(4414))
+        );
+    }
+
+    @Override
     public void periodic() {
         SmartDashboard.putNumber(
             Constants.join('_', Constants.Indexer.Main.nameFloor, "RPM"), 
