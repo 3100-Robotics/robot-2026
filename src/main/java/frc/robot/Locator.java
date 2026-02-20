@@ -23,7 +23,7 @@ public class Locator extends SubsystemBase {
     private boolean hasAppliedAlliance = false;
     public Optional<Alliance> alliance = Optional.empty();
 
-    private Pose2d hubPose = Constants.hubPoseBlue;
+    public Pose2d hubPose = Constants.hubPoseBlue;
 
     private final Field2d field = new Field2d();
 

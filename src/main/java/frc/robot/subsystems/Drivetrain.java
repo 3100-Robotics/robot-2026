@@ -54,7 +54,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(2, 0.0, 0.0);
+    private final PIDController headingController = new PIDController(2.1, 0.0, 0.0); // kP 2 at prac field
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
 
     /* Swerve requests to apply during SysId characterization */
