@@ -36,17 +36,19 @@ public class Roller extends SubsystemBase {
         .withControlMode(ControlMode.CLOSED_LOOP)
         // Feedback Constants (PID Constants)
         // .withClosedLoopController(0, 0, 0, RPM.of(6000), DegreesPerSecondPerSecond.of(90))
-        .withSimClosedLoopController(0.0001, 0, 0)//, RPM.of(6000), DegreesPerSecondPerSecond.of(90))
+        .withClosedLoopController(0.03, 0, 0)
         // Feedforward Constants
-        .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+        .withFeedforward(new SimpleMotorFeedforward(0, 0.3, 0))
         .withSimFeedforward(new SimpleMotorFeedforward(0, 0.19, 0))
         // Telemetry name and verbosity level
         .withTelemetry(Constants.Intake.telemetryYAMSRoller+"Motor", Constants.getAppropriateTelemetryLevel())
         .withGearing(new MechanismGearing(GearBox.fromStages("3:2")))
         // Motor properties to prevent over currenting.
-        .withMotorInverted(true)
-        .withIdleMode(MotorMode.COAST)
-        .withStatorCurrentLimit(Amps.of(40));
+        .withMotorInverted(false)
+        .withIdleMode(MotorMode.BRAKE)
+        .withStatorCurrentLimit(Amps.of(40))
+        .withSupplyCurrentLimit(Amps.of(40))
+        ;
         
     private SmartMotorController rollerMotorController = new SparkWrapper(rawRollerMotor, DCMotor.getNEO(1), rollerMotorConfig);
 
@@ -78,6 +80,7 @@ public class Roller extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("intakeRPM", roller.getSpeed().in(RPM));
         roller.updateTelemetry();
     }
 

@@ -31,23 +31,23 @@ public class Pivot extends SubsystemBase {
     private CANcoder pivotEncoder = new CANcoder(32);
 
     private final SmartMotorControllerConfig pivotMotorConfig = new SmartMotorControllerConfig(this)
-        .withStatorCurrentLimit(Amps.of(60))
-        .withSupplyCurrentLimit(Amps.of(60))
+        .withStatorCurrentLimit(Amps.of(40))
+        .withSupplyCurrentLimit(Amps.of(40))
 
         .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "4:1", "12:48")))//, Sprocket.fromStages("4:1")))
         .withControlMode(ControlMode.CLOSED_LOOP)
         // .withSimClosedLoopController(5.5, 0, 1)
-        // .withFeedforward(new ArmFeedforward(0, 1.012000, 1))
-        .withClosedLoopController(0,0,0)
+        // .withFeedforward(new ArmFeedforward(0, 1.013332000, 1))
+        .withClosedLoopController(20,0,0)
         .withFeedforward(new ArmFeedforward(0, 0, 0))
 
         .withEncoderInverted(false)
         .withExternalEncoder(pivotEncoder)
         .withExternalEncoderGearing(1)
-        .withExternalEncoderZeroOffset(Degrees.of(0))
+        // .withExternalEncoderZeroOffset(Degrees.of(0))
         .withUseExternalFeedbackEncoder(true)
 
-        .withMotorInverted(false)
+        .withMotorInverted(true)
 
         .withTelemetry(Constants.Intake.telemetryYAMSPivot+"Motor", Constants.getAppropriateTelemetryLevel())
     ;
@@ -66,8 +66,8 @@ public class Pivot extends SubsystemBase {
 
     public Arm pivot = new Arm(pivotConfig);
 
-    private Command dbg_angle_0 = pivot.setAngle(Degrees.of(20)).withName("dbg_angle_0");
-    private Command dbg_angle_1 = pivot.setAngle(Degrees.of(65)).withName("dbg_angle_1");
+    private Command dbg_angle_0 = pivot.setAngle(Constants.Intake.pivotDeployAngle).withName("dbg_angle_0");
+    private Command dbg_angle_1 = pivot.setAngle(Constants.Intake.pivotStowAngle).withName("dbg_angle_1");
 
     public Pivot() {
         setName("intakePivot");

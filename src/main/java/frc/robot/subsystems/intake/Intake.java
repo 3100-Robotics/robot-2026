@@ -48,7 +48,8 @@ public class Intake extends SubsystemBase {
             rollerSub.roller.getSpeed().in(RPM)
         );
     
-    
+        SmartDashboard.putNumber("angleintakepivot", pivotSub.pivot.getAngle().in(Degrees));
+
         pivotSub.pivot.getMechanismSetpoint()
             .ifPresent(
                 setpoint -> SmartDashboard.putNumber(

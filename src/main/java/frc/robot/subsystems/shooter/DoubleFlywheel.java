@@ -75,7 +75,7 @@ public class DoubleFlywheel extends SubsystemBase {
 
         flywheelMotor = new SparkWrapper(vendorLead, GEARBOX, 
             flywheelMotorConfig
-                .withFollowers(Pair.of(vendorFollower, false))
+                // .withFollowers(Pair.of(vendorFollower, false))
                 .withMotorInverted(inversion)
                 .withTelemetry(Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"Motor", Constants.getAppropriateTelemetryLevel())
         );

@@ -145,8 +145,8 @@ public class Constants {
 
     public static class Intake {
         // Physical Constants
-        public static final Angle pivotDeployAngle = Degrees.of(4);
-        public static final Angle pivotStowAngle = Degrees.of(90);
+        public static final Angle pivotDeployAngle = Degrees.of(2);
+        public static final Angle pivotStowAngle = Degrees.of(-115);
 
         // Software Constants
         public static final int pivotMotorID = 30;

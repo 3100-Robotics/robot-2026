@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
-import frc.robot.generated.TunerConstantsV2.TunerSwerveDrivetrain;
+import frc.robot.generated.TunerConstantsArkelon.TunerSwerveDrivetrain;
 import frc.robot.math.AngleUtils;
 
 /**

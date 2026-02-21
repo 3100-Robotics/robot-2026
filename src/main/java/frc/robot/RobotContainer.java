@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.generated.TunerConstantsV2;
+import frc.robot.generated.TunerConstantsArkelon;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
@@ -43,7 +43,7 @@ public class RobotContainer {
 
     // Drivetrain
     private Drivetrain drivetrain;
-    private double MaxSpeed = 1.0 * TunerConstantsV2.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = 1.0 * TunerConstantsArkelon.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -101,7 +101,7 @@ public class RobotContainer {
         }
 
         if (Constants.enableDrivetrain) {
-            drivetrain = TunerConstantsV2.createDrivetrain();
+            drivetrain = TunerConstantsArkelon.createDrivetrain();
             drivetrain.registerTelemetry(log::logCTREChassis);
 
             vision = new Vision(drivetrain::addVisionMeasurement);
@@ -120,18 +120,19 @@ public class RobotContainer {
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
                 drive
-                    .withVelocityX(driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis()) // Drive forward with negative Y (forward)
-                    .withVelocityY(driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis()) // Drive left with negative X (left)
-                    .withRotationalRate(driverCtl.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                    .withVelocityX(-driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis()) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis()) // Drive left with negative X (left)
+                    .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
         // Break
-        driverCtl.b().whileTrue(drivetrain.applyRequest(() -> brake));
+        driverCtl.leftBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
         // Lockpose!
-        driverCtl.y().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-driverCtl.getLeftY(), -driverCtl.getLeftX()))
-        ));
+        driverCtl.b().whileTrue(drivetrain.applyRequest(() ->
+            // point.withModuleDirection(new Rotation2d(-driverCtl.getLeftY(), -driverCtl.getLeftX()))
+            point.withModuleDirection(Rotation2d.fromDegrees(45))
+            ));
 
         driverCtl.a().whileTrue(
             drivetrain.pointAtPose(locator.hubPose)
@@ -147,38 +148,48 @@ public class RobotContainer {
             )
         );
 
-        // Intake
-        coDriverCtl.rightBumper().onTrue(
-            Commands.parallel(
-                intake.deploy(),
-                intake.runAtSpeed(RPM.of(6000))
-            )
-        );
-        coDriverCtl.leftBumper().onTrue(intake.stow());
 
-        // Shooter
+
+        /// Intake
+        coDriverCtl.x().whileTrue(
+            Commands.parallel(
+                // intake.deploy(),
+                intake.runAtSpeed(RPM.of(2000))
+            )
+        ).whileFalse(intake.stop());
+        coDriverCtl.b().whileTrue(
+            intake.stow()
+                .alongWith(intake.stop())
+            )
+            .whileFalse(intake.deploy()
+                
+            );
+
+
+
+        /// Shooter
         coDriverCtl.a().whileTrue(
             Commands.parallel(
-                Commands.run(
+                Commands.run( // TODO: Test this TODAY
                     () -> {
                         var targets = shooter.calculateFireAngleAndSpeed();
-                        shooter.setHoodAngleSetpoint(targets.getFirst());
-                        shooter.setSpeedSetpoint(targets.getSecond());
+                        // shooter.setHoodAngleSetpoint(targets.getFirst());
+                        // shooter.setSpeedSetpoint(targets.getSecond());
+                        shooter.setHoodAngleSetpoint(Degrees.of(20));
+                        shooter.setSpeedSetpoint(RPM.of(4000));
                     }
                 ),
                 shooter.goToCurrentAngle(),
                 shooter.runFlywheelsToCurrent(),
                 Commands.sequence(
-                    Commands.waitSeconds(2),
-                    indexer.run(),
-                    Commands.waitSeconds(0.2),
-                    intake.runAtSpeed(RPM.of(1000))
+                    Commands.waitSeconds(0.5),
+                    indexer.run()
+                    //nCommands.waitSeconds(0.2)
+                    // intake.runAtSpeed(RPM.of(1000))
                 )
             )
         ).whileFalse(
             Commands.parallel(
-                intake.deploy(),
-                intake.stop(),
                 indexer.idle(),
                 shooter.idle()
             )
