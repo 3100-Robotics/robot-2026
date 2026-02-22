@@ -104,7 +104,7 @@ public class RobotContainer {
             drivetrain = TunerConstantsArkelon.createDrivetrain();
             drivetrain.registerTelemetry(log::logCTREChassis);
 
-            vision = new Vision(drivetrain::addVisionMeasurement);
+            vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
             locator = new Locator(drivetrain::getPos);
         }
 
@@ -120,9 +120,9 @@ public class RobotContainer {
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
                 drive
-                    .withVelocityX(-driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis()) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis()) // Drive left with negative X (left)
-                    .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                    .withVelocityX(-driverCtl.getLeftY() * MaxSpeed)// * driverCtl.getRightTriggerAxis())
+                    .withVelocityY(-driverCtl.getLeftX() * MaxSpeed)// * driverCtl.getRightTriggerAxis())
+                    .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate)
             )
         );
 
@@ -135,7 +135,7 @@ public class RobotContainer {
             ));
 
         driverCtl.a().whileTrue(
-            drivetrain.pointAtPose(locator.hubPose)
+            drivetrain.pointAtPose(() -> locator.hubPose)
         ); // Autoalign to hub
 
         // Idle bindings
@@ -170,13 +170,15 @@ public class RobotContainer {
         /// Shooter
         coDriverCtl.a().whileTrue(
             Commands.parallel(
-                Commands.run( // TODO: Test this TODAY
+                Commands.runOnce( // TODO: Test this TODAY
                     () -> {
                         var targets = shooter.calculateFireAngleAndSpeed();
-                        // shooter.setHoodAngleSetpoint(targets.getFirst());
-                        // shooter.setSpeedSetpoint(targets.getSecond());
-                        shooter.setHoodAngleSetpoint(Degrees.of(20));
-                        shooter.setSpeedSetpoint(RPM.of(4000));
+                        shooter.setHoodAngleSetpoint(targets.getFirst());
+                        shooter.setSpeedSetpoint(targets.getSecond());
+                        // shooter.angleProvider = () -> Degrees.of(20);
+                        // shooter.speedProvider = () -> RPM.of(4000);
+                        // shooter.setHoodAngleSetpoint(Degrees.of(20));
+                        // shooter.setSpeedSetpoint(RPM.of(4000));
                     }
                 ),
                 shooter.goToCurrentAngle(),
@@ -184,7 +186,7 @@ public class RobotContainer {
                 Commands.sequence(
                     Commands.waitSeconds(0.5),
                     indexer.run()
-                    //nCommands.waitSeconds(0.2)
+                    // Commands.waitSeconds(0.2)
                     // intake.runAtSpeed(RPM.of(1000))
                 )
             )

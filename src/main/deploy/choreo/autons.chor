@@ -9,22 +9,22 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"9.75 in",
+    "val":0.24765
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"11.75 in",
+    "val":0.29845
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-11 in",
-    "val":-0.2794
+    "exp":"-9.75 in",
+    "val":-0.24765
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"11.75 in",
+    "val":0.29845
    }
   },
   "mass":{
@@ -57,16 +57,16 @@
   },
   "bumper":{
    "front":{
-    "exp":"27.5 in",
-    "val":0.6985
+    "exp":"15.875 in",
+    "val":0.403225
    },
    "side":{
-    "exp":"27.5 in",
-    "val":0.6985
+    "exp":"17.875 in",
+    "val":0.454025
    },
    "back":{
-    "exp":"27.5 in",
-    "val":0.6985
+    "exp":"15.875 in",
+    "val":0.403225
    }
   },
   "differentialTrackWidth":{

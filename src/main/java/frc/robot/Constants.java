@@ -59,8 +59,8 @@ public class Constants {
          * Flywheel L IS the left flywheel IS flywheel 0
          * Flywheel R IS the right flywheel IS flywheel 1
          */
-        public static Angle maxHoodAngle = Degrees.of(50);
-        public static Angle minHoodAngle = Degrees.of(0);
+        public static Angle maxHoodAngle = Degrees.of(40);
+        public static Angle minHoodAngle = Degrees.of(12.667292);
 
         public static class Physical {
             public static final List<Pair<Distance, Double>> distanceAngleTable = new ArrayList<>();
@@ -69,13 +69,13 @@ public class Constants {
             static {
                 // Distance Angle
                 distanceAngleTable.add(Pair.of(Feet.of(1), 30.0));
-                distanceAngleTable.add(Pair.of(Feet.of(1.1), 31.0));
-                distanceAngleTable.add(Pair.of(Feet.of(2), 42.0));
+                distanceAngleTable.add(Pair.of(Feet.of(4), 31.0));
+                distanceAngleTable.add(Pair.of(Feet.of(8), 42.0));
 
                 // Distance Speed
                 distanceSpeedTable.add(Pair.of(Feet.of(1), 3000.0));
-                distanceSpeedTable.add(Pair.of(Feet.of(1.1), 4000.0));
-                distanceSpeedTable.add(Pair.of(Feet.of(2), 5000.0));
+                distanceSpeedTable.add(Pair.of(Feet.of(4), 4000.0));
+                distanceSpeedTable.add(Pair.of(Feet.of(8), 5000.0));
             }
         }
 

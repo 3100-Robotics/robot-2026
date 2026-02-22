@@ -26,11 +26,11 @@ public class Shooter extends SubsystemBase {
      * functions
      */
 
-    private Angle hoodAngle = Degrees.of(0);
+    private Angle hoodAngle = Degrees.of(3100);
     private AngularVelocity flywheelSpeed = RPM.of(0);
 
-    private Supplier<Angle> angleProvider = () -> hoodAngle;
-    private Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
+    public Supplier<Angle> angleProvider = () -> hoodAngle;
+    public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
 
     private final Hood hood = new Hood();
     private final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true);
@@ -73,7 +73,15 @@ public class Shooter extends SubsystemBase {
         var angleTable = Constants.Shooter.Physical.distanceAngleTable;
         var speedTable = Constants.Shooter.Physical.distanceSpeedTable;
 
-        double angleOut = -31; // TODO: better way to do this
+        double angleOut = 15; // Default
+        if (shooterDistToHub.lt(angleTable.get(0).getFirst())) {
+            angleOut = Constants.Shooter.minHoodAngle.in(Degrees);
+        }
+
+        if (shooterDistToHub.gt(angleTable.get(angleTable.size()-1).getFirst())) {
+            angleOut = Constants.Shooter.maxHoodAngle.in(Degrees);
+        }
+
         for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
             if (shooterDistToHub.gte(angleTable.get(i).getFirst()) && 
                 shooterDistToHub.lte(angleTable.get(i+1).getFirst())
@@ -89,7 +97,16 @@ public class Shooter extends SubsystemBase {
             }
         }
 
-        double speedOut = -31; // TODO: better way to do this
+        
+        double speedOut = 4000;
+        if (shooterDistToHub.lt(speedTable.get(0).getFirst())) {
+            speedOut = 31;
+        }
+
+        if (shooterDistToHub.gt(speedTable.get(angleTable.size()-1).getFirst())) {
+            speedOut = 3100;
+        }
+
         for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
             if (shooterDistToHub.gte(speedTable.get(i).getFirst()) && 
                 shooterDistToHub.lte(speedTable.get(i+1).getFirst())
@@ -126,13 +143,6 @@ public class Shooter extends SubsystemBase {
     // get/set flywheel setpoint
     public void setSpeedSetpoint(AngularVelocity newSpeed) {
         flywheelSpeed = newSpeed;
-        // if (newAngle.in(Degrees) > Constants.Shooter.maxHoodAngle.in(Degrees)) {
-        //     hoodAngle = Constants.Shooter.maxHoodAngle;
-        // } else if (newAngle.in(Degrees) < Constants.Shooter.minHoodAngle.in(Degrees)) {
-        //     hoodAngle = Constants.Shooter.minHoodAngle;
-        // } else {
-        //     hoodAngle = newAngle;
-        // }
     }
 
     public AngularVelocity getSpeedSetpoint() {
@@ -174,7 +184,9 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putNumber("flywheel left rpm", flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
         SmartDashboard.putNumber("flywheel left rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
 
-        // SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
+        SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
+        SmartDashboard.putNumber("fromHoodSupllierAngle", angleProvider.get().in(Degrees));
+        SmartDashboard.putNumber("fromHoodSupllierRPM", speedProvider.get().in(RPM));
         // SmartDashboard.putNumber("speed calc flywheel", calculateFireAngleAndSpeed().getSecond().in(RPM));
     }
 }

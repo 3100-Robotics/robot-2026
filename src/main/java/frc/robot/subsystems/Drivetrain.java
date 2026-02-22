@@ -54,7 +54,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(2.1, 0.0, 0.0); // kP 2 at prac field
+    private final PIDController headingController = new PIDController(10.0, 0.0, 0.0); // kP 2 at prac field
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
 
     /* Swerve requests to apply during SysId characterization */
@@ -234,6 +234,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic() {
+        headingController.enableContinuousInput(0, 2*Math.PI);
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -242,15 +243,15 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
          * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
          */
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
-            DriverStation.getAlliance().ifPresent(allianceColor -> {
-                SmartDashboard.putString("Color :)", allianceColor.toString());
-                setOperatorPerspectiveForward(
-                    allianceColor == Alliance.Red
-                        ? kRedAlliancePerspectiveRotation
-                        : kBlueAlliancePerspectiveRotation
-                );
-                m_hasAppliedOperatorPerspective = true;
-            }
+                DriverStation.getAlliance().ifPresent(allianceColor -> {
+                    SmartDashboard.putString("Color :)", allianceColor.toString());
+                    setOperatorPerspectiveForward(
+                        allianceColor == Alliance.Red
+                            ? kRedAlliancePerspectiveRotation
+                            : kBlueAlliancePerspectiveRotation
+                    );
+                    m_hasAppliedOperatorPerspective = true;
+                }
             );
         }
     }
@@ -352,7 +353,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                     poseSetpoint.get().getRotation().getDegrees()+10,
                     poseSetpoint.get().getRotation().getDegrees()-10
                 ));
-        return isAtPose;
+        return false;//isAtPose;
     }
 
     public void goToPose() {
@@ -373,7 +374,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     public Command goToPoseCommand() {
         return Commands.parallel(
                 run(() -> goToPose())
-                .until(this::isAtPoseSetpoint),
+                    .until(this::isAtPoseSetpoint),
                 Commands.runOnce(() -> SmartDashboard.putString("gotoposestage", "stage 0"))
             )
             .andThen(Commands.runOnce(() -> SmartDashboard.putString("gotoposestage", "stage 1")))
@@ -398,6 +399,24 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                     )
                 )
             );
-        }).andThen(Commands.runOnce(() -> SmartDashboard.putString("autostage", "pointed at thing setup"))).andThen(goToPoseCommand());
+        }).andThen(Commands.runOnce(() -> SmartDashboard.putString("autostage", "pointed at thing setup")))
+        .andThen(goToPoseCommand());
+    }
+
+    public Command pointAtPose(Supplier<Pose2d> target) {
+        return runOnce(() -> {
+            Pose2d currentPose = getPos();
+            poseSetpoint = () -> new Pose2d(
+                currentPose.getX(),
+                currentPose.getY(),
+                Rotation2d.fromRadians(
+                    Math.atan2(
+                        target.get().getY()-currentPose.getY(),
+                        target.get().getX()-currentPose.getX()
+                    )
+                )
+            );
+        }).andThen(Commands.runOnce(() -> SmartDashboard.putString("autostage", "pointed at thing setup")))
+        .andThen(goToPoseCommand());
     }
 }
