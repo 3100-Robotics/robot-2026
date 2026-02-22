@@ -89,6 +89,6 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // hood.simIterate();
+        hood.simIterate();
     }
 }

@@ -82,6 +82,6 @@ public class Pivot extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // pivot.simIterate();
+        pivot.simIterate();
     }
 }

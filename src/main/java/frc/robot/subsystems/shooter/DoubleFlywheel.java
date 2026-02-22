@@ -119,6 +119,6 @@ public class DoubleFlywheel extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // flywheel.simIterate();
+        flywheel.simIterate();
     }
 }
