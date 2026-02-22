@@ -129,11 +129,11 @@ public class Vision extends SubsystemBase {
             cameraPropFrontLeft.setAvgLatencyMs(35);
             cameraPropFrontLeft.setLatencyStdDevMs(5);
 
-            cameraSimFrontLeft.enableDrawWireframe(true);
-            cameraSimFrontRight.enableDrawWireframe(true);
-
             cameraSimFrontRight = new PhotonCameraSim(cameraFrontRight, cameraPropFrontRight);
             cameraSimFrontLeft = new PhotonCameraSim(cameraFrontLeft, cameraPropFrontLeft);
+
+            cameraSimFrontLeft.enableDrawWireframe(true);
+            cameraSimFrontRight.enableDrawWireframe(true);
 
             visionSim.addCamera(cameraSimFrontRight, robotToFrontRight);
             visionSim.addCamera(cameraSimFrontLeft, robotToFrontLeft);
@@ -147,7 +147,7 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putData(purevision);
+        SmartDashboard.putData("purevision", purevision);
         rightcam3d.set(new Pose3d(robotToFrontRight.getTranslation(), robotToFrontRight.getRotation()));
 
 
