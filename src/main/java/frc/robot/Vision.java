@@ -57,7 +57,7 @@ public class Vision extends SubsystemBase {
         public void accept(Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs);
     }
 
-
+    public boolean usePose = true;
     private AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     public static final Transform3d robotToFrontRight =
@@ -85,7 +85,7 @@ public class Vision extends SubsystemBase {
     public PhotonPoseEstimator photonEstimatorFrontRight;
     public PhotonPoseEstimator photonEstimatorFrontLeft;
     public PhotonCamera cameraFrontRight = new PhotonCamera("Right");
-    public PhotonCamera cameraFrontLeft = new PhotonCamera("Left");
+    public PhotonCamera cameraFrontLeft = new PhotonCamera("Leftno");
 
     // Simulation
 
@@ -174,7 +174,9 @@ public class Vision extends SubsystemBase {
                     est -> {
                         var estStdDevs = getEstimationStdDevs();
                         purevision.setRobotPose(est.estimatedPose.toPose2d());
-                        estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+                        if (usePose) {
+                            estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+                        }
                     }
                 );
             }

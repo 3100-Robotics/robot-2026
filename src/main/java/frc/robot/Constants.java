@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 
 import java.util.ArrayList;
@@ -68,14 +69,16 @@ public class Constants {
 
             static {
                 // Distance Angle
-                distanceAngleTable.add(Pair.of(Feet.of(1), 30.0));
-                distanceAngleTable.add(Pair.of(Feet.of(4), 31.0));
-                distanceAngleTable.add(Pair.of(Feet.of(8), 42.0));
+                distanceAngleTable.add(Pair.of(Meters.of(1.5), 20.0));
+                distanceAngleTable.add(Pair.of(Meters.of(3), 32.0));
+                distanceAngleTable.add(Pair.of(Meters.of(4.5), 38.0));
+                distanceAngleTable.add(Pair.of(Meters.of(6), 40.0));
 
                 // Distance Speed
-                distanceSpeedTable.add(Pair.of(Feet.of(1), 3000.0));
-                distanceSpeedTable.add(Pair.of(Feet.of(4), 4000.0));
-                distanceSpeedTable.add(Pair.of(Feet.of(8), 5000.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(1.5), 2850.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(3), 3330.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(4.5), 3860.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(6), 4600.0));
             }
         }
 
@@ -146,7 +149,7 @@ public class Constants {
     public static class Intake {
         // Physical Constants
         public static final Angle pivotDeployAngle = Degrees.of(2);
-        public static final Angle pivotStowAngle = Degrees.of(-115);
+        public static final Angle pivotStowAngle = Degrees.of(-90);
 
         // Software Constants
         public static final int pivotMotorID = 30;

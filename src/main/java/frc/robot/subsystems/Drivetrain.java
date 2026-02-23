@@ -54,7 +54,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(10.0, 0.0, 0.0); // kP 2 at prac field
+    private final PIDController headingController = new PIDController(10.0, 0.0, 1.0); // kP 2 at prac field
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
 
     /* Swerve requests to apply during SysId characterization */
@@ -348,12 +348,12 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                     poseSetpoint.get().getRotation().getDegrees()-5
                 );
 
-        SmartDashboard.putBoolean("within range", AngleUtils.is_between(
-                    getPos().getRotation().getDegrees(),
-                    poseSetpoint.get().getRotation().getDegrees()+10,
-                    poseSetpoint.get().getRotation().getDegrees()-10
-                ));
-        return false;//isAtPose;
+        // SmartDashboard.putBoolean("within range", AngleUtils.is_between(
+        //             getPos().getRotation().getDegrees(),
+        //             poseSetpoint.get().getRotation().getDegrees()+10,
+        //             poseSetpoint.get().getRotation().getDegrees()-10
+        //         ));
+        return isAtPose;
     }
 
     public void goToPose() {

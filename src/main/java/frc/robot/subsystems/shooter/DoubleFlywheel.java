@@ -75,7 +75,7 @@ public class DoubleFlywheel extends SubsystemBase {
 
         flywheelMotor = new SparkWrapper(vendorLead, GEARBOX, 
             flywheelMotorConfig
-                // .withFollowers(Pair.of(vendorFollower, false))
+                .withFollowers(Pair.of(vendorFollower, false))
                 .withMotorInverted(inversion)
                 .withTelemetry(Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"Motor", Constants.getAppropriateTelemetryLevel())
         );
@@ -113,6 +113,8 @@ public class DoubleFlywheel extends SubsystemBase {
     public void periodic() {
         // flywheel.getMechanismSetpoint().ifPresent(setpoint -> SmartDashboard.putNumber("hoodSetpoint", setpoint.in(RPM)));
         // SmartDashboard.putNumber("hoodSetpoint", flywheel.getSpeed().in(RPM));
+
+        flywheel.getMotor().getSupplyCurrent().ifPresent(current -> SmartDashboard.putNumber(Constants.Shooter.Main.flywheelNames[flywheelIndex]+"Current", current.in(Amps)));
 
         flywheel.updateTelemetry();
     }

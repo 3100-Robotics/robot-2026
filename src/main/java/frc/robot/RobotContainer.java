@@ -61,6 +61,8 @@ public class RobotContainer {
 
     private Locator locator;
 
+    public boolean intakeDeployed = true;
+
 
     @SuppressWarnings("unused")
     public RobotContainer() {
@@ -116,15 +118,27 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Drivetrain
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive
-                    .withVelocityX(-driverCtl.getLeftY() * MaxSpeed)// * driverCtl.getRightTriggerAxis())
-                    .withVelocityY(-driverCtl.getLeftX() * MaxSpeed)// * driverCtl.getRightTriggerAxis())
-                    .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate)
-            )
-        );
+        if (Robot.isReal()) {
+            drivetrain.setDefaultCommand(
+                // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(() ->
+                    drive
+                        .withVelocityX(-driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis())
+                        .withVelocityY(-driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis())
+                        .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate)
+                )
+            );
+        } else {
+            drivetrain.setDefaultCommand(
+                // Drivetrain will execute this command periodically
+                drivetrain.applyRequest(() ->
+                    drive
+                        .withVelocityX(-driverCtl.getLeftY() * MaxSpeed)// * driverCtl.getRightTriggerAxis())
+                        .withVelocityY(-driverCtl.getLeftX() * MaxSpeed)// * driverCtl.getRightTriggerAxis())
+                        .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate)
+                )
+            );
+        }
 
         // Break
         driverCtl.leftBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
@@ -134,14 +148,18 @@ public class RobotContainer {
             point.withModuleDirection(Rotation2d.fromDegrees(45))
             ));
 
+        driverCtl.rightBumper().onTrue(Commands.runOnce(() -> vision.usePose = false));
+
         driverCtl.a().whileTrue(
-            drivetrain.pointAtPose(() -> locator.hubPose)
+            Commands.runOnce(() -> drivetrain.setControl(new SwerveRequest.Idle()))
+                .andThen(Commands.waitSeconds(0.2))
+                .andThen(drivetrain.pointAtPose(() -> locator.hubPose))
         ); // Autoalign to hub
 
         // Idle bindings
         driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
             Commands.parallel(
-                intake.deploy(),
+                // intake.deploy(),
                 intake.stop(),
                 indexer.idle(),
                 shooter.idle()
@@ -154,16 +172,20 @@ public class RobotContainer {
         coDriverCtl.x().whileTrue(
             Commands.parallel(
                 // intake.deploy(),
-                intake.runAtSpeed(RPM.of(2000))
+                intake.runAtSpeed(RPM.of(3000))
             )
         ).whileFalse(intake.stop());
-        coDriverCtl.b().whileTrue(
-            intake.stow()
-                .alongWith(intake.stop())
-            )
-            .whileFalse(intake.deploy()
-                
-            );
+
+
+        coDriverCtl.b().onTrue(
+            Commands.runOnce(() -> {
+                if (intake.deployed) {
+                    intake.deployed = false;
+                } else {
+                    intake.deployed = true;
+                }
+            })
+        );
 
 
 
@@ -184,7 +206,7 @@ public class RobotContainer {
                 shooter.goToCurrentAngle(),
                 shooter.runFlywheelsToCurrent(),
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(0.7),
                     indexer.run()
                     // Commands.waitSeconds(0.2)
                     // intake.runAtSpeed(RPM.of(1000))

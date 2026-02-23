@@ -26,8 +26,8 @@ public class Shooter extends SubsystemBase {
      * functions
      */
 
-    private Angle hoodAngle = Degrees.of(3100);
-    private AngularVelocity flywheelSpeed = RPM.of(0);
+    private Angle hoodAngle = Constants.Shooter.minHoodAngle;
+    private AngularVelocity flywheelSpeed = RPM.of(4000);
 
     public Supplier<Angle> angleProvider = () -> hoodAngle;
     public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
@@ -63,12 +63,14 @@ public class Shooter extends SubsystemBase {
         //     Constants.join('/', Constants.Shooter.nameRoot, "spinUpFlywheelsToDebugRPM"), 
         //     flywheelL.runAtCurrentTarget().alongWith(flywheelR.runAtCurrentTarget())
         // );
+        flywheelL.setDefaultCommand(flywheelL.flywheel.run(RPM.of(1000)));
+        flywheelR.setDefaultCommand(flywheelR.flywheel.run(RPM.of(1000)));
     }
 
     public Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
         var shooterDistToHub = 
             Locator.getInstance().distanceToHub.get() // Robot center distance from hub
-            .plus(Inches.of(5)) // Center to fuel exit
+            .plus(Inches.of(8)) // Center to fuel exit
         ;
         var angleTable = Constants.Shooter.Physical.distanceAngleTable;
         var speedTable = Constants.Shooter.Physical.distanceSpeedTable;
@@ -153,8 +155,7 @@ public class Shooter extends SubsystemBase {
     @Override
     public Command idle() {
         return Commands.parallel(
-            stopHood(),
-            stopFlywheels()
+            stopHood()
         );
     }
 
@@ -184,7 +185,7 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putNumber("flywheel left rpm", flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
         SmartDashboard.putNumber("flywheel left rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
 
-        SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
+        // SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
         SmartDashboard.putNumber("fromHoodSupllierAngle", angleProvider.get().in(Degrees));
         SmartDashboard.putNumber("fromHoodSupllierRPM", speedProvider.get().in(RPM));
         // SmartDashboard.putNumber("speed calc flywheel", calculateFireAngleAndSpeed().getSecond().in(RPM));
