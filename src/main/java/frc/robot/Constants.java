@@ -74,16 +74,16 @@ public class Constants {
                 // distanceAngleTable.add(Pair.of(Meters.of(3), 32.0));
                 // distanceAngleTable.add(Pair.of(Meters.of(4.5), 38.0));
                 // distanceAngleTable.add(Pair.of(Meters.of(6), 40.0));
-                distanceAngleTable.add(Pair.of(Meters.of(0.5), 20.0));
-                distanceAngleTable.add(Pair.of(Meters.of(6), 40.0));
+                distanceAngleTable.add(Pair.of(Meters.of(1.36), 20.0));
+                distanceAngleTable.add(Pair.of(Meters.of(5.86), 40.0));
 
                 // Distance Speed
                 // distanceSpeedTable.add(Pair.of(Meters.of(1.5), 2850.0));
                 // distanceSpeedTable.add(Pair.of(Meters.of(3), 3330.0));
                 // distanceSpeedTable.add(Pair.of(Meters.of(4.5), 3860.0));
                 // distanceSpeedTable.add(Pair.of(Meters.of(6), 4600.0));
-                distanceSpeedTable.add(Pair.of(Meters.of(0.5), 2200.0));
-                distanceSpeedTable.add(Pair.of(Meters.of(6), 3600.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2200.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3600.0));
                
             }
         }
@@ -137,7 +137,7 @@ public class Constants {
             }
         }
 
-        public static SpeedSet ;
+        // public static SpeedSet ;
 
         public static int floorMotorID = 40;
         public static int ceilingMotorID = 41;

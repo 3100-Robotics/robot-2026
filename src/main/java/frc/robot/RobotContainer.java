@@ -242,7 +242,7 @@ public class RobotContainer {
         /// Shooter
         coDriverCtl.a().whileTrue(
             Commands.parallel(
-                Commands.runOnce( // TODO: Test this TODAY
+                Commands.run(
                     () -> {
                         var targets = shooter.calculateFireAngleAndSpeed();
                         shooter.setHoodAngleSetpoint(targets.getFirst());
@@ -256,7 +256,8 @@ public class RobotContainer {
                 shooter.goToCurrentAngle(),
                 shooter.runFlywheelsToCurrent(),
                 Commands.sequence(
-                    Commands.waitSeconds(0.7),
+                    // Commands.waitUntil(shooter.flywheelsAtRPM),
+                    Commands.waitSeconds(1.1),
                     indexer.run()
                     // Commands.waitSeconds(0.2)
                     // intake.runAtSpeed(RPM.of(1000))
