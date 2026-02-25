@@ -54,19 +54,19 @@ public class Auton {
     }
 
     public AutoRoutine outpostAndScore() {
-        // Pose2d INIT_POSE = new Pose2d(
-        //                     3.709699869155884,
-        //                     1.9885972738265991, Rotation2d.fromDegrees(90));
-
         var path = AutoConsts.OPAS.poses;
 
         var sequence = Commands.sequence(
             Commands.runOnce(() -> drivetrain.resetPose(AutoConsts.OPAS.INIT_POSE)),
-            drivetrain.goToPoseCommand(() -> path[0]),
+            drivetrain.goToPoseCommand(() -> path[0])
+                .until(() -> drivetrain.isAtPoseSetpoint(false))
+                .andThen(drivetrain.goToPoseCommand().withTimeout(5)),
+
             drivetrain.goToPoseCommand(() -> path[1])
+                .until(() -> drivetrain.isAtPoseSetpoint(false))
         );
 
-        var routine = autoFactory.newRoutine("Bump");
+        var routine = autoFactory.newRoutine("Outpost and Score");
         routine.active().onTrue(sequence);
         return routine;
     }
@@ -83,7 +83,7 @@ public class Auton {
             .onTrue(
                 Commands.sequence(
                     Commands.runOnce(() -> drivetrain.resetPose(INIT_POSE)),
-                    drivetrain.goToPoseCommand(() -> INIT_POSE),
+                    // drivetrain.goToPoseCommand(() -> INIT_POSE),
                     Commands.runOnce(() -> SmartDashboard.putString("autostage", "stage 0")),
                     // Commands.waitSeconds(2),
                     Commands.runOnce(() -> SmartDashboard.putString("autostage", "done waitng")),
@@ -91,7 +91,7 @@ public class Auton {
                         2.059431552886963,
                         2.451367139816284, Rotation2d.fromDegrees(90))
                     ),
-                    drivetrain.pointAtPose(Locator.getInstance().hubPose),
+                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose),
                     drivetrain.goToPoseCommand(() -> new Pose2d(
                         8.683216094970703,
                         2.8809804916381836,
@@ -110,8 +110,8 @@ public class Auton {
                         5.471975326538086,
                         new Rotation2d()
                     )),
-                    drivetrain.pointAtPose(Locator.getInstance().hubPose),
-                    drivetrain.pointAtPose(Locator.getInstance().hubPose)
+                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose),
+                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
                 )
             );
         return routine;

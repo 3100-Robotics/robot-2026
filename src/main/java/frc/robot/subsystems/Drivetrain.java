@@ -54,7 +54,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(10.0, 0.0, 1.0); // kP 2 at prac field
+    private final PIDController headingController = new PIDController(8, 0.0, 0.05); // kP 2 at prac field
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
 
     /* Swerve requests to apply during SysId characterization */
@@ -234,7 +234,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic() {
-        headingController.enableContinuousInput(0, 2*Math.PI);
+        headingController.enableContinuousInput(-Math.PI+0.000000000000001, Math.PI);
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -337,23 +337,24 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
     }
 
-    public boolean isAtPoseSetpoint() {
+    public boolean isAtPoseSetpoint(boolean excludeTranslation) {
         Pose2d relativepose = poseSetpoint.get().relativeTo(getPos());
+        boolean angleInRange = AngleUtils.is_between(
+            getPos().getRotation().getDegrees(),
+            poseSetpoint.get().getRotation().getDegrees()+2,
+            poseSetpoint.get().getRotation().getDegrees()-2
+        );
         boolean isAtPose = 
-                Math.abs(relativepose.getX()) < 0.1 && 
-                Math.abs(relativepose.getY()) < 0.1 &&
-                AngleUtils.is_between(
-                    getPos().getRotation().getDegrees(),
-                    poseSetpoint.get().getRotation().getDegrees()+5,
-                    poseSetpoint.get().getRotation().getDegrees()-5
-                );
+                Math.abs(relativepose.getX()) < Inches.of(1).in(Meters) && 
+                Math.abs(relativepose.getY()) < Inches.of(1).in(Meters) &&
+                angleInRange;
 
         // SmartDashboard.putBoolean("within range", AngleUtils.is_between(
         //             getPos().getRotation().getDegrees(),
         //             poseSetpoint.get().getRotation().getDegrees()+10,
         //             poseSetpoint.get().getRotation().getDegrees()-10
         //         ));
-        return isAtPose;
+        return excludeTranslation ? angleInRange : isAtPose;
     }
 
     public void goToPose() {
@@ -371,14 +372,27 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
     }
 
+    public void turnToPose() {
+        // Get the current pose of the robot
+        Pose2d pose = getPos();
+
+        // Generate the next speeds for the robot
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            // xController.calculate(pose.getX(), poseSetpoint.get().getX()),
+            // yController.calculate(pose.getY(), poseSetpoint.get().getY()),
+            0,0,
+            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())
+        );
+
+        // Apply the generated speeds
+        setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
+    }
+
     public Command goToPoseCommand() {
         return Commands.parallel(
                 run(() -> goToPose())
-                    .until(this::isAtPoseSetpoint),
-                Commands.runOnce(() -> SmartDashboard.putString("gotoposestage", "stage 0"))
             )
-            .andThen(Commands.runOnce(() -> SmartDashboard.putString("gotoposestage", "stage 1")))
-            .andThen(runOnce(() -> setControl(new SwerveRequest.Idle())))
+            .finallyDo(() -> setControl(new SwerveRequest.Idle()))
             ;
     }
 
@@ -386,25 +400,25 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         return runOnce(() -> poseSetpoint = newPose).andThen(goToPoseCommand());
     }
 
-    public Command pointAtPose(Pose2d target) {
-        return runOnce(() -> {
-            Pose2d currentPose = getPos();
-            poseSetpoint = () -> new Pose2d(
-                currentPose.getX(),
-                currentPose.getY(),
-                Rotation2d.fromRadians(
-                    Math.atan2(
-                        target.getY()-currentPose.getY(),
-                        target.getX()-currentPose.getX()
-                    )
-                )
-            );
-        }).andThen(Commands.runOnce(() -> SmartDashboard.putString("autostage", "pointed at thing setup")))
-        .andThen(goToPoseCommand());
-    }
+    // public Command pointAtPose(Pose2d target) {
+    //     return runOnce(() -> {
+    //         Pose2d currentPose = getPos();
+    //         poseSetpoint = () -> new Pose2d(
+    //             currentPose.getX(),
+    //             currentPose.getY(),
+    //             Rotation2d.fromRadians(
+    //                 Math.atan2(
+    //                     target.getY()-currentPose.getY(),
+    //                     target.getX()-currentPose.getX()
+    //                 )
+    //             )
+    //         );
+    //     }).andThen(Commands.runOnce(() -> SmartDashboard.putString("autostage", "pointed at thing setup")))
+    //     .andThen(Commands.run(() -> turnToPose()));
+    // }
 
     public Command pointAtPose(Supplier<Pose2d> target) {
-        return runOnce(() -> {
+        return run(() -> {
             Pose2d currentPose = getPos();
             poseSetpoint = () -> new Pose2d(
                 currentPose.getX(),
@@ -416,7 +430,6 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                     )
                 )
             );
-        }).andThen(Commands.runOnce(() -> SmartDashboard.putString("autostage", "pointed at thing setup")))
-        .andThen(goToPoseCommand());
+        }).alongWith(Commands.run(() -> turnToPose()));
     }
 }

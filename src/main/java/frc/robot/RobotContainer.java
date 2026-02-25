@@ -199,9 +199,11 @@ public class RobotContainer {
         driverCtl.rightBumper().onTrue(Commands.runOnce(() -> vision.usePose = false));
 
         driverCtl.a().whileTrue(
-            Commands.runOnce(() -> drivetrain.setControl(new SwerveRequest.Idle()))
-                .andThen(Commands.waitSeconds(0.2))
-                .andThen(drivetrain.pointAtPose(() -> locator.hubPose))
+            // Commands.runOnce(() -> drivetrain.setControl(new SwerveRequest.Idle()))
+                // .andThen(Commands.waitSeconds(0.2))
+                // .andThen(
+                    drivetrain.pointAtPose(() -> locator.hubPose)
+                // )
         ); // Autoalign to hub
 
         // Idle bindings
