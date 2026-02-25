@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -120,6 +121,24 @@ public class Constants {
     }
 
     public static class Indexer {
+        public class SpeedSet {
+            public final AngularVelocity kickerSpeed;
+            public final AngularVelocity ceilingSpeed;
+            public final AngularVelocity floorSpeed;
+
+            public SpeedSet(
+                AngularVelocity kickerSpeed,
+                AngularVelocity ceilingSpeed,
+                AngularVelocity floorSpeed   
+            ) {
+                this.kickerSpeed = kickerSpeed;
+                this.ceilingSpeed = ceilingSpeed;
+                this.floorSpeed = floorSpeed;
+            }
+        }
+
+        public static SpeedSet ;
+
         public static int floorMotorID = 40;
         public static int ceilingMotorID = 41;
         public static int kickerMotorID = 42;
