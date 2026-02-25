@@ -112,8 +112,79 @@ public class RobotContainer {
 
         if (!Constants.doLiveTuning) {
             // Only bother configuring bindings if live tuning off
-            configureBindings();
+            // configureBindings();
+            configShooterBinding();
         }
+    }
+
+    private void configShooterBinding() {
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(() ->
+                drive
+                    .withVelocityX(-driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis())
+                    .withVelocityY(-driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis())
+                    .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate)
+            )
+        );
+
+        driverCtl.b().onTrue(
+            Commands.runOnce(() -> {
+                if (intake.deployed) {
+                    intake.deployed = false;
+                } else {
+                    intake.deployed = true;
+                }
+            })
+        );
+
+        // driverCtl.a().whileTrue(
+        //     Commands.parallel(
+        //         shooter.flywheelR.flywheel.run(shooter.speedProvider),
+        //         shooter.flywheelL.flywheel.run(shooter.speedProvider),
+        //         shooter.hood.hood.setAngle(shooter.angleProvider),
+        //         indexer.run()
+        //     )
+        // ).whileFalse(
+        //     Commands.parallel(indexer.idle())
+        // );
+
+        driverCtl.a().whileTrue(
+            Commands.parallel(
+                // Commands.runOnce( // TODO: Test this TODAY
+                //     () -> {
+                //         // var targets = shooter.calculateFireAngleAndSpeed();
+                //         // shooter.setHoodAngleSetpoint(targets.getFirst());
+                //         // shooter.setSpeedSetpoint(targets.getSecond());
+                //         // shooter.angleProvider = () -> Degrees.of(20);
+                //         // shooter.speedProvider = () -> RPM.of(4000);
+                //         // shooter.setHoodAngleSetpoint(Degrees.of(20));
+                //         // shooter.setSpeedSetpoint(RPM.of(4000));
+                //     }
+                // ),
+                // shooter.goToCurrentAngle(),
+                // shooter.runFlywheelsToCurrent(),
+                shooter.flywheelR.flywheel.run(shooter.speedProvider),
+                shooter.flywheelL.flywheel.run(shooter.speedProvider),
+                shooter.hood.hood.setAngle(shooter.angleProvider),
+                Commands.sequence(
+                    Commands.waitSeconds(1.5),
+                    indexer.run()
+                    // Commands.waitSeconds(0.2)
+                    // intake.runAtSpeed(RPM.of(1000))
+                )
+            )
+        ).whileFalse(
+            Commands.parallel(
+                indexer.idle(),
+                // shooter.idle(),
+                shooter.flywheelL.idle(),
+                shooter.flywheelR.idle(),
+                shooter.hood.idle()
+            )
+        );
+
+        driverCtl.rightBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
     }
 
     private void configureBindings() {

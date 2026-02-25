@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularMomentum;
@@ -44,11 +45,11 @@ public class DoubleFlywheel extends SubsystemBase {
     private SmartMotorControllerConfig flywheelMotorConfig  = new SmartMotorControllerConfig(this)
         .withControlMode(ControlMode.CLOSED_LOOP)
         // Feedback Constants (PID Constants)
-        .withClosedLoopController(0.0098, 0, 0)
-        .withSimClosedLoopController(50, 0, 0)
-        // Feedforward Constants
-        .withFeedforward(new SimpleMotorFeedforward(0, 0.128, 0))
-        .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+        // .withClosedLoopController(0.001, 0, 0)
+        // .withSimClosedLoopController(50, 0, 0)
+        // // Feedforward Constants
+        // .withFeedforward(new SimpleMotorFeedforward(0, 0.155, 0))
+        // .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
         // Gearing from the motor rotor to final shaft.
         .withGearing(new MechanismGearing(GearBox.fromReductionStages(1, 1)))
         // Motor properties to prevent over currenting.
@@ -67,14 +68,16 @@ public class DoubleFlywheel extends SubsystemBase {
 
     public Supplier<AngularVelocity> speedTargetProvider = () -> RPM.of(0);
 
-    public DoubleFlywheel(int flywheelIndex, int id0, int id1, boolean inversion) {
+    public DoubleFlywheel(int flywheelIndex, int id0, int id1, boolean inversion, double kp, double kv) {
         this.flywheelIndex = flywheelIndex;
 
         vendorLead = new SparkMax(id0, MotorType.kBrushless);
         vendorFollower = new SparkMax(id1, MotorType.kBrushless);
 
         flywheelMotor = new SparkWrapper(vendorLead, GEARBOX, 
-            flywheelMotorConfig
+            flywheelMotorConfig.clone()
+                .withClosedLoopController(kp, 0, 0)
+                .withFeedforward(new SimpleMotorFeedforward(0, kv))
                 .withFollowers(Pair.of(vendorFollower, false))
                 .withMotorInverted(inversion)
                 .withTelemetry(Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"Motor", Constants.getAppropriateTelemetryLevel())

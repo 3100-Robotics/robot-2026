@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.RPM;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Locator;
+import yams.motorcontrollers.SmartMotorControllerConfig;
 
 public class Shooter extends SubsystemBase {
     /*
@@ -32,9 +34,19 @@ public class Shooter extends SubsystemBase {
     public Supplier<Angle> angleProvider = () -> hoodAngle;
     public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
 
-    private final Hood hood = new Hood();
-    private final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true);
-    private final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false);
+    // public SmartMotorControllerConfig leftConfig = new SmartMotorControllerConfig()
+    //     .withClosedLoopController(0.001, 0, 0)
+    //     .withFeedforward(new SimpleMotorFeedforward(0, 0.155, 0))
+    // ;
+
+    // public SmartMotorControllerConfig rightConfig = new SmartMotorControllerConfig()
+    //     .withClosedLoopController(0.001, 0, 0)
+    //     .withFeedforward(new SimpleMotorFeedforward(0, 0.155, 0))
+    // ;
+
+    public final Hood hood = new Hood();
+    public final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true, 0.001, 0.15);
+    public final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false, 0.001, 0.155);
 
     public Shooter() {
         // flywheelL.setTarget(
@@ -63,8 +75,16 @@ public class Shooter extends SubsystemBase {
         //     Constants.join('/', Constants.Shooter.nameRoot, "spinUpFlywheelsToDebugRPM"), 
         //     flywheelL.runAtCurrentTarget().alongWith(flywheelR.runAtCurrentTarget())
         // );
-        flywheelL.setDefaultCommand(flywheelL.flywheel.run(RPM.of(1000)));
-        flywheelR.setDefaultCommand(flywheelR.flywheel.run(RPM.of(1000)));
+
+
+        // flywheelL.setDefaultCommand(flywheelL.flywheel.run(RPM.of(1000)));
+        // flywheelR.setDefaultCommand(flywheelR.flywheel.run(RPM.of(1000)));
+        // flywheelR.setDefaultCommand(flywheelR.flywheel.run(speedProvider));
+        // flywheelL.setDefaultCommand(flywheelL.flywheel.run(speedProvider));
+
+        // hood.setDefaultCommand(hood.hood.setAngle(angleProvider));
+        SmartDashboard.putNumber("testingRPM", 1000);
+        SmartDashboard.putNumber("testingANGLE", 13);
     }
 
     public Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
@@ -181,9 +201,12 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
+        flywheelSpeed = RPM.of(SmartDashboard.getNumber("testingRPM", 1000));
+        hoodAngle = Degrees.of(SmartDashboard.getNumber("testingANGLE", 13));
+
         SmartDashboard.putNumber("hoodAngle2", hood.hood.getAngle().in(Degrees));
         SmartDashboard.putNumber("flywheel left rpm", flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
-        SmartDashboard.putNumber("flywheel left rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
+        SmartDashboard.putNumber("flywheel right rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
 
         // SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
         SmartDashboard.putNumber("fromHoodSupllierAngle", angleProvider.get().in(Degrees));
