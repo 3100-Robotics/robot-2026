@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Locator;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -29,24 +30,19 @@ public class Shooter extends SubsystemBase {
      */
 
     private Angle hoodAngle = Constants.Shooter.minHoodAngle;
-    private AngularVelocity flywheelSpeed = RPM.of(4000);
+    private AngularVelocity flywheelSpeed = RPM.of(2000);
 
     public Supplier<Angle> angleProvider = () -> hoodAngle;
     public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
 
-    // public SmartMotorControllerConfig leftConfig = new SmartMotorControllerConfig()
-    //     .withClosedLoopController(0.001, 0, 0)
-    //     .withFeedforward(new SimpleMotorFeedforward(0, 0.155, 0))
-    // ;
-
-    // public SmartMotorControllerConfig rightConfig = new SmartMotorControllerConfig()
-    //     .withClosedLoopController(0.001, 0, 0)
-    //     .withFeedforward(new SimpleMotorFeedforward(0, 0.155, 0))
-    // ;
-
     public final Hood hood = new Hood();
     public final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true, 0.001, 0.15);
     public final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false, 0.001, 0.155);
+
+    public final Trigger flywheelsAtRPM = 
+        flywheelL.flywheel.isNear(flywheelSpeed, RPM.of(20))
+        .and(flywheelR.flywheel.isNear(flywheelSpeed, RPM.of(20)))
+    ;
 
     public Shooter() {
         // flywheelL.setTarget(
@@ -79,8 +75,8 @@ public class Shooter extends SubsystemBase {
 
         // flywheelL.setDefaultCommand(flywheelL.flywheel.run(RPM.of(1000)));
         // flywheelR.setDefaultCommand(flywheelR.flywheel.run(RPM.of(1000)));
-        // flywheelR.setDefaultCommand(flywheelR.flywheel.run(speedProvider));
-        // flywheelL.setDefaultCommand(flywheelL.flywheel.run(speedProvider));
+        flywheelR.setDefaultCommand(flywheelR.flywheel.run(speedProvider));
+        flywheelL.setDefaultCommand(flywheelL.flywheel.run(speedProvider));
 
         // hood.setDefaultCommand(hood.hood.setAngle(angleProvider));
         SmartDashboard.putNumber("testingRPM", 1000);
@@ -187,6 +183,7 @@ public class Shooter extends SubsystemBase {
     public Command goToCurrentAngle() {
         return hood.hood.setAngle(angleProvider);
     }
+
 
     public Command stopFlywheels() {
         return flywheelL.flywheel.set(0)

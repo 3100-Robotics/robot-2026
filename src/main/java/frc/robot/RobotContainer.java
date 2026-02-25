@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.Auton;
 import frc.robot.generated.TunerConstantsArkelon;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
@@ -61,8 +62,7 @@ public class RobotContainer {
 
     private Locator locator;
 
-    public boolean intakeDeployed = true;
-
+    public Auton autoManager;
 
     @SuppressWarnings("unused")
     public RobotContainer() {
@@ -108,12 +108,13 @@ public class RobotContainer {
 
             vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
             locator = new Locator(drivetrain::getPos);
+            autoManager = new Auton(drivetrain, shooter, indexer, intake);
         }
 
         if (!Constants.doLiveTuning) {
             // Only bother configuring bindings if live tuning off
-            // configureBindings();
-            configShooterBinding();
+            configureBindings();
+            // configShooterBinding();
         }
     }
 
@@ -138,32 +139,8 @@ public class RobotContainer {
             })
         );
 
-        // driverCtl.a().whileTrue(
-        //     Commands.parallel(
-        //         shooter.flywheelR.flywheel.run(shooter.speedProvider),
-        //         shooter.flywheelL.flywheel.run(shooter.speedProvider),
-        //         shooter.hood.hood.setAngle(shooter.angleProvider),
-        //         indexer.run()
-        //     )
-        // ).whileFalse(
-        //     Commands.parallel(indexer.idle())
-        // );
-
         driverCtl.a().whileTrue(
             Commands.parallel(
-                // Commands.runOnce( // TODO: Test this TODAY
-                //     () -> {
-                //         // var targets = shooter.calculateFireAngleAndSpeed();
-                //         // shooter.setHoodAngleSetpoint(targets.getFirst());
-                //         // shooter.setSpeedSetpoint(targets.getSecond());
-                //         // shooter.angleProvider = () -> Degrees.of(20);
-                //         // shooter.speedProvider = () -> RPM.of(4000);
-                //         // shooter.setHoodAngleSetpoint(Degrees.of(20));
-                //         // shooter.setSpeedSetpoint(RPM.of(4000));
-                //     }
-                // ),
-                // shooter.goToCurrentAngle(),
-                // shooter.runFlywheelsToCurrent(),
                 shooter.flywheelR.flywheel.run(shooter.speedProvider),
                 shooter.flywheelL.flywheel.run(shooter.speedProvider),
                 shooter.hood.hood.setAngle(shooter.angleProvider),
