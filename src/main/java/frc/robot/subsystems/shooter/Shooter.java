@@ -45,36 +45,6 @@ public class Shooter extends SubsystemBase {
     ;
 
     public Shooter() {
-        // flywheelL.setTarget(
-        //     () -> RPM.of(
-        //         800 // SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
-        //     )
-        // );
-
-        // flywheelR.setTarget(
-        //     () -> RPM.of(
-        //         800 // SmartDashboard.getNumber(Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), 50)
-        //     )
-        // );
-
-        // Logging.registerDebugValue(
-        //     Constants.join('/', Constants.Shooter.nameRoot, "debugRPM"), double.class
-        // );
-
-        // Logging.registerDebugCommand(
-        //     Constants.join('/', Constants.Shooter.nameRoot, "idle"), 
-        //     // hood.stop().alongWith
-        //     flywheelL.stop().alongWith(flywheelR.stop())
-        // );
-
-        // Logging.registerDebugCommand(
-        //     Constants.join('/', Constants.Shooter.nameRoot, "spinUpFlywheelsToDebugRPM"), 
-        //     flywheelL.runAtCurrentTarget().alongWith(flywheelR.runAtCurrentTarget())
-        // );
-
-
-        // flywheelL.setDefaultCommand(flywheelL.flywheel.run(RPM.of(1000)));
-        // flywheelR.setDefaultCommand(flywheelR.flywheel.run(RPM.of(1000)));
         flywheelR.setDefaultCommand(flywheelR.flywheel.run(speedProvider));
         flywheelL.setDefaultCommand(flywheelL.flywheel.run(speedProvider));
         hood.setDefaultCommand(hood.hood.setAngle(Constants.Shooter.minHoodAngle));
