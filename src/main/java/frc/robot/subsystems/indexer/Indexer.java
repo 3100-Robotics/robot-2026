@@ -130,5 +130,7 @@ public class Indexer extends SubsystemBase {
             Constants.join('_', Constants.Indexer.Main.nameKicker, "RPM"), 
             kickerRollers.motor.getMechanismVelocity().in(RPM)
         );
+
+        // SmartDashboard.putNumber("kickerAmps", kickerRollers.motor.getSupplyCurrent().get().in(Amps));
     }
 }

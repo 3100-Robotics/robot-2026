@@ -3,6 +3,7 @@ package frc.robot.auto;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants;
 import frc.robot.Locator;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
@@ -25,14 +27,17 @@ public class Auton {
     private Shooter shooter;
     private Indexer indexer;
     private Intake intake;
+    private RobotContainer rcontainer;
 
     public Auton(
         Drivetrain drivetrain,
         Shooter shooter,
         Indexer indexer,
-        Intake intake
+        Intake intake,
+        RobotContainer rcontainer
     ) {
         // autoChooser.addRoutine();
+        this.rcontainer = rcontainer;
         this.drivetrain = drivetrain;
         this.shooter = shooter;
         this.indexer = indexer;
@@ -47,23 +52,53 @@ public class Auton {
         );
 
         autoChooser.addRoutine("Outpose and Score", this::outpostAndScore);
+        autoChooser.addRoutine("Left", this::left);
+        autoChooser.addRoutine("Left2", this::left2);
 
         SmartDashboard.putData("Auton Selector", autoChooser);
 
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
 
+    public AutoRoutine left() {
+        var path = AutoConsts.LEFT.poses;
+
+        var sequence = Commands.sequence(
+            Commands.runOnce(() -> drivetrain.resetPose(AutoConsts.colorPose(AutoConsts.LEFT.INIT_POSE))),
+            drivetrain.goToPoseCommand(() -> AutoConsts.colorPose(path[0]))
+                .until(() -> drivetrain.isAtPoseSetpoint(false))
+                .andThen(drivetrain.goToPoseCommand().withTimeout(1)),
+            rcontainer.shoot()
+        );
+
+        var routine = autoFactory.newRoutine("left");
+        routine.active().onTrue(sequence);
+        return routine;
+    }
+
+    public AutoRoutine left2() {
+        var routine = autoFactory.newRoutine("Left 2");
+        AutoTrajectory leftStart = routine.trajectory("leftStart");
+        routine.active().onTrue(
+            Commands.sequence(
+                autoFactory.resetOdometry("leftStart"),
+                leftStart.cmd()
+            )
+        );
+        return routine;
+    }
+
     public AutoRoutine outpostAndScore() {
         var path = AutoConsts.OPAS.poses;
 
         var sequence = Commands.sequence(
-            Commands.runOnce(() -> drivetrain.resetPose(AutoConsts.OPAS.INIT_POSE)),
-            drivetrain.goToPoseCommand(() -> path[0])
-                .until(() -> drivetrain.isAtPoseSetpoint(false))
-                .andThen(drivetrain.goToPoseCommand().withTimeout(5)),
+            // Commands.runOnce(() -> drivetrain.resetPose(AutoConsts.OPAS.INIT_POSE)),
+            // drivetrain.goToPoseCommand(() -> AutoConsts.OPAS.path[0])
+            //     .until(() -> drivetrain.isAtPoseSetpoint(false))
+            //     .andThen(drivetrain.goToPoseCommand().withTimeout(5)),
 
-            drivetrain.goToPoseCommand(() -> path[1])
-                .until(() -> drivetrain.isAtPoseSetpoint(false))
+            // drivetrain.goToPoseCommand(() -> path[1])
+            //     .until(() -> drivetrain.isAtPoseSetpoint(false))
         );
 
         var routine = autoFactory.newRoutine("Outpost and Score");

@@ -33,8 +33,8 @@ public class Hood extends SubsystemBase {
     private TalonFX armMotor = new TalonFX(50);
 
     private final SmartMotorControllerConfig armMotorConfig = new SmartMotorControllerConfig(this)
-        .withStatorCurrentLimit(Amps.of(120))
-        .withSupplyCurrentLimit(Amps.of(70))
+        .withStatorCurrentLimit(Amps.of(50))
+        .withSupplyCurrentLimit(Amps.of(40))
 
         
 

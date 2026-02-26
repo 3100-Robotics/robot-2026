@@ -77,6 +77,7 @@ public class Shooter extends SubsystemBase {
         // flywheelR.setDefaultCommand(flywheelR.flywheel.run(RPM.of(1000)));
         flywheelR.setDefaultCommand(flywheelR.flywheel.run(speedProvider));
         flywheelL.setDefaultCommand(flywheelL.flywheel.run(speedProvider));
+        hood.setDefaultCommand(hood.hood.setAngle(Constants.Shooter.minHoodAngle));
 
         // hood.setDefaultCommand(hood.hood.setAngle(angleProvider));
         SmartDashboard.putNumber("testingRPM", 1000);

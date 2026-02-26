@@ -108,7 +108,7 @@ public class RobotContainer {
 
             vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
             locator = new Locator(drivetrain::getPos);
-            autoManager = new Auton(drivetrain, shooter, indexer, intake);
+            autoManager = new Auton(drivetrain, shooter, indexer, intake, this);
         }
 
         if (!Constants.doLiveTuning) {
@@ -162,6 +162,31 @@ public class RobotContainer {
         );
 
         driverCtl.rightBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
+    }
+
+    public Command shoot() {
+        return Commands.parallel(
+                Commands.run(
+                    () -> {
+                        var targets = shooter.calculateFireAngleAndSpeed();
+                        shooter.setHoodAngleSetpoint(targets.getFirst());
+                        shooter.setSpeedSetpoint(targets.getSecond());
+                        // shooter.angleProvider = () -> Degrees.of(20);
+                        // shooter.speedProvider = () -> RPM.of(4000);
+                        // shooter.setHoodAngleSetpoint(Degrees.of(20));
+                        // shooter.setSpeedSetpoint(RPM.of(4000));
+                    }
+                ),
+                shooter.goToCurrentAngle(),
+                shooter.runFlywheelsToCurrent(),
+                Commands.sequence(
+                    // Commands.waitUntil(shooter.flywheelsAtRPM),
+                    Commands.waitSeconds(1.1),
+                    indexer.run()
+                    // Commands.waitSeconds(0.2)
+                    // intake.runAtSpeed(RPM.of(1000))
+                )
+            );
     }
 
     private void configureBindings() {

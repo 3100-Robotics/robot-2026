@@ -55,6 +55,11 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController headingController = new PIDController(8, 0.0, 0.05); // kP 2 at prac field
+
+    private final PIDController trajectoryxController = new PIDController(0.1, 0.0, 0.0);
+    private final PIDController trajectoryyController = new PIDController(0.1, 0.0, 0.0);
+    private final PIDController trajectoryheadingController = new PIDController(0.1, 0.0, 0.05); // kP 2 at prac field
+
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
 
     /* Swerve requests to apply during SysId characterization */
@@ -326,9 +331,9 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-                sample.vx + xController.calculate(pose.getX(), sample.x),
-                sample.vy + yController.calculate(pose.getY(), sample.y),
-                sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
+                sample.vx + trajectoryxController.calculate(pose.getX(), sample.x),
+                sample.vy + trajectoryyController.calculate(pose.getY(), sample.y),
+                sample.omega + trajectoryheadingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
 
 
@@ -341,12 +346,12 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d relativepose = poseSetpoint.get().relativeTo(getPos());
         boolean angleInRange = AngleUtils.is_between(
             getPos().getRotation().getDegrees(),
-            poseSetpoint.get().getRotation().getDegrees()+2,
-            poseSetpoint.get().getRotation().getDegrees()-2
+            poseSetpoint.get().getRotation().getDegrees()+10,
+            poseSetpoint.get().getRotation().getDegrees()-10
         );
         boolean isAtPose = 
-                Math.abs(relativepose.getX()) < Inches.of(1).in(Meters) && 
-                Math.abs(relativepose.getY()) < Inches.of(1).in(Meters) &&
+                Math.abs(relativepose.getX()) < Inches.of(12).in(Meters) && 
+                Math.abs(relativepose.getY()) < Inches.of(12).in(Meters) &&
                 angleInRange;
 
         // SmartDashboard.putBoolean("within range", AngleUtils.is_between(
@@ -363,9 +368,9 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-            xController.calculate(pose.getX(), poseSetpoint.get().getX()),
-            yController.calculate(pose.getY(), poseSetpoint.get().getY()),
-            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())
+            xController.calculate(pose.getX(), poseSetpoint.get().getX())/4,
+            yController.calculate(pose.getY(), poseSetpoint.get().getY())/4,
+            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())/4
         );
 
         // Apply the generated speeds
