@@ -117,8 +117,14 @@ public class DoubleFlywheel extends SubsystemBase {
         // flywheel.getMechanismSetpoint().ifPresent(setpoint -> SmartDashboard.putNumber("hoodSetpoint", setpoint.in(RPM)));
         // SmartDashboard.putNumber("hoodSetpoint", flywheel.getSpeed().in(RPM));
 
-        flywheel.getMotor().getSupplyCurrent().ifPresent(current -> SmartDashboard.putNumber(Constants.Shooter.Main.flywheelNames[flywheelIndex]+"Current", current.in(Amps)));
-
+        SmartDashboard.putNumber(
+            Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"FollowerCurrent", 
+            vendorFollower.getOutputCurrent()
+        );
+        SmartDashboard.putNumber(
+            Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"LeadCurrent", 
+            vendorLead.getOutputCurrent()
+        );
         flywheel.updateTelemetry();
     }
 

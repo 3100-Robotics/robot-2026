@@ -128,12 +128,21 @@ public class Indexer2 extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("2kickerRPM", kickerMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber("2ceilingRPM", ceilingMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber("2floorRPM", floorMotor.getVelocity().getValue().in(RPM));
+        SmartDashboard.putNumber("2kickerRPM", 
+            kickerMotor.getEncoder().getVelocity()
+            * Constants.Indexer.kickerRatio
+        );
+        SmartDashboard.putNumber("2ceilingRPM", 
+            ceilingMotor.getEncoder().getVelocity()
+            * Constants.Indexer.ceilingRatio
+        );
+        SmartDashboard.putNumber("2floorRPM", 
+            floorMotor.getVelocity().getValue().in(RPM)
+            * Constants.Indexer.floorRatio
+        );
 
         SmartDashboard.putNumber("2kickerCurrent", kickerMotor.getOutputCurrent());
-        SmartDashboard.putNumber("2ceilingCurrent", kickerMotor.getOutputCurrent());
-        SmartDashboard.putNumber("2floorCurrent", kickerMotor.getOutputCurrent());
+        SmartDashboard.putNumber("2ceilingCurrent", ceilingMotor.getOutputCurrent());
+        SmartDashboard.putNumber("2floorCurrent", floorMotor.getStatorCurrent().getValue().in(Amps));
     }
 }

@@ -175,6 +175,9 @@ public class Constants {
     }
 
     public static class Intake {
+        public static final double rollerRatio = 3.0/2.0;
+        public static final double rollerRatioRecip = 1.0 / rollerRatio;
+
         // Physical Constants
         public static final Angle pivotDeployAngle = Degrees.of(2);
         public static final Angle pivotStowAngle = Degrees.of(-90);
