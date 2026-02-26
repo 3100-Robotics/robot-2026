@@ -22,6 +22,8 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.math.SpeedSet;
+import yams.gearing.GearBox;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
@@ -121,23 +123,25 @@ public class Constants {
     }
 
     public static class Indexer {
-        public class SpeedSet {
-            public final AngularVelocity kickerSpeed;
-            public final AngularVelocity ceilingSpeed;
-            public final AngularVelocity floorSpeed;
+        public static final SpeedSet off = new SpeedSet(
+            RPM.of(0),
+            RPM.of(0),
+            RPM.of(0)
+        );
 
-            public SpeedSet(
-                AngularVelocity kickerSpeed,
-                AngularVelocity ceilingSpeed,
-                AngularVelocity floorSpeed   
-            ) {
-                this.kickerSpeed = kickerSpeed;
-                this.ceilingSpeed = ceilingSpeed;
-                this.floorSpeed = floorSpeed;
-            }
-        }
+        public static final SpeedSet on = new SpeedSet(
+            RPM.of(4414),
+            RPM.of(4414),
+            RPM.of(2377)
+        );
 
-        // public static SpeedSet ;
+        public static final double kickerRatio = 36.0/24.0;
+        public static final double ceilingRatio = 20.0/24.0;
+        public static final double floorRatio = 20.0/24.0;
+
+        public static final double kickerRatioRecip = 1.0 / kickerRatio;
+        public static final double ceilingRatioRecip = 1.0 / ceilingRatio;
+        public static final double floorRatioRecip = 1.0 / floorRatio;
 
         public static int floorMotorID = 40;
         public static int ceilingMotorID = 41;

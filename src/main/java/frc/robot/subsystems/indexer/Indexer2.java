@@ -10,11 +10,15 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.AudioConfigs;
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -28,8 +32,10 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.math.SpeedSet;
 
 public class Indexer2 extends SubsystemBase {
     public AngularVelocity kickerSpeed = RPM.of(0);
@@ -48,15 +54,16 @@ public class Indexer2 extends SubsystemBase {
 
     private SparkBaseConfig sparkTypeBaseConfig = new SparkMaxConfig()
         .idleMode(IdleMode.kCoast)
+        .smartCurrentLimit(40)
     ;
 
     private SparkBaseConfig kickerConfig = new SparkMaxConfig().apply(sparkTypeBaseConfig)
         .inverted(false)
         .apply(
             new ClosedLoopConfig()
-            .p(0)
+            .p(0.01)
             .apply(new FeedForwardConfig()
-                .kV(0)
+                .kV(0.2)
             )
         );
 
@@ -64,9 +71,9 @@ public class Indexer2 extends SubsystemBase {
         .inverted(false)
         .apply(
             new ClosedLoopConfig()
-            .p(0)
+            .p(0.1)
             .apply(new FeedForwardConfig()
-                .kV(0)
+                .kV(0.12)
             )
         );
 
@@ -76,10 +83,15 @@ public class Indexer2 extends SubsystemBase {
             .withBeepOnBoot(true)
             .withBeepOnConfig(true)
         )
+        .withMotorOutput(
+            new MotorOutputConfigs()
+            .withInverted(InvertedValue.Clockwise_Positive)
+            .withNeutralMode(NeutralModeValue.Coast)
+        )
         .withSlot0(
             new Slot0Configs()
-            .withKP(0)
-            .withKV(0)
+            .withKP(0.01)
+            .withKV(0.15)
         )
         .withCurrentLimits(
             new CurrentLimitsConfigs()
@@ -89,16 +101,20 @@ public class Indexer2 extends SubsystemBase {
     ;
 
     public Indexer2() {
-
         kickerMotor.configure(kickerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         ceilingMotor.configure(ceilingConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         floorMotor.getConfigurator().apply(floorConfig);
         setDefaultCommand(runToSetpoints());
     }
 
-    public Command setSetpoints(AngularVelocity[] velocities) {
-        return runOnce(() -> {
-            kickerSpeed = velocities[0];
+    public Command setSetpointsOfRollers(SpeedSet velocities) {
+        return Commands.runOnce(() -> {
+            kickerSpeed = velocities.kickerSpeed
+                .times(Constants.Indexer.kickerRatioRecip);
+            ceilingSpeed = velocities.ceilingSpeed
+                .times(Constants.Indexer.ceilingRatioRecip);
+            floorSpeed = velocities.floorSpeed
+                .times(Constants.Indexer.floorRatioRecip);
         });
     }
 
@@ -115,5 +131,9 @@ public class Indexer2 extends SubsystemBase {
         SmartDashboard.putNumber("2kickerRPM", kickerMotor.getEncoder().getVelocity());
         SmartDashboard.putNumber("2ceilingRPM", ceilingMotor.getEncoder().getVelocity());
         SmartDashboard.putNumber("2floorRPM", floorMotor.getVelocity().getValue().in(RPM));
+
+        SmartDashboard.putNumber("2kickerCurrent", kickerMotor.getOutputCurrent());
+        SmartDashboard.putNumber("2ceilingCurrent", kickerMotor.getOutputCurrent());
+        SmartDashboard.putNumber("2floorCurrent", kickerMotor.getOutputCurrent());
     }
 }
