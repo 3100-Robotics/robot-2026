@@ -145,7 +145,7 @@ public class RobotContainer {
                 shooter.flywheelL.flywheel.run(shooter.speedProvider),
                 shooter.hood.hood.setAngle(shooter.angleProvider),
                 Commands.sequence(
-                    Commands.waitSeconds(1.5),
+                    Commands.waitSeconds(2),
                     indexer.run()
                     // Commands.waitSeconds(0.2)
                     // intake.runAtSpeed(RPM.of(1000))
@@ -283,6 +283,36 @@ public class RobotContainer {
                 Commands.sequence(
                     // Commands.waitUntil(shooter.flywheelsAtRPM),
                     Commands.waitSeconds(1.1),
+                    indexer.run()
+                    // Commands.waitSeconds(0.2)
+                    // intake.runAtSpeed(RPM.of(1000))
+                )
+            )
+        ).whileFalse(
+            Commands.parallel(
+                indexer.idle(),
+                shooter.idle()
+            )
+        );
+
+        coDriverCtl.y().whileTrue(
+            Commands.parallel(
+                Commands.run(
+                    () -> {
+                        // var targets = shooter.calculateFireAngleAndSpeed();
+                        // shooter.setHoodAngleSetpoint(targets.getFirst());
+                        // shooter.setSpeedSetpoint(targets.getSecond());
+                        // shooter.angleProvider = () -> Degrees.of(20);
+                        // shooter.speedProvider = () -> RPM.of(4000);
+                        shooter.setHoodAngleSetpoint(Degrees.of(25));
+                        shooter.setSpeedSetpoint(RPM.of(2200));
+                    }
+                ),
+                shooter.goToCurrentAngle(),
+                shooter.runFlywheelsToCurrent(),
+                Commands.sequence(
+                    Commands.waitUntil(shooter.flywheelsAtRPM),
+                    // Commands.waitSeconds(1.1),
                     indexer.run()
                     // Commands.waitSeconds(0.2)
                     // intake.runAtSpeed(RPM.of(1000))

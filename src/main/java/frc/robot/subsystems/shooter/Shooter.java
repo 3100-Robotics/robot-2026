@@ -36,12 +36,16 @@ public class Shooter extends SubsystemBase {
     public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
 
     public final Hood hood = new Hood();
-    public final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true, 0.001, 0.15);
-    public final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false, 0.001, 0.155);
+    public final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true, 0.003, 0.137);
+    public final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false, 0.003, 0.1399);
 
     public final Trigger flywheelsAtRPM = 
-        flywheelL.flywheel.isNear(flywheelSpeed, RPM.of(20))
-        .and(flywheelR.flywheel.isNear(flywheelSpeed, RPM.of(20)))
+        new Trigger(
+            () -> flywheelL.flywheel.getSpeed()
+                .isNear(speedProvider.get(), RPM.of(20)) &&
+                flywheelR.flywheel.getSpeed()
+                .isNear(speedProvider.get(), RPM.of(20))
+            )
     ;
 
     public Shooter() {
@@ -142,7 +146,8 @@ public class Shooter extends SubsystemBase {
     @Override
     public Command idle() {
         return Commands.parallel(
-            stopHood()
+            stopHood(),
+            idleFlywheels()
         );
     }
 
@@ -161,6 +166,13 @@ public class Shooter extends SubsystemBase {
             .alongWith(flywheelR.flywheel.set(0));
     }
 
+    public Command idleFlywheels() {
+        return Commands.runOnce(() -> {
+            flywheelSpeed = RPM.of(1000);
+        });
+    }
+
+
     public Command runFlywheelsToCurrent() {
         return flywheelL.flywheel.setSpeed(speedProvider)
             .alongWith(flywheelR.flywheel.setSpeed(speedProvider));
@@ -169,13 +181,16 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        flywheelSpeed = RPM.of(SmartDashboard.getNumber("testingRPM", 1000));
-        hoodAngle = Degrees.of(SmartDashboard.getNumber("testingANGLE", 13));
+        // flywheelSpeed = RPM.of(SmartDashboard.getNumber("testingRPM", 1000));
+        // hoodAngle = Degrees.of(SmartDashboard.getNumber("testingANGLE", 13));
+
+        SmartDashboard.putNumber("flywheelSpeed", flywheelSpeed.in(RPM));
 
         SmartDashboard.putNumber("hoodAngle2", hood.hood.getAngle().in(Degrees));
         SmartDashboard.putNumber("flywheel left rpm", flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
         SmartDashboard.putNumber("flywheel right rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
 
+        SmartDashboard.putBoolean("flywheelatrpm", flywheelsAtRPM.getAsBoolean());
         // SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
         SmartDashboard.putNumber("fromHoodSupllierAngle", angleProvider.get().in(Degrees));
         SmartDashboard.putNumber("fromHoodSupllierRPM", speedProvider.get().in(RPM));

@@ -9,65 +9,14 @@
       }
     },
     "types": {
+      "/EvenLog/DriveState/Pose": "Field2d",
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Indexer/runAll": "Command",
-      "/SmartDashboard/Indexer/stop": "Command",
-      "/SmartDashboard/Mechanisms/Commands/DoubleFlywheel/Live Tuning": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Ceiling/Live Tuning": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Ceiling_Motor/Down": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Ceiling_Motor/Up": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Ceiling_Motor/ZeroEncoder": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Floor/Live Tuning": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Floor_Motor/Down": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Floor_Motor/Up": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Floor_Motor/ZeroEncoder": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Kicker/Live Tuning": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Kicker_Motor/Down": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Kicker_Motor/Up": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Indexer_Kicker_Motor/ZeroEncoder": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Shooter_FlywheelL_Motor/Down": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Shooter_FlywheelL_Motor/Up": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Shooter_FlywheelL_Motor/ZeroEncoder": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Shooter_FlywheelR_Motor/Down": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Shooter_FlywheelR_Motor/Up": "Command",
-      "/SmartDashboard/Mechanisms/Commands/Shooter_FlywheelR_Motor/ZeroEncoder": "Command",
-      "/SmartDashboard/Shooter/Flywheel_Ldbg_speed_0": "Command",
-      "/SmartDashboard/Shooter/Flywheel_Ldbg_speed_1": "Command",
-      "/SmartDashboard/Shooter/Flywheel_Ldbg_speed_2": "Command",
-      "/SmartDashboard/Shooter/Flywheel_Rdbg_speed_0": "Command",
-      "/SmartDashboard/Shooter/Flywheel_Rdbg_speed_1": "Command",
-      "/SmartDashboard/Shooter/Flywheel_Rdbg_speed_2": "Command",
-      "/SmartDashboard/Shooter/idle": "Command",
-      "/SmartDashboard/Shooter/spinUpFlywheelsToDebugRPM": "Command"
-    },
-    "windows": {
-      "/SmartDashboard/Indexer/runAll": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/Indexer/stop": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/Shooter/idle": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/Shooter/spinUpFlywheelsToDebugRPM": {
-        "window": {
-          "visible": true
-        }
-      }
+      "/SmartDashboard/Auton Selector": "String Chooser",
+      "/SmartDashboard/Choreo Alerts": "Alerts",
+      "/SmartDashboard/PhotonAlerts": "Alerts",
+      "/SmartDashboard/best field ever": "Field2d",
+      "/SmartDashboard/purevision": "Field2d"
     }
-  },
-  "NetworkTables Info": {
-    "visible": true
-  },
-  "NetworkTables Settings": {
-    "mode": "Client (NT4)"
   },
   "Plots": {
     "Plot <0>": {
@@ -79,7 +28,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 484,
+          "height": 786,
           "series": [
             {
               "color": [
@@ -88,7 +37,7 @@
                 0.6901960968971252,
                 1.0
               ],
-              "id": "NT:/SmartDashboard/flywheel left rpm"
+              "id": "NT:/SmartDashboard/Indexer_Ceiling_Current"
             },
             {
               "color": [
@@ -97,7 +46,7 @@
                 0.32156863808631897,
                 1.0
               ],
-              "id": "NT:/SmartDashboard/Indexer/Ceiling_RPM"
+              "id": "NT:/SmartDashboard/Indexer_Floor_Current"
             },
             {
               "color": [
@@ -106,13 +55,49 @@
                 0.4078431725502014,
                 1.0
               ],
-              "id": "NT:/SmartDashboard/Indexer/Floor_RPM"
+              "id": "NT:/SmartDashboard/Indexer_Kicker_Current"
             },
             {
               "color": [
                 0.7686275243759155,
                 0.30588236451148987,
                 0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/Shooter_FlywheelL_LeadCurrent"
+            },
+            {
+              "color": [
+                0.5058823823928833,
+                0.44705885648727417,
+                0.7019608020782471,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/Shooter_FlywheelR_LeadCurrent"
+            },
+            {
+              "color": [
+                0.5764706134796143,
+                0.4705882668495178,
+                0.3764706254005432,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/flywheel left rpm"
+            },
+            {
+              "color": [
+                0.8549020290374756,
+                0.545098066329956,
+                0.7647059559822083,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/flywheel right rpm"
+            },
+            {
+              "color": [
+                0.5490196347236633,
+                0.5490196347236633,
+                0.5490196347236633,
                 1.0
               ],
               "id": "NT:/SmartDashboard/Indexer/Kicker_RPM"

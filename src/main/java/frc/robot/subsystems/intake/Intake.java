@@ -20,7 +20,7 @@ public class Intake extends SubsystemBase {
     private final Pivot pivotSub = new Pivot();
     private final Roller rollerSub = new Roller();
 
-    public boolean deployed = true;
+    public boolean deployed = false;
     public Trigger isDeployed = new Trigger(() -> deployed);
 
     public DoubleLogEntry rollerCurrent;
