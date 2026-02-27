@@ -61,7 +61,7 @@ public class Shooter extends SubsystemBase {
     public Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
         var shooterDistToHub = 
             Locator.getInstance().distanceToHub.get() // Robot center distance from hub
-            .plus(Inches.of(8)) // Center to fuel exit
+            .plus(Inches.of(5.4330709)) // Center to fuel exit
         ;
         var angleTable = Constants.Shooter.Physical.distanceAngleTable;
         var speedTable = Constants.Shooter.Physical.distanceSpeedTable;
