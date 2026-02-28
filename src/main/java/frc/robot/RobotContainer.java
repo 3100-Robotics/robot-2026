@@ -55,7 +55,6 @@ public class RobotContainer {
             .withRotationalDeadband(MaxAngularRate * 0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final LockPose lockPose = new LockPose();
 
     // Vision
@@ -225,11 +224,11 @@ public class RobotContainer {
             );
         }
 
-        // Break
+        // Reset odometry
         driverCtl.leftBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
         // Lockpose!
         driverCtl.b().whileTrue(
-            drivetrain.applyRequest(() -> lockPose)
+            drivetrain.applyRequest(() -> brake)
         );
 
         driverCtl.rightBumper().onTrue(Commands.runOnce(() -> vision.usePose = false));
