@@ -29,7 +29,7 @@ import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 
-import frc.robot.subsystems.ApplyModuleStates;
+import frc.robot.subsystems.LockPose;
 
 public class RobotContainer {
     private final CommandXboxController driverCtl = new CommandXboxController(0);
@@ -56,7 +56,7 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final ApplyModuleStates lockPose = new ApplyModuleStates();
+    private final LockPose lockPose = new LockPose();
 
     // Vision
     private Vision vision;
@@ -228,7 +228,9 @@ public class RobotContainer {
         // Break
         driverCtl.leftBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
         // Lockpose!
-        driverCtl.b().whileTrue(drivetrain.applyRequest(() -> lockPose));
+        driverCtl.b().whileTrue(
+            drivetrain.applyRequest(() -> lockPose)
+        );
 
         driverCtl.rightBumper().onTrue(Commands.runOnce(() -> vision.usePose = false));
 
