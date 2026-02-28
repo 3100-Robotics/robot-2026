@@ -42,9 +42,9 @@ public class Shooter extends SubsystemBase {
     public final Trigger flywheelsAtRPM = 
         new Trigger(
             () -> flywheelL.flywheel.getSpeed()
-                .isNear(speedProvider.get(), RPM.of(20)) &&
+                .isNear(speedProvider.get(), RPM.of(100)) &&
                 flywheelR.flywheel.getSpeed()
-                .isNear(speedProvider.get(), RPM.of(20))
+                .isNear(speedProvider.get(), RPM.of(100))
             )
     ;
 

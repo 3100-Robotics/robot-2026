@@ -84,8 +84,8 @@ public class Constants {
                 // distanceSpeedTable.add(Pair.of(Meters.of(3), 3330.0));
                 // distanceSpeedTable.add(Pair.of(Meters.of(4.5), 3860.0));
                 // distanceSpeedTable.add(Pair.of(Meters.of(6), 4600.0));
-                distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2200.0));
-                distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3600.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2400.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3960.0));
                
             }
         }

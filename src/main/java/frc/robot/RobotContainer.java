@@ -241,6 +241,8 @@ public class RobotContainer {
                 // )
         ); // Autoalign to hub
 
+        driverCtl.y().whileTrue(drivetrain.goToPoseCommand(() -> locator.extentionPose));
+
         // Idle bindings
         driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
             Commands.parallel(
@@ -254,7 +256,7 @@ public class RobotContainer {
 
 
         /// Intake
-        coDriverCtl.x().whileTrue(
+        coDriverCtl.x().or(coDriverCtl.leftBumper()).whileTrue(
             Commands.parallel(
                 // intake.deploy(),
                 intake.runAtSpeed(RPM.of(3000))
@@ -314,18 +316,21 @@ public class RobotContainer {
                         // shooter.setSpeedSetpoint(targets.getSecond());
                         // shooter.angleProvider = () -> Degrees.of(20);
                         // shooter.speedProvider = () -> RPM.of(4000);
-                        shooter.setHoodAngleSetpoint(Degrees.of(25));
-                        shooter.setSpeedSetpoint(RPM.of(2200));
+
+
+                        // shooter.setHoodAngleSetpoint(Degrees.of(30));
+                        // shooter.setSpeedSetpoint(RPM.of(3000));
+
+                        shooter.setHoodAngleSetpoint(Degrees.of(30));
+                        shooter.setSpeedSetpoint(RPM.of(1000));
                     }
                 ),
                 shooter.goToCurrentAngle(),
                 shooter.runFlywheelsToCurrent(),
                 Commands.sequence(
-                    Commands.waitUntil(shooter.flywheelsAtRPM),
-                    // Commands.waitSeconds(1.1),
+                    //Commands.waitUntil(shooter.flywheelsAtRPM),
+                    Commands.waitSeconds(1),
                     indexer.run()
-                    // Commands.waitSeconds(0.2)
-                    // intake.runAtSpeed(RPM.of(1000))
                 )
             )
         ).whileFalse(

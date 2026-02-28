@@ -11,7 +11,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class LockPose implements SwerveRequest {
-      public SwerveModuleState[] ModuleStates = new SwerveModuleState[4];
+      public SwerveModuleState[] ModuleStates = {
+         new SwerveModuleState(),
+         new SwerveModuleState(),
+         new SwerveModuleState(),
+         new SwerveModuleState()
+      };
 
       public LockPose() {
             super();

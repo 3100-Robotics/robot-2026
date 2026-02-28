@@ -7,8 +7,10 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Locator;
 import frc.robot.RobotContainer;
@@ -28,6 +30,10 @@ public class Auton {
     private Indexer indexer;
     private Intake intake;
     private RobotContainer rcontainer;
+
+    public Trigger astop = new Trigger(() -> SmartDashboard.getBoolean("astop",
+                        false
+                    ));
 
     public Auton(
         Drivetrain drivetrain,
@@ -55,8 +61,17 @@ public class Auton {
         autoChooser.addRoutine("Left2", this::left2);
 
         SmartDashboard.putData("Auton Selector", autoChooser);
+        SmartDashboard.putBoolean("astop", false);
+        RobotModeTriggers.autonomous()
+            .whileTrue(autoChooser.selectedCommandScheduler()
+                .unless(
+                    () -> SmartDashboard.getBoolean("astop",
+                        false
+                    )
+            )  
+        );
 
-        RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+        astop.onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
     }
 
     public AutoRoutine left() {
@@ -80,8 +95,21 @@ public class Auton {
         AutoTrajectory leftStart = routine.trajectory("leftStart");
         routine.active().onTrue(
             Commands.sequence(
+                Commands.runOnce(() -> SmartDashboard.putString("astage", "zeroth")),
                 autoFactory.resetOdometry("leftStart"),
-                leftStart.cmd()
+                Commands.runOnce(() -> intake.deployed = true),
+                leftStart.cmd(),
+                Commands.runOnce(() -> SmartDashboard.putString("astage", "first")),
+                
+                Commands.parallel(
+                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose),
+                    Commands.race(
+                        Commands.waitSeconds(2).andThen(rcontainer.shoot()),
+                        Commands.waitSeconds(8)
+                    )
+                ),
+                Commands.parallel(indexer.idle(),
+                    shooter.idle())
             )
         );
         return routine;

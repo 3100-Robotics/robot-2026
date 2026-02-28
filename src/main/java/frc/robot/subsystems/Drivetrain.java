@@ -273,9 +273,9 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-            xController.calculate(pose.getX(), poseSetpoint.get().getX())/4,
-            yController.calculate(pose.getY(), poseSetpoint.get().getY())/4,
-            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())/4
+            xController.calculate(pose.getX(), poseSetpoint.get().getX()),
+            yController.calculate(pose.getY(), poseSetpoint.get().getY()),
+            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())
         );
 
         // Apply the generated speeds
