@@ -39,6 +39,10 @@ public class Intake extends SubsystemBase {
     public Command stow() {
         return pivotSub.pivot.setAngle(Constants.Intake.pivotStowAngle);
     }
+
+    public Command halfway() {
+        return pivotSub.pivot.setAngle(Degrees.of(-50));
+    }
     
     public Command deploy() {
         return pivotSub.pivot.setAngle(Constants.Intake.pivotDeployAngle);

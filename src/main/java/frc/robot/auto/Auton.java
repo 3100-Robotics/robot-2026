@@ -71,7 +71,7 @@ public class Auton {
             )  
         );
 
-        astop.onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
+        RobotModeTriggers.teleop().or(astop).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
     }
 
     public AutoRoutine left() {
@@ -94,22 +94,27 @@ public class Auton {
         var routine = autoFactory.newRoutine("Left 2");
         AutoTrajectory leftStart = routine.trajectory("leftStart");
         routine.active().onTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> SmartDashboard.putString("astage", "zeroth")),
-                autoFactory.resetOdometry("leftStart"),
-                Commands.runOnce(() -> intake.deployed = true),
-                leftStart.cmd(),
-                Commands.runOnce(() -> SmartDashboard.putString("astage", "first")),
-                
-                Commands.parallel(
-                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose),
-                    Commands.race(
-                        Commands.waitSeconds(2).andThen(rcontainer.shoot()),
-                        Commands.waitSeconds(8)
-                    )
-                ),
-                Commands.parallel(indexer.idle(),
-                    shooter.idle())
+            Commands.parallel(
+                intake.halfway(),
+
+                Commands.sequence(
+                    Commands.runOnce(() -> SmartDashboard.putString("astage", "zeroth")),
+                    autoFactory.resetOdometry("leftStart"),
+                    leftStart.cmd(),
+                    Commands.runOnce(() -> SmartDashboard.putString("astage", "first")),
+                    
+                    Commands.parallel(
+                        drivetrain.pointAtPose(() -> Locator.getInstance().hubPose),
+                        Commands.race(
+                            Commands.waitSeconds(2).andThen(rcontainer.shoot()),
+                            Commands.waitSeconds(4)
+                        )
+                    ),
+                    Commands.parallel(indexer.idle(),
+                        shooter.idle()),
+                    Commands.runOnce(() -> intake.deployed = true)
+                )
+
             )
         );
         return routine;
