@@ -36,7 +36,6 @@ public class Auton {
         Intake intake,
         RobotContainer rcontainer
     ) {
-        // autoChooser.addRoutine();
         this.rcontainer = rcontainer;
         this.drivetrain = drivetrain;
         this.shooter = shooter;

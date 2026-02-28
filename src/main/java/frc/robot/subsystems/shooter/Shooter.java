@@ -181,9 +181,6 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // flywheelSpeed = RPM.of(SmartDashboard.getNumber("testingRPM", 1000));
-        // hoodAngle = Degrees.of(SmartDashboard.getNumber("testingANGLE", 13));
-
         SmartDashboard.putNumber("flywheelSpeed", flywheelSpeed.in(RPM));
 
         SmartDashboard.putNumber("hoodAngle2", hood.hood.getAngle().in(Degrees));

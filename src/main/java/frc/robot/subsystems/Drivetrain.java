@@ -54,80 +54,13 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(8, 0.0, 0.05); // kP 2 at prac field
+    private final PIDController headingController = new PIDController(8, 0.0, 0.05);
 
     private final PIDController trajectoryxController = new PIDController(0.1, 0.0, 0.0);
     private final PIDController trajectoryyController = new PIDController(0.1, 0.0, 0.0);
-    private final PIDController trajectoryheadingController = new PIDController(0.1, 0.0, 0.05); // kP 2 at prac field
+    private final PIDController trajectoryheadingController = new PIDController(0.1, 0.0, 0.05);
 
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
-
-    /* Swerve requests to apply during SysId characterization */
-    private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
-    private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
-    private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
-
-    /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
-    private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            null,        // Use default ramp rate (1 V/s)
-            Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
-            null,        // Use default timeout (10 s)
-            // Log state with SignalLogger class
-            state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
-        ),
-        new SysIdRoutine.Mechanism(
-            output -> setControl(m_translationCharacterization.withVolts(output)),
-            null,
-            this
-        )
-    );
-
-    /* SysId routine for characterizing steer. This is used to find PID gains for the steer motors. */
-    private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            null,        // Use default ramp rate (1 V/s)
-            Volts.of(7), // Use dynamic voltage of 7 V
-            null,        // Use default timeout (10 s)
-            // Log state with SignalLogger class
-            state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
-        ),
-        new SysIdRoutine.Mechanism(
-            volts -> setControl(m_steerCharacterization.withVolts(volts)),
-            null,
-            this
-        )
-    );
-
-    /*
-     * SysId routine for characterizing rotation.
-     * This is used to find PID gains for the FieldCentricFacingAngle HeadingController.
-     * See the documentation of SwerveRequest.SysIdSwerveRotation for info on importing the log to SysId.
-     */
-    private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            /* This is in radians per second², but SysId only supports "volts per second" */
-            Volts.of(Math.PI / 6).per(Second),
-            /* This is in radians per second, but SysId only supports "volts" */
-            Volts.of(Math.PI),
-            null, // Use default timeout (10 s)
-            // Log state with SignalLogger class
-            state -> SignalLogger.writeString("SysIdRotation_State", state.toString())
-        ),
-        new SysIdRoutine.Mechanism(
-            output -> {
-                /* output is actually radians per second, but SysId only supports "volts" */
-                setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
-                /* also log the requested output for SysId */
-                SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
-            },
-            null,
-            this
-        )
-    );
-
-    /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -213,28 +146,6 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
      */
     public Command applyRequest(Supplier<SwerveRequest> request) {
         return run(() -> this.setControl(request.get()));
-    }
-
-    /**
-     * Runs the SysId Quasistatic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Quasistatic test
-     * @return Command to run
-     */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutineToApply.quasistatic(direction);
-    }
-
-    /**
-     * Runs the SysId Dynamic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Dynamic test
-     * @return Command to run
-     */
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutineToApply.dynamic(direction);
     }
 
     @Override
@@ -338,7 +249,6 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
 
         // Apply the generated speeds
-
         setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
     }
 
@@ -354,11 +264,6 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                 Math.abs(relativepose.getY()) < Inches.of(12).in(Meters) &&
                 angleInRange;
 
-        // SmartDashboard.putBoolean("within range", AngleUtils.is_between(
-        //             getPos().getRotation().getDegrees(),
-        //             poseSetpoint.get().getRotation().getDegrees()+10,
-        //             poseSetpoint.get().getRotation().getDegrees()-10
-        //         ));
         return excludeTranslation ? angleInRange : isAtPose;
     }
 
@@ -404,23 +309,6 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     public Command goToPoseCommand(Supplier<Pose2d> newPose) {
         return runOnce(() -> poseSetpoint = newPose).andThen(goToPoseCommand());
     }
-
-    // public Command pointAtPose(Pose2d target) {
-    //     return runOnce(() -> {
-    //         Pose2d currentPose = getPos();
-    //         poseSetpoint = () -> new Pose2d(
-    //             currentPose.getX(),
-    //             currentPose.getY(),
-    //             Rotation2d.fromRadians(
-    //                 Math.atan2(
-    //                     target.getY()-currentPose.getY(),
-    //                     target.getX()-currentPose.getX()
-    //                 )
-    //             )
-    //         );
-    //     }).andThen(Commands.runOnce(() -> SmartDashboard.putString("autostage", "pointed at thing setup")))
-    //     .andThen(Commands.run(() -> turnToPose()));
-    // }
 
     public Command pointAtPose(Supplier<Pose2d> target) {
         return run(() -> {

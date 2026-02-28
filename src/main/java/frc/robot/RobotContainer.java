@@ -27,8 +27,9 @@ import frc.robot.generated.TunerConstantsArkelon;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.shooter.Hood;
 import frc.robot.subsystems.shooter.Shooter;
+
+import frc.robot.subsystems.ApplyModuleStates;
 
 public class RobotContainer {
     private final CommandXboxController driverCtl = new CommandXboxController(0);
@@ -55,6 +56,7 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final ApplyModuleStates lockPose = new ApplyModuleStates();
 
     // Vision
     private Vision vision;
@@ -74,7 +76,7 @@ public class RobotContainer {
         }
 
         // Check if any subsystems are disabled
-        if (!Constants.enableShooter || 
+        if (!Constants.enableShooter ||
             !Constants.enableIndexer ||
             !Constants.enableIntake ||
             !Constants.enableDrivetrain) 
@@ -114,9 +116,32 @@ public class RobotContainer {
 
         if (!Constants.doLiveTuning) {
             // Only bother configuring bindings if live tuning off
-            // configureBindings();
-            configShooterBinding();
+            configureBindings();
+            // configShooterBinding();
         }
+    }
+
+    public Command shoot() {
+        return Commands.parallel(
+            Commands.run(
+                () -> {
+                    var targets = shooter.calculateFireAngleAndSpeed();
+                    shooter.setHoodAngleSetpoint(targets.getFirst());
+                    shooter.setSpeedSetpoint(targets.getSecond());
+                    // shooter.angleProvider = () -> Degrees.of(20);
+                    // shooter.speedProvider = () -> RPM.of(4000);
+                    // shooter.setHoodAngleSetpoint(Degrees.of(20));
+                    // shooter.setSpeedSetpoint(RPM.of(4000));
+                }
+            ),
+            shooter.goToCurrentAngle(),
+            shooter.runFlywheelsToCurrent(),
+            Commands.sequence(
+                // Commands.waitUntil(shooter.flywheelsAtRPM),
+                Commands.waitSeconds(1.1),
+                indexer.run()
+            )
+        );
     }
 
     private void configShooterBinding() {
@@ -176,31 +201,6 @@ public class RobotContainer {
         driverCtl.rightBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
     }
 
-    public Command shoot() {
-        return Commands.parallel(
-                Commands.run(
-                    () -> {
-                        var targets = shooter.calculateFireAngleAndSpeed();
-                        shooter.setHoodAngleSetpoint(targets.getFirst());
-                        shooter.setSpeedSetpoint(targets.getSecond());
-                        // shooter.angleProvider = () -> Degrees.of(20);
-                        // shooter.speedProvider = () -> RPM.of(4000);
-                        // shooter.setHoodAngleSetpoint(Degrees.of(20));
-                        // shooter.setSpeedSetpoint(RPM.of(4000));
-                    }
-                ),
-                shooter.goToCurrentAngle(),
-                shooter.runFlywheelsToCurrent(),
-                Commands.sequence(
-                    // Commands.waitUntil(shooter.flywheelsAtRPM),
-                    Commands.waitSeconds(1.1),
-                    indexer.run()
-                    // Commands.waitSeconds(0.2)
-                    // intake.runAtSpeed(RPM.of(1000))
-                )
-            );
-    }
-
     private void configureBindings() {
         // Drivetrain
         if (Robot.isReal()) {
@@ -228,10 +228,7 @@ public class RobotContainer {
         // Break
         driverCtl.leftBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
         // Lockpose!
-        driverCtl.b().whileTrue(drivetrain.applyRequest(() ->
-            // point.withModuleDirection(new Rotation2d(-driverCtl.getLeftY(), -driverCtl.getLeftX()))
-            point.withModuleDirection(Rotation2d.fromDegrees(45))
-            ));
+        driverCtl.b().whileTrue(drivetrain.applyRequest(() -> lockPose));
 
         driverCtl.rightBumper().onTrue(Commands.runOnce(() -> vision.usePose = false));
 
@@ -336,42 +333,5 @@ public class RobotContainer {
                 shooter.idle()
             )
         );
-
-        // Adj hood down/up
-        coDriverCtl.povLeft().onTrue(
-            Commands.runOnce(
-                () -> shooter.setHoodAngleSetpoint(
-                    Degrees.of(shooter.getHoodAngleSetpoint().in(Degrees) - 2)
-                )
-            )
-        );
-        coDriverCtl.povRight().onTrue(
-            Commands.runOnce(
-                () -> shooter.setHoodAngleSetpoint(
-                    Degrees.of(shooter.getHoodAngleSetpoint().in(Degrees) + 2)
-                )
-            )
-        );
-
-
-        // Adj flywheel slower/faster
-        coDriverCtl.leftBumper().onTrue(
-            Commands.runOnce(
-                () -> shooter.setSpeedSetpoint(
-                    RPM.of(shooter.getSpeedSetpoint().in(RPM) - 100)
-                )
-            )
-        );
-        coDriverCtl.rightBumper().onTrue(
-            Commands.runOnce(
-                () -> shooter.setSpeedSetpoint(
-                    RPM.of(shooter.getSpeedSetpoint().in(RPM) + 100)
-                )
-            )
-        );
-    }
-
-    public Command getAutonomousCommand() {
-       return Commands.print("No autonomous command configured");
     }
 }
