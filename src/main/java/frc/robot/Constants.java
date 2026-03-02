@@ -76,16 +76,16 @@ public class Constants {
                 // distanceAngleTable.add(Pair.of(Meters.of(3), 32.0));
                 // distanceAngleTable.add(Pair.of(Meters.of(4.5), 38.0));
                 // distanceAngleTable.add(Pair.of(Meters.of(6), 40.0));
-                distanceAngleTable.add(Pair.of(Meters.of(1.36), 20.0));
-                distanceAngleTable.add(Pair.of(Meters.of(5.86), 40.0));
+                distanceAngleTable.add(Pair.of(Meters.of(1.36), 20.0-2.5));
+                distanceAngleTable.add(Pair.of(Meters.of(5.86), 40.0-2.5));
 
                 // Distance Speed
                 // distanceSpeedTable.add(Pair.of(Meters.of(1.5), 2850.0));
                 // distanceSpeedTable.add(Pair.of(Meters.of(3), 3330.0));
                 // distanceSpeedTable.add(Pair.of(Meters.of(4.5), 3860.0));
                 // distanceSpeedTable.add(Pair.of(Meters.of(6), 4600.0));
-                distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2400.0));
-                distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3960.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2400.0+(2400*0.05)));
+                distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3960.0+(3960*0.05)));
                
             }
         }

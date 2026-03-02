@@ -263,6 +263,13 @@ public class RobotContainer {
             )
         ).whileFalse(intake.stop());
 
+        coDriverCtl.povLeft().whileTrue(
+            Commands.parallel(
+                // intake.deploy(),
+                indexer.runRev()
+            )
+        ).whileFalse(indexer.idle());
+
 
         coDriverCtl.b().onTrue(
             Commands.runOnce(() -> {

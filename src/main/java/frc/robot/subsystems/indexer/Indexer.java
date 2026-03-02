@@ -95,6 +95,8 @@ public class Indexer extends SubsystemBase {
 
         Logging.registerDebugCommand(dbg_stop.getName(), dbg_stop);
         Logging.registerDebugCommand(dbg_runAll.getName(), dbg_runAll);
+    
+        // setDefaultCommand(idle());
     }
 
     @Override
@@ -111,6 +113,14 @@ public class Indexer extends SubsystemBase {
             floorRollers.runAtSpeed(RPM.of(2377)),
             ceilingRollers.runAtSpeed(RPM.of(4414)),
             kickerRollers.runAtSpeed(RPM.of(4414))
+        );
+    }
+
+    public Command runRev() {
+        return Commands.parallel(
+            floorRollers.runAtSpeed(RPM.of(-2377)),
+            ceilingRollers.runAtSpeed(RPM.of(-4414)),
+            kickerRollers.runAtSpeed(RPM.of(-4414))
         );
     }
 
