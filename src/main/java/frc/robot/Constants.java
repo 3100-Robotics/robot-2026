@@ -183,16 +183,36 @@ public class Constants {
         public static final Angle pivotStowAngle = Degrees.of(-90);
 
         // Software Constants
+
+        // State
+        public static enum PivotState {
+            FullDeploy(Degrees.of(2)), 
+            HalfDeploy(Degrees.of(-50)), 
+            Stow(Degrees.of(-90)),
+            ;
+
+            Angle angle;
+
+            PivotState(Angle angle) {
+                this.angle = angle;
+            }
+        }
+
+        public static enum RollerState {
+            Normal,
+            Off,
+            
+            ;
+            
+            RollerState() {
+
+            }
+        }
+
+
         public static final int pivotMotorID = 30;
         public static final int rollerMotorID = 31;
         public static final int encoderID = 32;
-
-        public static final String telemetryNameRoot = "Intake/";
-        public static final String telemetryNamePivot = telemetryNameRoot+"Pivot/";
-        public static final String telemetryNameRoller = telemetryNameRoot+"Roller/";
-
-        public static final String telemetryYAMSPivot = "Pivot_";
-        public static final String telemetryYAMSRoller = "Roller_";
     }
 
     public static class Vision {

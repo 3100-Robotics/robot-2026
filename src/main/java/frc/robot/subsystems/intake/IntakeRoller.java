@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.math.SpeedSet;
 
-public class Roller2 extends SubsystemBase {
+public class IntakeRoller extends SubsystemBase {
     private SparkBaseConfig rollerConfig = new SparkMaxConfig()
         .idleMode(IdleMode.kCoast)
         .smartCurrentLimit(40)
@@ -41,7 +41,7 @@ public class Roller2 extends SubsystemBase {
     private AngularVelocity rollerSpeed = RPM.of(0);
     private Supplier<AngularVelocity> rollerSpeedProvider = () -> rollerSpeed;
 
-    public Roller2() {
+    public IntakeRoller() {
         rollerMotor.configure(rollerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         setDefaultCommand(runToSetpoints());
     }

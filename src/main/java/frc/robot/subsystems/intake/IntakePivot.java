@@ -26,7 +26,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
-public class Pivot extends SubsystemBase {
+public class IntakePivot extends SubsystemBase {
     private TalonFX pivotMotor = new TalonFX(30);
     private CANcoder pivotEncoder = new CANcoder(32);
 
@@ -69,7 +69,7 @@ public class Pivot extends SubsystemBase {
     private Command dbg_angle_0 = pivot.setAngle(Constants.Intake.pivotDeployAngle).withName("dbg_angle_0");
     private Command dbg_angle_1 = pivot.setAngle(Constants.Intake.pivotStowAngle).withName("dbg_angle_1");
 
-    public Pivot() {
+    public IntakePivot() {
         setName("intakePivot");
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_0.getName(), dbg_angle_0);
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_1.getName(), dbg_angle_1);

@@ -31,13 +31,6 @@ public class Logging extends SubsystemBase {
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
     private final NetworkTable evenTable = inst.getTable("EvenLog");
 
-    // Enable logging switch
-    private final BooleanTopic doLoggingNT = evenTable.getBooleanTopic("DriveState/doLogging");
-    private final BooleanPublisher doLoggingNTPub = doLoggingNT.publish();
-    private final BooleanSubscriber doLoggingNTSub = doLoggingNT.subscribe(false);
-    public boolean doLogging = false; // The real value that gets payed attention to, as the drivers switch is locked to true during a match
-
-
     // Drivetrain logging/telemetry objects
     private final DoubleArrayLogEntry chassisPoseLog = new DoubleArrayLogEntry(m_log0, "DriveState/chassisPose");
     private final StructPublisher<Pose2d> chassisPoseNT = evenTable.getStructTopic("DriveState/chassisPose", Pose2d.struct).publish();
@@ -87,7 +80,6 @@ public class Logging extends SubsystemBase {
     public Logging() {
         // Initialize the doLogging switch
         instance = this;
-        doLoggingNTPub.set(doLogging);
     }
 
     public static void registerDebugCommand(String path, Command command) {
@@ -106,19 +98,6 @@ public class Logging extends SubsystemBase {
         }
         getLTInstance().debugKeyTypes.add(Pair.of(path, type));
     }
-
-    // public static Object getDebugValue(String key) {
-    //     // type = debugValues.;
-    //     Object value = getLTInstance().debugValues.get(key);
-    //     switch (value.getClass().getName()) {
-    //         case "int":
-    //         case "double":
-    //             return (double)value;
-    //             // break;
-    //         default:
-                
-    //     }
-    // }
 
     public NetworkTable getRootTable() {
         return evenTable;
@@ -146,17 +125,6 @@ public class Logging extends SubsystemBase {
                 Pair<String, Class<?>> debugKeyType = debugKeyTypes.get(i);
                 genericSmartDashboardUpdate(debugKeyType.getFirst(), debugKeyType.getSecond(), i);
             }
-        }
-
-
-        /* Should we be logging? Ask the driver/programmer 
-        * unless FMS is attatched. Logging must be done if it is
-        */
-        if (DriverStation.isFMSAttached()) {
-            doLogging = true;
-            doLoggingNTPub.set(doLogging);
-        } else {
-            doLogging = doLoggingNTSub.get();
         }
 
         // Give driver match time
@@ -205,19 +173,17 @@ public class Logging extends SubsystemBase {
     }
 
     public void logCTREChassis(SwerveDriveState state) {
-        if (doLogging) {
-            chassisPoseLog.append(new double[] {
-                state.Pose.getX(), 
-                state.Pose.getY(),
-                state.Pose.getRotation().getDegrees()
-            });
+        chassisPoseLog.append(new double[] {
+            state.Pose.getX(), 
+            state.Pose.getY(),
+            state.Pose.getRotation().getDegrees()
+        });
 
-            chassisVelocityLog.append(new double[] {
-                state.Speeds.vxMetersPerSecond,
-                state.Speeds.vyMetersPerSecond,
-                state.Speeds.omegaRadiansPerSecond * 9.549297 // Gets in Rotations Per Minute
-            });
-        }
+        chassisVelocityLog.append(new double[] {
+            state.Speeds.vxMetersPerSecond,
+            state.Speeds.vyMetersPerSecond,
+            state.Speeds.omegaRadiansPerSecond * 9.549297 // Gets in Rotations Per Minute
+        });
 
         chassisPoseNT.set(state.Pose);
         chassisVelocityNT.set(state.Speeds);
