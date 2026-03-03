@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.math.SpeedSet;
 
 public class IntakeRoller extends SubsystemBase {
     private SparkBaseConfig rollerConfig = new SparkMaxConfig()
@@ -38,25 +37,42 @@ public class IntakeRoller extends SubsystemBase {
 
     private SparkMax rollerMotor = new SparkMax(Constants.Intake.rollerMotorID, MotorType.kBrushless);
 
-    private AngularVelocity rollerSpeed = RPM.of(0);
+    public Constants.Intake.RollerState state = Constants.Intake.RollerState.Off;
+
+    private AngularVelocity rollerSpeed = state.speed;
     private Supplier<AngularVelocity> rollerSpeedProvider = () -> rollerSpeed;
 
     public IntakeRoller() {
         rollerMotor.configure(rollerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        setDefaultCommand(runToSetpoints());
+        setDefaultCommand(runToSetpoint());
     }
 
-    public Command setSetpointsOfRollers(AngularVelocity rollerSpeed) {
+    public Command setState(Constants.Intake.RollerState state) {
         return Commands.runOnce(() -> {
-            this.rollerSpeed = rollerSpeed
-                .times(Constants.Intake.rollerRatioRecip);
+            this.state = state;
+            switch (state) {
+                case Off:
+                    this.rollerSpeed = RPM.of(0);
+                    setDefaultCommand(stop());
+                    break;
+                case Normal:
+                    this.rollerSpeed = rollerSpeed
+                        .times(Constants.Intake.rollerRatioRecip);
+                    setDefaultCommand(runToSetpoint());
+                    break;
+            }
+            
         });
     }
 
-    private Command runToSetpoints() {
+    private Command runToSetpoint() {
         return run(() -> {
             rollerMotor.getClosedLoopController().setSetpoint(rollerSpeedProvider.get().in(RPM), ControlType.kVelocity);
         });
+    }
+
+    private Command stop() {
+        return run(() -> {rollerMotor.set(0);});
     }
 
     @Override

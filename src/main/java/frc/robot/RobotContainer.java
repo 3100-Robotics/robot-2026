@@ -22,14 +22,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.auto.Auton;
 import frc.robot.generated.TunerConstantsArkelon;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
-import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeRoller;
+import frc.robot.subsystems.intake.IntakePivot;
 import frc.robot.subsystems.shooter.Shooter;
 
-import frc.robot.subsystems.LockPose;
+import frc.robot.Constants.Intake;
 
 public class RobotContainer {
     private final CommandXboxController driverCtl = new CommandXboxController(0);
@@ -42,7 +42,8 @@ public class RobotContainer {
     private Indexer indexer;
 
     // Intake
-    private Intake intake;
+    private IntakePivot intakePivot;
+    private IntakeRoller intakeRoller;
 
     // Drivetrain
     private Drivetrain drivetrain;
@@ -55,7 +56,6 @@ public class RobotContainer {
             .withRotationalDeadband(MaxAngularRate * 0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final LockPose lockPose = new LockPose();
 
     // Vision
     private Vision vision;
@@ -64,7 +64,7 @@ public class RobotContainer {
 
     private Locator locator;
 
-    public Auton autoManager;
+    // public Auton autoManager;
 
     @SuppressWarnings("unused")
     public RobotContainer() {
@@ -101,7 +101,8 @@ public class RobotContainer {
         }
 
         if (Constants.enableIntake) {
-            intake = new Intake();
+            intakeRoller = new IntakeRoller();
+            intakePivot = new IntakePivot();
         }
 
         if (Constants.enableDrivetrain) {
@@ -110,7 +111,7 @@ public class RobotContainer {
 
             vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
             locator = new Locator(drivetrain::getPos);
-            autoManager = new Auton(drivetrain, shooter, indexer, intake, this);
+            // autoManager = new Auton(drivetrain, shooter, indexer, intake, this);
         }
 
         if (!Constants.doLiveTuning) {
@@ -120,85 +121,28 @@ public class RobotContainer {
         }
     }
 
-    public Command shoot() {
-        return Commands.parallel(
-            Commands.run(
-                () -> {
-                    var targets = shooter.calculateFireAngleAndSpeed();
-                    shooter.setHoodAngleSetpoint(targets.getFirst());
-                    shooter.setSpeedSetpoint(targets.getSecond());
-                    // shooter.angleProvider = () -> Degrees.of(20);
-                    // shooter.speedProvider = () -> RPM.of(4000);
-                    // shooter.setHoodAngleSetpoint(Degrees.of(20));
-                    // shooter.setSpeedSetpoint(RPM.of(4000));
-                }
-            ),
-            shooter.goToCurrentAngle(),
-            shooter.runFlywheelsToCurrent(),
-            Commands.sequence(
-                // Commands.waitUntil(shooter.flywheelsAtRPM),
-                Commands.waitSeconds(1.1),
-                indexer.run()
-            )
-        );
-    }
-
-    private void configShooterBinding() {
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive
-                    .withVelocityX(-driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis())
-                    .withVelocityY(-driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis())
-                    .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate)
-            )
-        );
-
-        driverCtl.b().onTrue(
-            Commands.runOnce(() -> {
-                if (intake.deployed) {
-                    intake.deployed = false;
-                } else {
-                    intake.deployed = true;
-                }
-            })
-        );
-
-        driverCtl.a().whileTrue(
-            Commands.parallel(
-                Commands.run(() -> {
-                    shooter.setSpeedSetpoint(
-                        RPM.of(
-                            SmartDashboard.getNumber("targetRPM_TESTING", 500)
-                        ));
-
-                    shooter.setHoodAngleSetpoint(
-                        Degrees.of(
-                            SmartDashboard.getNumber("targetANGLE_TESTING", 13)
-                        ));
-                }),
-                shooter.flywheelR.flywheel.run(shooter.speedProvider),
-                shooter.flywheelL.flywheel.run(shooter.speedProvider),
-                shooter.hood.hood.setAngle(shooter.angleProvider),
-                Commands.sequence(
-                    Commands.waitSeconds(2),
-                    indexer.run()
-                    // Commands.waitSeconds(0.2)
-                    // intake.runAtSpeed(RPM.of(1000))
-                )
-            )
-        ).whileFalse(
-            Commands.parallel(
-                indexer.idle(),
-                // shooter.idle(),
-                shooter.flywheelL.idle(),
-                shooter.flywheelR.idle(),
-                shooter.hood.idle()
-            )
-        );
-
-        driverCtl.rightBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
-    }
+    // public Command shoot() {
+    //     return Commands.parallel(
+    //         Commands.run(
+    //             () -> {
+    //                 var targets = shooter.calculateFireAngleAndSpeed();
+    //                 shooter.setHoodAngleSetpoint(targets.getFirst());
+    //                 shooter.setSpeedSetpoint(targets.getSecond());
+    //                 // shooter.angleProvider = () -> Degrees.of(20);
+    //                 // shooter.speedProvider = () -> RPM.of(4000);
+    //                 // shooter.setHoodAngleSetpoint(Degrees.of(20));
+    //                 // shooter.setSpeedSetpoint(RPM.of(4000));
+    //             }
+    //         ),
+    //         shooter.goToCurrentAngle(),
+    //         shooter.runFlywheelsToCurrent(),
+    //         Commands.sequence(
+    //             // Commands.waitUntil(shooter.flywheelsAtRPM),
+    //             Commands.waitSeconds(1.1),
+    //             indexer.run()
+    //         )
+    //     );
+    // }
 
     private void configureBindings() {
         // Drivetrain
@@ -241,98 +185,8 @@ public class RobotContainer {
                 // )
         ); // Autoalign to hub
 
-        // Idle bindings
-        driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
-            Commands.parallel(
-                // intake.deploy(),
-                intake.stop(),
-                indexer.idle(),
-                shooter.idle()
-            )
-        );
-
-
-
-        /// Intake
-        coDriverCtl.x().whileTrue(
-            Commands.parallel(
-                // intake.deploy(),
-                intake.runAtSpeed(RPM.of(3000))
-            )
-        ).whileFalse(intake.stop());
-
-
-        coDriverCtl.b().onTrue(
-            Commands.runOnce(() -> {
-                if (intake.deployed) {
-                    intake.deployed = false;
-                } else {
-                    intake.deployed = true;
-                }
-            })
-        );
-
-
-
-        /// Shooter
-        coDriverCtl.a().whileTrue(
-            Commands.parallel(
-                Commands.run(
-                    () -> {
-                        var targets = shooter.calculateFireAngleAndSpeed();
-                        shooter.setHoodAngleSetpoint(targets.getFirst());
-                        shooter.setSpeedSetpoint(targets.getSecond());
-                        // shooter.angleProvider = () -> Degrees.of(20);
-                        // shooter.speedProvider = () -> RPM.of(4000);
-                        // shooter.setHoodAngleSetpoint(Degrees.of(20));
-                        // shooter.setSpeedSetpoint(RPM.of(4000));
-                    }
-                ),
-                shooter.goToCurrentAngle(),
-                shooter.runFlywheelsToCurrent(),
-                Commands.sequence(
-                    // Commands.waitUntil(shooter.flywheelsAtRPM),
-                    Commands.waitSeconds(1.1),
-                    indexer.run()
-                    // Commands.waitSeconds(0.2)
-                    // intake.runAtSpeed(RPM.of(1000))
-                )
-            )
-        ).whileFalse(
-            Commands.parallel(
-                indexer.idle(),
-                shooter.idle()
-            )
-        );
-
-        coDriverCtl.y().whileTrue(
-            Commands.parallel(
-                Commands.run(
-                    () -> {
-                        // var targets = shooter.calculateFireAngleAndSpeed();
-                        // shooter.setHoodAngleSetpoint(targets.getFirst());
-                        // shooter.setSpeedSetpoint(targets.getSecond());
-                        // shooter.angleProvider = () -> Degrees.of(20);
-                        // shooter.speedProvider = () -> RPM.of(4000);
-                        shooter.setHoodAngleSetpoint(Degrees.of(25));
-                        shooter.setSpeedSetpoint(RPM.of(2200));
-                    }
-                ),
-                shooter.goToCurrentAngle(),
-                shooter.runFlywheelsToCurrent(),
-                Commands.sequence(
-                    Commands.waitUntil(shooter.flywheelsAtRPM),
-                    // Commands.waitSeconds(1.1),
-                    indexer.run()
-                    // Commands.waitSeconds(0.2)
-                    // intake.runAtSpeed(RPM.of(1000))
-                )
-            )
-        ).whileFalse(
-            Commands.parallel(
-                indexer.idle(),
-                shooter.idle()
-            )
-        );
+        coDriverCtl.povDown().onTrue(intakePivot.setState(Intake.PivotState.FullDeploy));
+        coDriverCtl.povRight().onTrue(intakePivot.setState(Intake.PivotState.Stow));
+        coDriverCtl.povLeft().onTrue(intakePivot.setState(Intake.PivotState.HalfDeploy));
     }
 }

@@ -27,12 +27,12 @@ import yams.gearing.GearBox;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
-    public static final boolean doLiveTuning = false;
+    public static final boolean doLiveTuning = true;
 
-    public static final boolean enableShooter = true;
-    public static final boolean enableIndexer = true;
+    public static final boolean enableShooter = false;
+    public static final boolean enableIndexer = false;
     public static final boolean enableIntake = true;
-    public static final boolean enableDrivetrain = true;
+    public static final boolean enableDrivetrain = false;
 
     public static final Distance fieldLength = Inches.of(651.22);
     public static final Distance fieldWidth = Inches.of(317.69);
@@ -191,7 +191,7 @@ public class Constants {
             Stow(Degrees.of(-90)),
             ;
 
-            Angle angle;
+            public Angle angle;
 
             PivotState(Angle angle) {
                 this.angle = angle;
@@ -199,13 +199,17 @@ public class Constants {
         }
 
         public static enum RollerState {
-            Normal,
-            Off,
-            
+            Normal(RPM.of(3000)),
+            Off
             ;
             
+            public AngularVelocity speed;
             RollerState() {
+                this.speed = RPM.of(0);
+            }
 
+            RollerState(AngularVelocity speed) {
+                this.speed = speed;
             }
         }
 

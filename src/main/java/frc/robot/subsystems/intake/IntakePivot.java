@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Logging;
@@ -49,7 +50,7 @@ public class IntakePivot extends SubsystemBase {
 
         .withMotorInverted(true)
 
-        .withTelemetry(Constants.Intake.telemetryYAMSPivot+"Motor", Constants.getAppropriateTelemetryLevel())
+        .withTelemetry("YAMSIntakePivotMotor", Constants.getAppropriateTelemetryLevel())
     ;
     
     private final SmartMotorController pivotMotorController = new TalonFXWrapper(pivotMotor, DCMotor.getKrakenX60(1), pivotMotorConfig);
@@ -61,18 +62,24 @@ public class IntakePivot extends SubsystemBase {
         .withLength(Inches.of(13.060457))
         .withMOI(KilogramSquareMeters.of(0.0535991403))
 
-        .withTelemetry(Constants.Intake.telemetryYAMSPivot+"Mech", Constants.getAppropriateTelemetryLevel())
+        .withTelemetry("YAMSIntakePivotMech", Constants.getAppropriateTelemetryLevel())
     ;
+
+    public Constants.Intake.PivotState state = Constants.Intake.PivotState.HalfDeploy;
 
     public Arm pivot = new Arm(pivotConfig);
 
-    private Command dbg_angle_0 = pivot.setAngle(Constants.Intake.pivotDeployAngle).withName("dbg_angle_0");
-    private Command dbg_angle_1 = pivot.setAngle(Constants.Intake.pivotStowAngle).withName("dbg_angle_1");
-
     public IntakePivot() {
         setName("intakePivot");
-        Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_0.getName(), dbg_angle_0);
-        Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_1.getName(), dbg_angle_1);
+        setDefaultCommand(defaultcmd());
+    }
+
+    private Command defaultcmd() {
+        return pivot.setAngle(() -> state.angle);
+    }
+
+    public Command setState(Constants.Intake.PivotState state) {
+        return Commands.runOnce(() -> this.state = state);
     }
 
     @Override
