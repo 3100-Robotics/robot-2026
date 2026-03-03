@@ -51,7 +51,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1)
+            // .withDeadband(MaxSpeed * 0.1)
             .withRotationalDeadband(MaxAngularRate * 0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -141,6 +141,10 @@ public class RobotContainer {
                 indexer.run()
             )
         );
+    }
+
+    public Command idleAll() {
+        return Commands.parallel(indexer.idle());
     }
 
     private void configShooterBinding() {
@@ -256,7 +260,7 @@ public class RobotContainer {
 
 
         /// Intake
-        coDriverCtl.x().or(coDriverCtl.leftBumper()).whileTrue(
+        coDriverCtl.x().whileTrue(
             Commands.parallel(
                 // intake.deploy(),
                 intake.runAtSpeed(RPM.of(3000))
@@ -271,7 +275,7 @@ public class RobotContainer {
         ).whileFalse(indexer.idle());
 
 
-        coDriverCtl.b().onTrue(
+        coDriverCtl.b().or(coDriverCtl.leftBumper()).onTrue(
             Commands.runOnce(() -> {
                 if (intake.deployed) {
                     intake.deployed = false;

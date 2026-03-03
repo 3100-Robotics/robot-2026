@@ -30,7 +30,7 @@ public class Shooter extends SubsystemBase {
      */
 
     private Angle hoodAngle = Constants.Shooter.minHoodAngle;
-    private AngularVelocity flywheelSpeed = RPM.of(2000);
+    private AngularVelocity flywheelSpeed = RPM.of(0);
 
     public Supplier<Angle> angleProvider = () -> hoodAngle;
     public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
@@ -168,7 +168,7 @@ public class Shooter extends SubsystemBase {
 
     public Command idleFlywheels() {
         return Commands.runOnce(() -> {
-            flywheelSpeed = RPM.of(1000);
+            flywheelSpeed = RPM.of(0);
         });
     }
 

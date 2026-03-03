@@ -38,7 +38,7 @@ public class Pivot extends SubsystemBase {
         .withControlMode(ControlMode.CLOSED_LOOP)
         // .withSimClosedLoopController(5.5, 0, 1)
         // .withFeedforward(new ArmFeedforward(0, 1.013332000, 1))
-        .withClosedLoopController(20,0,0)
+        .withClosedLoopController(40,0,0)
         .withFeedforward(new ArmFeedforward(0, 0, 0))
 
         .withEncoderInverted(false)
@@ -47,7 +47,7 @@ public class Pivot extends SubsystemBase {
         // .withExternalEncoderZeroOffset(Degrees.of(0))
         .withUseExternalFeedbackEncoder(true)
 
-        .withMotorInverted(true)
+        .withMotorInverted(false)
 
         .withTelemetry(Constants.Intake.telemetryYAMSPivot+"Motor", Constants.getAppropriateTelemetryLevel())
     ;

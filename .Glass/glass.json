@@ -18,6 +18,9 @@
       "/SmartDashboard/purevision": "Field2d"
     }
   },
+  "NetworkTables Info": {
+    "visible": true
+  },
   "Plots": {
     "Plot <0>": {
       "plots": [

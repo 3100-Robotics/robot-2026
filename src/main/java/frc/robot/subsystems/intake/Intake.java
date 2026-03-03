@@ -41,7 +41,7 @@ public class Intake extends SubsystemBase {
     }
 
     public Command halfway() {
-        return pivotSub.pivot.setAngle(Degrees.of(-50));
+        return pivotSub.pivot.setAngle(Degrees.of(50));
     }
     
     public Command deploy() {
@@ -58,6 +58,7 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("thinksDeployed", isDeployed.getAsBoolean());
         rollerSub.roller.getMotorController().getMechanismSetpointVelocity()
             .ifPresent(
                 setpoint -> SmartDashboard.putNumber(Constants.Intake.telemetryNameRoller+"RPM_Setpoint", setpoint.in(RPM))

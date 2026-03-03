@@ -62,6 +62,8 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
 
+    public double speedMultiplier = 1;
+
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
      * <p>
@@ -273,9 +275,9 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
-            xController.calculate(pose.getX(), poseSetpoint.get().getX()),
-            yController.calculate(pose.getY(), poseSetpoint.get().getY()),
-            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())
+            xController.calculate(pose.getX(), poseSetpoint.get().getX())*speedMultiplier,
+            yController.calculate(pose.getY(), poseSetpoint.get().getY())*speedMultiplier,
+            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())*speedMultiplier
         );
 
         // Apply the generated speeds
