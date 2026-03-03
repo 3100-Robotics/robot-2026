@@ -309,6 +309,10 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         return runOnce(() -> poseSetpoint = newPose).andThen(goToPoseCommand());
     }
 
+    public Command goToPoseCommandStatic(Supplier<Pose2d> newPose) {
+        return runOnce(() -> poseSetpoint = () -> newPose.get()).andThen(goToPoseCommand());
+    }
+
     public Command pointAtPose(Supplier<Pose2d> target) {
         return run(() -> {
             Pose2d currentPose = getPos();
