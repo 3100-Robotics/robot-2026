@@ -130,7 +130,7 @@ public class RobotContainer {
     }
 
     public Command idleAll() {
-        return Commands.parallel(indexer.idle());
+        return Commands.parallel(indexer.idle(), shooter.idleFlywheels());
     }
 
     private void configureBindings() {

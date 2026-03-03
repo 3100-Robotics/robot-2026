@@ -1,5 +1,6 @@
 package frc.robot.auto;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -62,6 +63,7 @@ public class Auton {
 
         autoChooser.addRoutine("Left2", this::left2);
         autoChooser.addRoutine("Outpost Only", this::outpostOnly);
+        autoChooser.addRoutine("Development Outpost Only", this::developmentOutpostOnly);
 
         SmartDashboard.putData("Auton Selector", autoChooser);
         SmartDashboard.putBoolean("astop", false);
@@ -124,6 +126,59 @@ public class Auton {
                     drivetrain.goToPoseCommand(() -> rightToOutpost.getFinalPose().get())
                         .until(() -> drivetrain.isAtPoseSetpoint(false)),
                     // Commands.runOnce(() -> drivetrain.setControl(new SwerveRequest.Idle())),
+                    Commands.runOnce(() -> SmartDashboard.putString("astage", "second")),
+                    Commands.waitSeconds(3),
+                    Commands.runOnce(() -> SmartDashboard.putString("astage", "third")),
+
+                    Commands.runOnce(() -> intake.deployed = false),
+
+                    Commands.race(
+                        drivetrain.goToPoseCommand(() -> Locator.getInstance().extentionPose),
+                        Commands.waitSeconds(2.5)
+                    ),
+                    Commands.parallel(
+                        intake.runAtSpeed(RPM.of(3000)),
+                        Commands.race(
+                            rcontainer.shoot(),
+                            Commands.waitSeconds(10)
+                        ).andThen(rcontainer.idleAll())
+                    ),
+                    Commands.parallel(indexer.idle(),
+                        shooter.idle()),
+                    Commands.runOnce(() -> intake.deployed = true)
+                )
+
+            )
+        );
+        return routine;
+    }
+
+    public AutoRoutine developmentOutpostOnly() {
+        var routine = autoFactory.newRoutine("Outpost only");
+        AutoTrajectory rightToOutpost = routine.trajectory("rightToOutpost_part1");
+
+        routine.active().onTrue(
+            Commands.parallel(
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.2),
+
+                Commands.sequence(
+                    Commands.runOnce(() -> intake.deployed = true),
+                    Commands.runOnce(() -> SmartDashboard.putString("astage", "zeroth")),
+                    autoFactory.resetOdometry("rightToOutpost_part1"),
+                    // rightToOutpost.cmd(),
+                    Commands.runOnce(() -> SmartDashboard.putString("astage", "first")),
+                    drivetrain.goToPoseCommand(() -> rightToOutpost.getFinalPose().get())
+                        .until(() -> drivetrain.isAtPoseSetpoint(false)),
+
+                    Commands.run(() -> drivetrain.setControl(
+                        new SwerveRequest.RobotCentric()
+                            .withVelocityX(MetersPerSecond.of(0.15))
+                            .withVelocityY(0)
+                            .withRotationalRate(0)
+                    ))
+                    .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle()))
+                    .withTimeout(2),
+
                     Commands.runOnce(() -> SmartDashboard.putString("astage", "second")),
                     Commands.waitSeconds(3),
                     Commands.runOnce(() -> SmartDashboard.putString("astage", "third")),
