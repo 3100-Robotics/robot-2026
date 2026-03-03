@@ -29,7 +29,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
-public class Hood extends SubsystemBase {
+public class ShooterHood extends SubsystemBase {
     private TalonFX armMotor = new TalonFX(50);
 
     private final SmartMotorControllerConfig armMotorConfig = new SmartMotorControllerConfig(this)
@@ -74,12 +74,8 @@ public class Hood extends SubsystemBase {
     // public Command continuousAngle = hood.setAngle(angleTargetProvider);
     // public Command stop = hood.runTo(hood.getAngle(), Degrees.of(90)).andThen(hood.set(0));
 
-    public Hood() {
+    public ShooterHood() {
         setName("shooterHood");
-        // Logging.registerDebugCommand(
-        //     Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_0.getName()), dbg_angle_0);
-        // Logging.registerDebugCommand(
-        //     Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_1.getName()), dbg_angle_1);
     }
 
     @Override

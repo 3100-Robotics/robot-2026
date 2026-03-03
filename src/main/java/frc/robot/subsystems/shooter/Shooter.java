@@ -29,36 +29,13 @@ public class Shooter extends SubsystemBase {
      * functions
      */
 
-    private Angle hoodAngle = Constants.Shooter.minHoodAngle;
-    private AngularVelocity flywheelSpeed = RPM.of(2000);
+    // private Angle hoodAngle = Constants.Shooter.minHoodAngle;
+    // private AngularVelocity flywheelSpeed = RPM.of(2000);
 
-    public Supplier<Angle> angleProvider = () -> hoodAngle;
-    public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
+    // public Supplier<Angle> angleProvider = () -> hoodAngle;
+    // public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
 
-    public final Hood hood = new Hood();
-    public final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true, 0.003, 0.137);
-    public final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false, 0.003, 0.1399);
-
-    public final Trigger flywheelsAtRPM = 
-        new Trigger(
-            () -> flywheelL.flywheel.getSpeed()
-                .isNear(speedProvider.get(), RPM.of(20)) &&
-                flywheelR.flywheel.getSpeed()
-                .isNear(speedProvider.get(), RPM.of(20))
-            )
-    ;
-
-    public Shooter() {
-        flywheelR.setDefaultCommand(flywheelR.flywheel.run(speedProvider));
-        flywheelL.setDefaultCommand(flywheelL.flywheel.run(speedProvider));
-        hood.setDefaultCommand(hood.hood.setAngle(Constants.Shooter.minHoodAngle));
-
-        // hood.setDefaultCommand(hood.hood.setAngle(angleProvider));
-        SmartDashboard.putNumber("testingRPM", 1000);
-        SmartDashboard.putNumber("testingANGLE", 13);
-    }
-
-    public Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
+    public static Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
         var shooterDistToHub = 
             Locator.getInstance().distanceToHub.get() // Robot center distance from hub
             .plus(Inches.of(5.4330709)) // Center to fuel exit
@@ -119,78 +96,56 @@ public class Shooter extends SubsystemBase {
     }
 
     // get/set hood setpoint
-    public void setHoodAngleSetpoint(Angle newAngle) {
-        if (newAngle.in(Degrees) > Constants.Shooter.maxHoodAngle.in(Degrees)) {
-            hoodAngle = Constants.Shooter.maxHoodAngle;
-        } else if (newAngle.in(Degrees) < Constants.Shooter.minHoodAngle.in(Degrees)) {
-            hoodAngle = Constants.Shooter.minHoodAngle;
-        } else {
-            hoodAngle = newAngle;
-        }
-    }
 
-    public Angle getHoodAngleSetpoint() {
-        return hoodAngle;
-    }
+    // public void setHoodAngleSetpoint(Angle newAngle) {
+    //     if (newAngle.in(Degrees) > Constants.Shooter.maxHoodAngle.in(Degrees)) {
+    //         hoodAngle = Constants.Shooter.maxHoodAngle;
+    //     } else if (newAngle.in(Degrees) < Constants.Shooter.minHoodAngle.in(Degrees)) {
+    //         hoodAngle = Constants.Shooter.minHoodAngle;
+    //     } else {
+    //         hoodAngle = newAngle;
+    //     }
+    // }
+
+    // public Angle getHoodAngleSetpoint() {
+    //     return hoodAngle;
+    // }
 
     // get/set flywheel setpoint
-    public void setSpeedSetpoint(AngularVelocity newSpeed) {
-        flywheelSpeed = newSpeed;
-    }
+    // public void setSpeedSetpoint(AngularVelocity newSpeed) {
+    //     flywheelSpeed = newSpeed;
+    // }
 
-    public AngularVelocity getSpeedSetpoint() {
-        return flywheelSpeed;
-    }
-
-
-    @Override
-    public Command idle() {
-        return Commands.parallel(
-            stopHood(),
-            idleFlywheels()
-        );
-    }
-
-    public Command stopHood() {
-        return hood.hood.runTo(hood.hood.getAngle(), Degrees.of(360))
-            .andThen(hood.hood.set(0));
-    }
-
-    public Command goToCurrentAngle() {
-        return hood.hood.setAngle(angleProvider);
-    }
+    // public AngularVelocity getSpeedSetpoint() {
+    //     return flywheelSpeed;
+    // }
 
 
-    public Command stopFlywheels() {
-        return flywheelL.flywheel.set(0)
-            .alongWith(flywheelR.flywheel.set(0));
-    }
 
-    public Command idleFlywheels() {
-        return Commands.runOnce(() -> {
-            flywheelSpeed = RPM.of(1000);
-        });
-    }
+    // public Command stopHood() {
+    //     return hood.hood.runTo(hood.hood.getAngle(), Degrees.of(360))
+    //         .andThen(hood.hood.set(0));
+    // }
 
-
-    public Command runFlywheelsToCurrent() {
-        return flywheelL.flywheel.setSpeed(speedProvider)
-            .alongWith(flywheelR.flywheel.setSpeed(speedProvider));
-    }
+    // public Command goToCurrentAngle() {
+    //     return hood.hood.setAngle(angleProvider);
+    // }
 
 
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("flywheelSpeed", flywheelSpeed.in(RPM));
+    // public Command stopFlywheels() {
+    //     return flywheelL.flywheel.set(0)
+    //         .alongWith(flywheelR.flywheel.set(0));
+    // }
 
-        SmartDashboard.putNumber("hoodAngle2", hood.hood.getAngle().in(Degrees));
-        SmartDashboard.putNumber("flywheel left rpm", flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
-        SmartDashboard.putNumber("flywheel right rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
+    // public Command idleFlywheels() {
+    //     return Commands.runOnce(() -> {
+    //         flywheelSpeed = RPM.of(1000);
+    //     });
+    // }
 
-        SmartDashboard.putBoolean("flywheelatrpm", flywheelsAtRPM.getAsBoolean());
-        // SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
-        SmartDashboard.putNumber("fromHoodSupllierAngle", angleProvider.get().in(Degrees));
-        SmartDashboard.putNumber("fromHoodSupllierRPM", speedProvider.get().in(RPM));
-        // SmartDashboard.putNumber("speed calc flywheel", calculateFireAngleAndSpeed().getSecond().in(RPM));
-    }
+
+    // public Command runFlywheelsToCurrent() {
+    //     return flywheelL.flywheel.setSpeed(speedProvider)
+    //         .alongWith(flywheelR.flywheel.setSpeed(speedProvider));
+    // }
 }
