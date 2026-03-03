@@ -184,15 +184,9 @@ public class RobotContainer {
             indexer.runRev()
         ).whileFalse(indexer.idle());
 
-
+        // Toggle deployed or not
         coDriverCtl.b().or(coDriverCtl.leftBumper()).onTrue(
-            Commands.runOnce(() -> {
-                if (intake.deployed) {
-                    intake.deployed = false;
-                } else {
-                    intake.deployed = true;
-                }
-            })
+            intake.toggleDeploy()
         );
 
 

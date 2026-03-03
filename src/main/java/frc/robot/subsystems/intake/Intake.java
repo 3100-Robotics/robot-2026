@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -30,6 +31,24 @@ public class Intake extends SubsystemBase {
 
         rollerCurrent = new DoubleLogEntry(Logging.getLTInstance().m_log0, "/intake/rollercurrent");
         isDeployed.whileTrue(deploy()).whileFalse(stow());
+    }
+
+    public Command toggleDeploy() {
+        return Commands.runOnce(() -> {
+            if (deployed) {
+                deployed = false;
+            } else {
+                deployed = true;
+            }
+        });
+    }
+
+    public Command setDeploy() {
+        return Commands.runOnce(() -> deployed = true);
+    }
+
+    public Command setStow() {
+        return Commands.runOnce(() -> deployed = false);
     }
 
     public Command stow() {
