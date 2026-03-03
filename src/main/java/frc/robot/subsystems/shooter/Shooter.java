@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.RPM;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Locator;
-import yams.motorcontrollers.SmartMotorControllerConfig;
 
 public class Shooter extends SubsystemBase {
     /*

@@ -59,7 +59,6 @@ public class Logging extends SubsystemBase {
     private double matchTime;
 
     // Who won auton?
-    // TODO: Move a lot of crap to constants file
     private final StringArrayPublisher autonWinner = evenTable.getStringArrayTopic("AutonWinner").publish();
     private final String[] autonWinnerColorNone = new String[] {"#FF0000", "#0000FF"};
     private final String[] autonWinnerColorError = new String[] {"#00FF00", "#00FF00"};

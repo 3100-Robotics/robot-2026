@@ -26,6 +26,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
+@SuppressWarnings("unused")
 public class Pivot extends SubsystemBase {
     private TalonFX pivotMotor = new TalonFX(30);
     private CANcoder pivotEncoder = new CANcoder(32);
