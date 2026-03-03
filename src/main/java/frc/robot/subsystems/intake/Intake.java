@@ -32,10 +32,6 @@ public class Intake extends SubsystemBase {
         isDeployed.whileTrue(deploy()).whileFalse(stow());
     }
 
-    // public Command deployState() {
-        
-    // }
-
     public Command stow() {
         return pivotSub.pivot.setAngle(Constants.Intake.pivotStowAngle);
     }

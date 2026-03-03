@@ -53,7 +53,6 @@ public class Shooter extends SubsystemBase {
         flywheelL.setDefaultCommand(flywheelL.flywheel.run(speedProvider));
         hood.setDefaultCommand(hood.hood.setAngle(Constants.Shooter.minHoodAngle));
 
-        // hood.setDefaultCommand(hood.hood.setAngle(angleProvider));
         SmartDashboard.putNumber("testingRPM", 1000);
         SmartDashboard.putNumber("testingANGLE", 13);
     }
@@ -188,9 +187,7 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putNumber("flywheel right rpm", flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
 
         SmartDashboard.putBoolean("flywheelatrpm", flywheelsAtRPM.getAsBoolean());
-        // SmartDashboard.putNumber("angle calc hood", calculateFireAngleAndSpeed().getFirst().in(Degrees));
         SmartDashboard.putNumber("fromHoodSupllierAngle", angleProvider.get().in(Degrees));
         SmartDashboard.putNumber("fromHoodSupllierRPM", speedProvider.get().in(RPM));
-        // SmartDashboard.putNumber("speed calc flywheel", calculateFireAngleAndSpeed().getSecond().in(RPM));
     }
 }

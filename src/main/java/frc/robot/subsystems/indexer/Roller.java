@@ -42,14 +42,6 @@ public class Roller extends SubsystemBase {
         vendorMotorTalonFX.ifPresent(
             vendorTalonFX -> this.motor = new TalonFXWrapper(vendorTalonFX, motors, this.motorConfig)
         );
-
-        // if (vendorMotorTalonFX.isPresent()) {
-        //     this.motor = new TalonFXWrapper(vendorMotorTalonFX.orElseThrow(), motors, this.motorConfig);
-        // } else if (vendorMotorSparkMax.isPresent()) {
-        //     this.motor = new SparkWrapper(vendorMotorSparkMax.orElseThrow(), motors, this.motorConfig);
-        // }
-        
-        // rollerMech = new FlyWheel(this.rollerConfig);
     }
 
     public Roller(String name, DCMotor motors, SparkMax vendorMotor, SmartMotorControllerConfig motorConfig) {

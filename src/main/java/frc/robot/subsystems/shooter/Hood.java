@@ -68,18 +68,8 @@ public class Hood extends SubsystemBase {
     // Arm Mechanism
     public Arm hood = new Arm(hoodConfig);
 
-    // private Command dbg_angle_0 = hood.setAngle(Degrees.of(12.3)).withName("lowestAngle");
-    // private Command dbg_angle_1 = hood.setAngle(Degrees.of(40)).withName("highestAngle");
-
-    // public Command continuousAngle = hood.setAngle(angleTargetProvider);
-    // public Command stop = hood.runTo(hood.getAngle(), Degrees.of(90)).andThen(hood.set(0));
-
     public Hood() {
         setName("shooterHood");
-        // Logging.registerDebugCommand(
-        //     Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_0.getName()), dbg_angle_0);
-        // Logging.registerDebugCommand(
-        //     Constants.join('/', Constants.Shooter.Main.nameHood, dbg_angle_1.getName()), dbg_angle_1);
     }
 
     @Override

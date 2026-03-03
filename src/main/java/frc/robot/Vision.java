@@ -68,7 +68,6 @@ public class Vision extends SubsystemBase {
                 Inches.of(28.002807).in(Meters)
             ),
             new Rotation3d(0, Math.toRadians(-25), Math.toRadians(0))
-                // .rotateBy(new Rotation3d(0,Math.toRadians(0),Math.toRadians(-60)))
         );
 
     public static final Transform3d robotToFrontLeft =
@@ -79,7 +78,6 @@ public class Vision extends SubsystemBase {
                 Inches.of(28.002807).in(Meters)
             ),
             new Rotation3d(0, Math.toRadians(-25), Math.toRadians(0))
-                // .rotateBy(new Rotation3d(0,Math.toRadians(0),Math.toRadians(-60)))
         );
 
     public PhotonPoseEstimator photonEstimatorFrontRight;

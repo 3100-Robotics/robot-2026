@@ -60,8 +60,6 @@ public class Auton {
             this.drivetrain
         );
 
-        // autoChooser.addRoutine("Outpose and Score", this::outpostAndScore);
-        autoChooser.addRoutine("Left", this::left);
         autoChooser.addRoutine("Left2", this::left2);
         autoChooser.addRoutine("Outpost Only", this::outpostOnly);
 
@@ -73,22 +71,6 @@ public class Auton {
         );
 
         RobotModeTriggers.teleop().or(astop).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
-    }
-
-    public AutoRoutine left() {
-        var path = AutoConsts.LEFT.poses;
-
-        var sequence = Commands.sequence(
-            Commands.runOnce(() -> drivetrain.resetPose(AutoConsts.colorPose(AutoConsts.LEFT.INIT_POSE))),
-            drivetrain.goToPoseCommand(() -> AutoConsts.colorPose(path[0]))
-                .until(() -> drivetrain.isAtPoseSetpoint(false))
-                .andThen(drivetrain.goToPoseCommand().withTimeout(1)),
-            rcontainer.shoot()
-        );
-
-        var routine = autoFactory.newRoutine("left");
-        routine.active().onTrue(sequence);
-        return routine;
     }
 
     public AutoRoutine left2() {
@@ -166,70 +148,6 @@ public class Auton {
 
             )
         );
-        return routine;
-    }
-
-    public AutoRoutine outpostAndScore() {
-        var path = AutoConsts.OPAS.poses;
-
-        var sequence = Commands.sequence(
-            // Commands.runOnce(() -> drivetrain.resetPose(AutoConsts.OPAS.INIT_POSE)),
-            // drivetrain.goToPoseCommand(() -> AutoConsts.OPAS.path[0])
-            //     .until(() -> drivetrain.isAtPoseSetpoint(false))
-            //     .andThen(drivetrain.goToPoseCommand().withTimeout(5)),
-
-            // drivetrain.goToPoseCommand(() -> path[1])
-            //     .until(() -> drivetrain.isAtPoseSetpoint(false))
-        );
-
-        var routine = autoFactory.newRoutine("Outpost and Score");
-        routine.active().onTrue(sequence);
-        return routine;
-    }
-
-    public AutoRoutine outpostAndScore1() {
-        Pose2d INIT_POSE = new Pose2d(
-                            3.709699869155884,
-                            1.9885972738265991, Rotation2d.fromDegrees(90));
-
-        var sequence = Commands.sequence();
-
-        var routine = autoFactory.newRoutine("Bump");
-        routine.active()
-            .onTrue(
-                Commands.sequence(
-                    Commands.runOnce(() -> drivetrain.resetPose(INIT_POSE)),
-                    // drivetrain.goToPoseCommand(() -> INIT_POSE),
-                    Commands.runOnce(() -> SmartDashboard.putString("autostage", "stage 0")),
-                    // Commands.waitSeconds(2),
-                    Commands.runOnce(() -> SmartDashboard.putString("autostage", "done waitng")),
-                    drivetrain.goToPoseCommand(() -> new Pose2d(
-                        2.059431552886963,
-                        2.451367139816284, Rotation2d.fromDegrees(90))
-                    ),
-                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose),
-                    drivetrain.goToPoseCommand(() -> new Pose2d(
-                        8.683216094970703,
-                        2.8809804916381836,
-                        Rotation2d.fromDegrees(90)
-                    )),
-                    Commands.runOnce(() -> SmartDashboard.putString("autostage", "across field")),
-                    // drivetrain.pointAtPose(Constants.hubPose),
-                    drivetrain.goToPoseCommand(() -> new Pose2d(
-                        8.4885172843933105,
-                        5.456998348236084,
-                        Rotation2d.fromDegrees(90)
-                    )),
-                    // drivetrain.pointAtPose(Constants.hubPose),
-                    drivetrain.goToPoseCommand(() -> new Pose2d(
-                        1.6959257125854492,
-                        5.471975326538086,
-                        new Rotation2d()
-                    )),
-                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose),
-                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
-                )
-            );
         return routine;
     }
 }

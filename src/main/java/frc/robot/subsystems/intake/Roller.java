@@ -34,8 +34,6 @@ public class Roller extends SubsystemBase {
 
     private SmartMotorControllerConfig rollerMotorConfig = new SmartMotorControllerConfig(this)
         .withControlMode(ControlMode.CLOSED_LOOP)
-        // Feedback Constants (PID Constants)
-        // .withClosedLoopController(0, 0, 0, RPM.of(6000), DegreesPerSecondPerSecond.of(90))
         .withClosedLoopController(0.03, 0, 0)
         // Feedforward Constants
         .withFeedforward(new SimpleMotorFeedforward(0, 0.3, 0))

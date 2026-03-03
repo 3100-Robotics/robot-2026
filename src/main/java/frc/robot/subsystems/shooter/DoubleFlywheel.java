@@ -44,19 +44,9 @@ public class DoubleFlywheel extends SubsystemBase {
     private SmartMotorController flywheelMotor;
     private SmartMotorControllerConfig flywheelMotorConfig  = new SmartMotorControllerConfig(this)
         .withControlMode(ControlMode.CLOSED_LOOP)
-        // Feedback Constants (PID Constants)
-        // .withClosedLoopController(0.001, 0, 0)
-        // .withSimClosedLoopController(50, 0, 0)
-        // // Feedforward Constants
-        // .withFeedforward(new SimpleMotorFeedforward(0, 0.155, 0))
-        // .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
-        // Gearing from the motor rotor to final shaft.
         .withGearing(new MechanismGearing(GearBox.fromReductionStages(1, 1)))
-        // Motor properties to prevent over currenting.
         .withIdleMode(MotorMode.COAST)
         .withStatorCurrentLimit(Amps.of(40))
-        // .withClosedLoopRampRate(Seconds.of(0.25))
-        // .withOpenLoopRampRate(Seconds.of(0.25))
     ;
 
     private FlyWheelConfig flywheelConfig;
@@ -107,16 +97,10 @@ public class DoubleFlywheel extends SubsystemBase {
             Constants.Shooter.Main.flywheelNames[this.flywheelIndex]+dbg_speed_1.getName(), dbg_speed_1);
         Logging.registerDebugCommand(
             Constants.Shooter.Main.flywheelNames[this.flywheelIndex]+dbg_speed_2.getName(), dbg_speed_2);
-
-        // stop = flywheel.runTo(RPM.of(0), RPM.of(6000)).andThen(flywheel.set(0));
-        // runAtCurrentTarget = flywheel.run(speedTarget);
     }
 
     @Override
     public void periodic() {
-        // flywheel.getMechanismSetpoint().ifPresent(setpoint -> SmartDashboard.putNumber("hoodSetpoint", setpoint.in(RPM)));
-        // SmartDashboard.putNumber("hoodSetpoint", flywheel.getSpeed().in(RPM));
-
         SmartDashboard.putNumber(
             Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"FollowerCurrent", 
             vendorFollower.getOutputCurrent()

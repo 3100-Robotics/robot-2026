@@ -34,17 +34,14 @@ public class Pivot extends SubsystemBase {
         .withStatorCurrentLimit(Amps.of(40))
         .withSupplyCurrentLimit(Amps.of(40))
 
-        .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "4:1", "12:48")))//, Sprocket.fromStages("4:1")))
+        .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "4:1", "12:48")))
         .withControlMode(ControlMode.CLOSED_LOOP)
-        // .withSimClosedLoopController(5.5, 0, 1)
-        // .withFeedforward(new ArmFeedforward(0, 1.013332000, 1))
         .withClosedLoopController(40,0,0)
         .withFeedforward(new ArmFeedforward(0, 0, 0))
 
         .withEncoderInverted(false)
         .withExternalEncoder(pivotEncoder)
         .withExternalEncoderGearing(1)
-        // .withExternalEncoderZeroOffset(Degrees.of(0))
         .withUseExternalFeedbackEncoder(true)
 
         .withMotorInverted(false)

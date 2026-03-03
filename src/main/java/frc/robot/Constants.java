@@ -72,18 +72,10 @@ public class Constants {
 
             static {
                 // Distance Angle
-                // distanceAngleTable.add(Pair.of(Meters.of(1.5), 20.0));
-                // distanceAngleTable.add(Pair.of(Meters.of(3), 32.0));
-                // distanceAngleTable.add(Pair.of(Meters.of(4.5), 38.0));
-                // distanceAngleTable.add(Pair.of(Meters.of(6), 40.0));
                 distanceAngleTable.add(Pair.of(Meters.of(1.36), 20.0-2.5));
                 distanceAngleTable.add(Pair.of(Meters.of(5.86), 40.0-2.5));
 
                 // Distance Speed
-                // distanceSpeedTable.add(Pair.of(Meters.of(1.5), 2850.0));
-                // distanceSpeedTable.add(Pair.of(Meters.of(3), 3330.0));
-                // distanceSpeedTable.add(Pair.of(Meters.of(4.5), 3860.0));
-                // distanceSpeedTable.add(Pair.of(Meters.of(6), 4600.0));
                 distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2400.0+(2400*0.05)));
                 distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3960.0+(3960*0.05)));
                
@@ -111,15 +103,6 @@ public class Constants {
             public static String flywheelNames[] = {nameFlywheelL, nameFlywheelR};
             public static String nameHood = joinYAMS(nameRoot, "Hood");
         }
-
-        // public static String telemetryNameFlywheelL = telemetryNameRoot+"Flywheel_L/";
-        // public static String telemetryNameFlywheelR = telemetryNameRoot+"Flywheel_R/";
-        // public static String telemetryNamesFlywheel[] = {telemetryNameFlywheelL, telemetryNameFlywheelR};
-        // public static String telemetryNameHood = telemetryNameRoot+"Hood/";
-
-        // public static String telemetryYAMSFlywheelL = "FlywheelL_";
-        // public static String telemetryYAMSFlywheelR = "FlywheelR_";
-        // public static String telemetryYAMSFlywheelList[] = {telemetryYAMSFlywheelL, telemetryYAMSFlywheelR};
     }
 
     public static class Indexer {
