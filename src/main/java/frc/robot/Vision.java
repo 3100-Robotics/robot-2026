@@ -57,7 +57,7 @@ public class Vision extends SubsystemBase {
         public void accept(Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs);
     }
 
-
+    public boolean usePose = true;
     private AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     public static final Transform3d robotToFrontRight =
@@ -71,42 +71,47 @@ public class Vision extends SubsystemBase {
                 // .rotateBy(new Rotation3d(0,Math.toRadians(0),Math.toRadians(-60)))
         );
 
-    // public static final Transform3d robotToFrontLeft =
-    //     new Transform3d(
-    //         new Translation3d(
-    //             Inches.of(12.040283+-0.673182).in(Meters), 
-    //             Inches.of(10.040908-0.807295).in(Meters),
-    //             Inches.of(6.805750+2.396424).in(Meters)
-    //         ),
-    //         new Rotation3d(0, Math.toRadians(-61.875), Math.toRadians(0))
-    //             .rotateBy(new Rotation3d(0,Math.toRadians(0),Math.toRadians(30)))
-    //     );
+    public static final Transform3d robotToFrontLeft =
+        new Transform3d(
+            new Translation3d(
+                Inches.of(-7.822376).in(Meters), 
+                Inches.of(10.446815).in(Meters),
+                Inches.of(28.002807).in(Meters)
+            ),
+            new Rotation3d(0, Math.toRadians(-25), Math.toRadians(0))
+                // .rotateBy(new Rotation3d(0,Math.toRadians(0),Math.toRadians(-60)))
+        );
 
     public PhotonPoseEstimator photonEstimatorFrontRight;
-    // public PhotonPoseEstimator photonEstimatorFrontLeft;
+    public PhotonPoseEstimator photonEstimatorFrontLeft;
     public PhotonCamera cameraFrontRight = new PhotonCamera("Right");
-    // public PhotonCamera cameraFrontLeft = new PhotonCamera("Left");
+    public PhotonCamera cameraFrontLeft = new PhotonCamera("Leftno");
 
     // Simulation
+
+    // This really is just for sim, vision has nothing to do with it
+    public Supplier<Pose2d> robotPoseFromDrivetrain;
+
     public VisionSystemSim visionSim;
 
     public PhotonCameraSim cameraSimFrontRight;
     public PhotonCameraSim cameraSimFrontLeft;
 
-    public Vision(EstimateConsumer estConsumer) {
+    public Vision(EstimateConsumer estConsumer, Supplier<Pose2d> robotPoseFromDrivetrain) {
+        this.robotPoseFromDrivetrain = robotPoseFromDrivetrain;
         photonEstimatorFrontRight = new PhotonPoseEstimator(
             tagLayout,
             robotToFrontRight
         );
 
-        // photonEstimatorFrontLeft = new PhotonPoseEstimator(
-        //     tagLayout,
-        //     robotToFrontLeft);
+        photonEstimatorFrontLeft = new PhotonPoseEstimator(
+            tagLayout,
+            robotToFrontLeft);
 
         this.estConsumer = estConsumer;
         if (!Robot.isReal()) {
-            // A vision system sim labelled as "main" in NetworkTables
-            visionSim = new VisionSystemSim("main");
+            // `VisionSim` shows up in networktables
+            visionSim = new VisionSystemSim("VisionSim");
             visionSim.addAprilTags(tagLayout);
 
             SimCameraProperties cameraPropFrontRight = new SimCameraProperties();
@@ -125,21 +130,24 @@ public class Vision extends SubsystemBase {
             cameraPropFrontLeft.setLatencyStdDevMs(5);
 
             cameraSimFrontRight = new PhotonCameraSim(cameraFrontRight, cameraPropFrontRight);
-            // cameraSimFrontLeft = new PhotonCameraSim(cameraFrontLeft, cameraPropFrontLeft);
+            cameraSimFrontLeft = new PhotonCameraSim(cameraFrontLeft, cameraPropFrontLeft);
+
+            cameraSimFrontLeft.enableDrawWireframe(true);
+            cameraSimFrontRight.enableDrawWireframe(true);
 
             visionSim.addCamera(cameraSimFrontRight, robotToFrontRight);
-            // visionSim.addCamera(cameraSimFrontLeft, robotToFrontLeft);
+            visionSim.addCamera(cameraSimFrontLeft, robotToFrontLeft);
         }
     }
 
     @Override
     public void simulationPeriodic() {
-        // visionSim.update(robotPoseFromDrivetrain.get());
+        visionSim.update(robotPoseFromDrivetrain.get());
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putData(purevision);
+        SmartDashboard.putData("purevision", purevision);
         rightcam3d.set(new Pose3d(robotToFrontRight.getTranslation(), robotToFrontRight.getRotation()));
 
 
@@ -153,21 +161,24 @@ public class Vision extends SubsystemBase {
 
             if (Robot.isSimulation()) {
                 visionEstRight.ifPresentOrElse(
-                        est ->
-                                getSimDebugField()
-                                        .getObject("VisionEstimation")
-                                        .setPose(est.estimatedPose.toPose2d()),
-                        () -> {
-                            getSimDebugField().getObject("VisionEstimation").setPoses();
-                        });
+                    est ->
+                            getSimDebugField()
+                                    .getObject("VisionEstimation")
+                                    .setPose(est.estimatedPose.toPose2d()),
+                    () -> {
+                        getSimDebugField().getObject("VisionEstimation").setPoses();
+                    }
+                );
             } else {
                 visionEstRight.ifPresent(
-                        est -> {
-                            var estStdDevs = getEstimationStdDevs();
-                            purevision.setRobotPose(est.estimatedPose.toPose2d());
-                            // rcontainer.latestVisionLeft = est.estimatedPose.toPose2d();
+                    est -> {
+                        var estStdDevs = getEstimationStdDevs();
+                        purevision.setRobotPose(est.estimatedPose.toPose2d());
+                        if (usePose) {
                             estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-                        });
+                        }
+                    }
+                );
             }
         }
     }

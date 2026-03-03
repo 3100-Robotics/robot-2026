@@ -33,8 +33,8 @@ public class Hood extends SubsystemBase {
     private TalonFX armMotor = new TalonFX(50);
 
     private final SmartMotorControllerConfig armMotorConfig = new SmartMotorControllerConfig(this)
-        .withStatorCurrentLimit(Amps.of(120))
-        .withSupplyCurrentLimit(Amps.of(70))
+        .withStatorCurrentLimit(Amps.of(50))
+        .withSupplyCurrentLimit(Amps.of(40))
 
         
 
@@ -43,9 +43,9 @@ public class Hood extends SubsystemBase {
         .withGearing(new MechanismGearing(GearBox.fromStages("48:12", "182:10")))
         .withControlMode(ControlMode.CLOSED_LOOP)
 
-        .withClosedLoopController(400, 0, 0)
+        .withClosedLoopController(530, 0, 0)
         .withSimClosedLoopController(5, 0, 0)
-        .withFeedforward(new ArmFeedforward(60, 0, 0))
+        .withFeedforward(new ArmFeedforward(140, 0, 0))
         .withSimFeedforward(new ArmFeedforward(0, 0, 0))
 
         .withMotorInverted(true)
@@ -89,6 +89,6 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // hood.simIterate();
+        hood.simIterate();
     }
 }

@@ -70,22 +70,15 @@ public class Roller extends SubsystemBase {
         Logging.registerDebugCommand(Constants.Intake.telemetryNameRoller+"dbgDown", dbgDown);
     }
 
-    // public Command runAtSpeed(AngularVelocity speed) {
-    //     return roller.setSpeed(speed).withName(String.format("runningAt_%f", speed.in(RPM)));
-    // }
-
-    // public Command stop() {
-    //     return roller.set(0).withName("stopped");
-    // }
-
     @Override
     public void periodic() {
         SmartDashboard.putNumber("intakeRPM", roller.getSpeed().in(RPM));
+        SmartDashboard.putNumber("intakeRollerCurrent", rawRollerMotor.getOutputCurrent());
         roller.updateTelemetry();
     }
 
     @Override
     public void simulationPeriodic() {
-        // roller.simIterate();
+        roller.simIterate();
     }
 }

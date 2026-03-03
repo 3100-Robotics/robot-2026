@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Logging extends SubsystemBase {
-    private final DataLog m_log0 = DataLogManager.getLog();
+    public final DataLog m_log0 = DataLogManager.getLog();
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
     private final NetworkTable evenTable = inst.getTable("EvenLog");
 
@@ -35,7 +35,7 @@ public class Logging extends SubsystemBase {
     private final BooleanTopic doLoggingNT = evenTable.getBooleanTopic("DriveState/doLogging");
     private final BooleanPublisher doLoggingNTPub = doLoggingNT.publish();
     private final BooleanSubscriber doLoggingNTSub = doLoggingNT.subscribe(false);
-    private boolean doLogging = false; // The real value that gets payed attention to, as the drivers switch is locked to true during a match
+    public boolean doLogging = false; // The real value that gets payed attention to, as the drivers switch is locked to true during a match
 
 
     // Drivetrain logging/telemetry objects

@@ -95,6 +95,8 @@ public class Indexer extends SubsystemBase {
 
         Logging.registerDebugCommand(dbg_stop.getName(), dbg_stop);
         Logging.registerDebugCommand(dbg_runAll.getName(), dbg_runAll);
+    
+        // setDefaultCommand(idle());
     }
 
     @Override
@@ -114,6 +116,14 @@ public class Indexer extends SubsystemBase {
         );
     }
 
+    public Command runRev() {
+        return Commands.parallel(
+            floorRollers.runAtSpeed(RPM.of(-2377)),
+            ceilingRollers.runAtSpeed(RPM.of(-4414)),
+            kickerRollers.runAtSpeed(RPM.of(-4414))
+        );
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber(
@@ -130,5 +140,7 @@ public class Indexer extends SubsystemBase {
             Constants.join('_', Constants.Indexer.Main.nameKicker, "RPM"), 
             kickerRollers.motor.getMechanismVelocity().in(RPM)
         );
+
+        // SmartDashboard.putNumber("kickerAmps", kickerRollers.motor.getSupplyCurrent().get().in(Amps));
     }
 }

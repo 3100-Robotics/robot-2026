@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 
 import java.util.ArrayList;
@@ -16,10 +17,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.math.SpeedSet;
+import yams.gearing.GearBox;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
@@ -59,8 +63,8 @@ public class Constants {
          * Flywheel L IS the left flywheel IS flywheel 0
          * Flywheel R IS the right flywheel IS flywheel 1
          */
-        public static Angle maxHoodAngle = Degrees.of(50);
-        public static Angle minHoodAngle = Degrees.of(0);
+        public static Angle maxHoodAngle = Degrees.of(40);
+        public static Angle minHoodAngle = Degrees.of(12.667292);
 
         public static class Physical {
             public static final List<Pair<Distance, Double>> distanceAngleTable = new ArrayList<>();
@@ -68,14 +72,21 @@ public class Constants {
 
             static {
                 // Distance Angle
-                distanceAngleTable.add(Pair.of(Feet.of(1), 30.0));
-                distanceAngleTable.add(Pair.of(Feet.of(1.1), 31.0));
-                distanceAngleTable.add(Pair.of(Feet.of(2), 42.0));
+                // distanceAngleTable.add(Pair.of(Meters.of(1.5), 20.0));
+                // distanceAngleTable.add(Pair.of(Meters.of(3), 32.0));
+                // distanceAngleTable.add(Pair.of(Meters.of(4.5), 38.0));
+                // distanceAngleTable.add(Pair.of(Meters.of(6), 40.0));
+                distanceAngleTable.add(Pair.of(Meters.of(1.36), 20.0-2.5));
+                distanceAngleTable.add(Pair.of(Meters.of(5.86), 40.0-2.5));
 
                 // Distance Speed
-                distanceSpeedTable.add(Pair.of(Feet.of(1), 3000.0));
-                distanceSpeedTable.add(Pair.of(Feet.of(1.1), 4000.0));
-                distanceSpeedTable.add(Pair.of(Feet.of(2), 5000.0));
+                // distanceSpeedTable.add(Pair.of(Meters.of(1.5), 2850.0));
+                // distanceSpeedTable.add(Pair.of(Meters.of(3), 3330.0));
+                // distanceSpeedTable.add(Pair.of(Meters.of(4.5), 3860.0));
+                // distanceSpeedTable.add(Pair.of(Meters.of(6), 4600.0));
+                distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2400.0+(2400*0.05)));
+                distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3960.0+(3960*0.05)));
+               
             }
         }
 
@@ -112,6 +123,26 @@ public class Constants {
     }
 
     public static class Indexer {
+        public static final SpeedSet off = new SpeedSet(
+            RPM.of(0),
+            RPM.of(0),
+            RPM.of(0)
+        );
+
+        public static final SpeedSet on = new SpeedSet(
+            RPM.of(4414),
+            RPM.of(4414),
+            RPM.of(2377)
+        );
+
+        public static final double kickerRatio = 36.0/24.0;
+        public static final double ceilingRatio = 20.0/24.0;
+        public static final double floorRatio = 20.0/24.0;
+
+        public static final double kickerRatioRecip = 1.0 / kickerRatio;
+        public static final double ceilingRatioRecip = 1.0 / ceilingRatio;
+        public static final double floorRatioRecip = 1.0 / floorRatio;
+
         public static int floorMotorID = 40;
         public static int ceilingMotorID = 41;
         public static int kickerMotorID = 42;
@@ -144,9 +175,12 @@ public class Constants {
     }
 
     public static class Intake {
+        public static final double rollerRatio = 3.0/2.0;
+        public static final double rollerRatioRecip = 1.0 / rollerRatio;
+
         // Physical Constants
-        public static final Angle pivotDeployAngle = Degrees.of(2);
-        public static final Angle pivotStowAngle = Degrees.of(-115);
+        public static final Angle pivotDeployAngle = Degrees.of(3);
+        public static final Angle pivotStowAngle = Degrees.of(55);
 
         // Software Constants
         public static final int pivotMotorID = 30;

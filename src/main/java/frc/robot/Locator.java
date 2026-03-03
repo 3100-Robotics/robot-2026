@@ -52,8 +52,9 @@ public class Locator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putData("best field ever", field);
         SmartDashboard.putBoolean("recvAllianceColor", hasAppliedAlliance);
-        SmartDashboard.putNumber("robotDistanceToHubInches", distanceToHub.get().in(Feet));
+        SmartDashboard.putNumber("robotDistanceToHubFeet", distanceToHub.get().in(Feet));
 
         if (!hasAppliedAlliance || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
@@ -66,6 +67,8 @@ public class Locator extends SubsystemBase {
                     ? Constants.hubPoseRed : 
                     Constants.hubPoseBlue
             );
+            SmartDashboard.putString("lookatme", alliance.toString());
+            field.getObject("hubyentoo").setPose(hubPose);
         }
 
         robotPose = getRobotPose.get();
@@ -73,8 +76,8 @@ public class Locator extends SubsystemBase {
         FieldObject2d targetExtension = field.getObject("Extension");
 
         this.extentionPose = new Pose2d(
-            2*Math.cos(targetHub.getPose().getRotation().getRadians())+hubPose.getX(),
-            2*Math.sin(targetHub.getPose().getRotation().getRadians())+hubPose.getY(),
+            3.36*Math.cos(targetHub.getPose().getRotation().getRadians())+hubPose.getX(),
+            3.36*Math.sin(targetHub.getPose().getRotation().getRadians())+hubPose.getY(),
             targetHub.getPose().getRotation().rotateBy(Rotation2d.k180deg)
         );
 
