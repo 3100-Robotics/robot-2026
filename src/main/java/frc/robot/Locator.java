@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Locator extends SubsystemBase {
     public static Locator instance;
 
-    private boolean hasAppliedAlliance = false;
+    public boolean hasAppliedAlliance = false;
     public Optional<Alliance> alliance = Optional.empty();
 
     public Pose2d hubPose = Constants.hubPoseBlue;
