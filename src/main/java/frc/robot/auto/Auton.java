@@ -154,7 +154,9 @@ public class Auton {
                         ).andThen(rcontainer.idleAll())
                     ),
                     Commands.parallel(indexer.idle(),
-                        shooter.idle()),
+                        shooter.idle(),
+                        shooter.idleFlywheels()
+                    ),
                     Commands.runOnce(() -> intake.deployed = true)
                 )
 
@@ -207,7 +209,8 @@ public class Auton {
                         ).andThen(rcontainer.idleAll())
                     ),
                     Commands.parallel(indexer.idle(),
-                        shooter.idle()),
+                        shooter.idle(),
+                        shooter.idleFlywheels()),
                     Commands.runOnce(() -> intake.deployed = true)
                 )
 
@@ -239,17 +242,17 @@ public class Auton {
                     .withTimeout(2),
                 Commands.runOnce(() -> vision.usePose = false),
                 drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
-                    .withTimeout(2),
+                    .withTimeout(1.5),
                 // Start intake here
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.75),
                 drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
                     .alongWith(intake.runAtSpeed(RPM.of(3000)))
-                    .withTimeout(4),
+                    .withTimeout(1.5),
                 intake.stop().withTimeout(0),
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
                 // End here
                 drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
-                    .withTimeout(2),
+                    .withTimeout(1.3),
                 Commands.run(() -> drivetrain.setControl(
                     new SwerveRequest.RobotCentric()
                         .withVelocityX(MetersPerSecond.of(-2))
@@ -274,7 +277,7 @@ public class Auton {
                     ).andThen(rcontainer.idleAll())
                 ),
                 Commands.parallel(indexer.idle(),
-                    shooter.idle())
+                    shooter.idleFlywheels())
             )
         );
 
