@@ -29,6 +29,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -139,6 +141,7 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("usingPose", usePose);
         SmartDashboard.putData("purevision", purevision);
         rightcam3d.set(new Pose3d(robotToFrontRight.getTranslation(), robotToFrontRight.getRotation()));
 

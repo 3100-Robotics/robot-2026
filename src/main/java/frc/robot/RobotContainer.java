@@ -44,7 +44,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            // .withDeadband(MaxSpeed * 0.1)
+            .withDeadband(MaxSpeed * 0.05)
             .withRotationalDeadband(MaxAngularRate * 0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -102,7 +102,7 @@ public class RobotContainer {
 
             vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
             locator = new Locator(drivetrain::getPos);
-            autoManager = new Auton(drivetrain, shooter, indexer, intake, this);
+            autoManager = new Auton(drivetrain, shooter, indexer, intake, this, vision);
         }
 
         if (!Constants.doLiveTuning) {
@@ -152,7 +152,13 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> brake)
         );
 
-        driverCtl.rightBumper().onTrue(Commands.runOnce(() -> vision.usePose = false));
+        driverCtl.rightBumper().onTrue(Commands.runOnce(() -> {
+            if (vision.usePose == true) {
+                vision.usePose = false;
+            } else {
+                vision.usePose = true;
+            }
+        }));
 
         // Autoalign to hub
         driverCtl.a().whileTrue(
