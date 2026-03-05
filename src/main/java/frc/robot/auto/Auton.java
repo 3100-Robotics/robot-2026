@@ -113,6 +113,7 @@ public class Auton {
     public AutoRoutine developmentOutpostOnly() {
         var routine = autoFactory.newRoutine("Outpost only");
         AutoTrajectory rightToOutpost = routine.trajectory("rightToOutpost_part1");
+        AutoTrajectory rightToOutpostEnd = routine.trajectory("rightToOutpost_part2");
 
         routine.active().onTrue(
             Commands.parallel(
@@ -137,7 +138,7 @@ public class Auton {
                     .withTimeout(2),
 
                     Commands.runOnce(() -> SmartDashboard.putString("astage", "second")),
-                    Commands.waitSeconds(3),
+                    Commands.waitSeconds(2),
                     Commands.runOnce(() -> SmartDashboard.putString("astage", "third")),
 
                     Commands.runOnce(() -> intake.deployed = false),
@@ -146,17 +147,19 @@ public class Auton {
                         drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
                         Commands.waitSeconds(2.5)
                     ),
-                    Commands.parallel(
-                        intake.runAtSpeed(RPM.of(4000)),
                         Commands.race(
                             rcontainer.shoot(),
-                            Commands.waitSeconds(10)
-                        ).andThen(rcontainer.idleAll())
-                    ),
+                            Commands.waitSeconds(5),
+                            intake.runAtSpeed(RPM.of(4000))
+                        ).andThen(rcontainer.idleAll().withTimeout(0.001)),
+
                     Commands.parallel(indexer.idle(),
                         shooter.idle(),
-                        shooter.idleFlywheels()
-                    ),
+                        shooter.idleFlywheels()).withTimeout(0.001),
+                    drivetrain.goToPoseCommand(() -> rightToOutpostEnd.getInitialPose().get())
+                        .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                    drivetrain.goToPoseCommand(() -> rightToOutpostEnd.getFinalPose().get())
+                        .until(() -> drivetrain.isAtPoseSetpoint(false)),
                     Commands.runOnce(() -> intake.deployed = true)
                 )
 
