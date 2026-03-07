@@ -322,8 +322,8 @@ public class Auton {
                     .withTimeout(2),
                 Commands.runOnce(() -> vision.usePose = false),
                 drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
-                    .withTimeout(1.5),
-                // Start intake here
+                    .alongWith(intake.runAtSpeed(RPM.of(3000))) // Start intake here
+                    .withTimeout(1),
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.5),
                 drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
                     .alongWith(intake.runAtSpeed(RPM.of(3000)))
@@ -357,7 +357,7 @@ public class Auton {
                     rcontainer.shoot(),
                     Commands.sequence(
                         drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
-                            .withTimeout(1),
+                            .withTimeout(2),
                         Commands.runOnce(() -> intake.deployed = false)
                     )
                 ).withTimeout(7),
