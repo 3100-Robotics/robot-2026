@@ -1,9 +1,10 @@
 {
   "download": {
+    "deleteAfter": false,
     "localDir": "C:\\Users\\team3100\\Documents\\logs",
     "serverTeam": "10.31.0.2"
   },
   "output": {
-    "outputFolder": "C:\\Users\\even\\Documents\\GitHub\\robot-2026"
+    "outputFolder": "C:\\Users\\team3100\\Documents\\logs"
   }
 }
