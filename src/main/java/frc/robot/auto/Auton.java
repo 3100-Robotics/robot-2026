@@ -130,12 +130,12 @@ public class Auton {
 
                     Commands.run(() -> drivetrain.setControl(
                         new SwerveRequest.RobotCentric()
-                            .withVelocityX(MetersPerSecond.of(0.15))
+                            .withVelocityX(MetersPerSecond.of(0.2))
                             .withVelocityY(0)
                             .withRotationalRate(0)
                     ))
                     .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle()))
-                    .withTimeout(2),
+                    .withTimeout(1.7),
 
                     Commands.runOnce(() -> SmartDashboard.putString("astage", "second")),
                     Commands.waitSeconds(2),
@@ -143,21 +143,27 @@ public class Auton {
 
                     Commands.runOnce(() -> intake.deployed = false),
 
+                    Commands.runOnce(() -> drivetrain.speedMultiplier = 0.3),
                     Commands.race(
                         drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
-                        Commands.waitSeconds(2.5)
+                        Commands.waitSeconds(3)
                     ),
-                        Commands.race(
-                            rcontainer.shoot(),
-                            Commands.waitSeconds(5),
-                            intake.runAtSpeed(RPM.of(4000))
-                        ).andThen(rcontainer.idleAll().withTimeout(0.001)),
+                    // Commands.runOnce(() -> drivetrain.speedMultiplier = 0.2),
+
+                    Commands.race(
+                        rcontainer.shoot(),
+                        Commands.waitSeconds(5),
+                        intake.runAtSpeed(RPM.of(4000))
+                    ).andThen(rcontainer.idleAll().withTimeout(0.001)),
 
                     Commands.parallel(indexer.idle(),
                         shooter.idle(),
                         shooter.idleFlywheels()).withTimeout(0.001),
+                    // Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
                     drivetrain.goToPoseCommand(() -> rightToOutpostEnd.getInitialPose().get())
                         .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                        // .withTimeout(5),
+                    // Commands.runOnce(() -> drivetrain.speedMultiplier = 0.2),
                     drivetrain.goToPoseCommand(() -> rightToOutpostEnd.getFinalPose().get())
                         .until(() -> drivetrain.isAtPoseSetpoint(false)),
                     Commands.runOnce(() -> intake.deployed = true)
