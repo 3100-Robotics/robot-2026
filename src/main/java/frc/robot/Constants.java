@@ -1,16 +1,9 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,11 +12,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.math.SpeedSet;
-import yams.gearing.GearBox;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
@@ -37,12 +30,13 @@ public class Constants {
     public static final Distance fieldLength = Inches.of(651.22);
     public static final Distance fieldWidth = Inches.of(317.69);
 
-    public static final Pose2d hubPoseBlue = new Pose2d(4.628518104553223, 4.035704612731934, new Rotation2d());
-    public static final Pose2d hubPoseRed = new Pose2d(4.628518104553223, 4.035704612731934, new Rotation2d())
-        .rotateAround(new Translation2d(
-            fieldLength.div(2),
-            fieldWidth.div(2)
-        ), Rotation2d.fromDegrees(180));
+    public static final Pose2d hubPoseBlue =
+            new Pose2d(4.628518104553223, 4.035704612731934, new Rotation2d());
+    public static final Pose2d hubPoseRed =
+            new Pose2d(4.628518104553223, 4.035704612731934, new Rotation2d())
+                    .rotateAround(
+                            new Translation2d(fieldLength.div(2), fieldWidth.div(2)),
+                            Rotation2d.fromDegrees(180));
 
     public static TelemetryVerbosity getAppropriateTelemetryLevel() {
         return doLiveTuning ? TelemetryVerbosity.HIGH : TelemetryVerbosity.LOW;
@@ -86,7 +80,6 @@ public class Constants {
                 // distanceSpeedTable.add(Pair.of(Meters.of(6), 4600.0));
                 distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2200.0));
                 distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3600.0));
-               
             }
         }
 
@@ -114,30 +107,24 @@ public class Constants {
 
         // public static String telemetryNameFlywheelL = telemetryNameRoot+"Flywheel_L/";
         // public static String telemetryNameFlywheelR = telemetryNameRoot+"Flywheel_R/";
-        // public static String telemetryNamesFlywheel[] = {telemetryNameFlywheelL, telemetryNameFlywheelR};
+        // public static String telemetryNamesFlywheel[] = {telemetryNameFlywheelL,
+        // telemetryNameFlywheelR};
         // public static String telemetryNameHood = telemetryNameRoot+"Hood/";
 
         // public static String telemetryYAMSFlywheelL = "FlywheelL_";
         // public static String telemetryYAMSFlywheelR = "FlywheelR_";
-        // public static String telemetryYAMSFlywheelList[] = {telemetryYAMSFlywheelL, telemetryYAMSFlywheelR};
+        // public static String telemetryYAMSFlywheelList[] = {telemetryYAMSFlywheelL,
+        // telemetryYAMSFlywheelR};
     }
 
     public static class Indexer {
-        public static final SpeedSet off = new SpeedSet(
-            RPM.of(0),
-            RPM.of(0),
-            RPM.of(0)
-        );
+        public static final SpeedSet off = new SpeedSet(RPM.of(0), RPM.of(0), RPM.of(0));
 
-        public static final SpeedSet on = new SpeedSet(
-            RPM.of(4414),
-            RPM.of(4414),
-            RPM.of(2377)
-        );
+        public static final SpeedSet on = new SpeedSet(RPM.of(4414), RPM.of(4414), RPM.of(2377));
 
-        public static final double kickerRatio = 36.0/24.0;
-        public static final double ceilingRatio = 20.0/24.0;
-        public static final double floorRatio = 20.0/24.0;
+        public static final double kickerRatio = 36.0 / 24.0;
+        public static final double ceilingRatio = 20.0 / 24.0;
+        public static final double floorRatio = 20.0 / 24.0;
 
         public static final double kickerRatioRecip = 1.0 / kickerRatio;
         public static final double ceilingRatioRecip = 1.0 / ceilingRatio;
@@ -175,7 +162,7 @@ public class Constants {
     }
 
     public static class Intake {
-        public static final double rollerRatio = 3.0/2.0;
+        public static final double rollerRatio = 3.0 / 2.0;
         public static final double rollerRatioRecip = 1.0 / rollerRatio;
 
         // Physical Constants
@@ -186,8 +173,8 @@ public class Constants {
 
         // State
         public static enum PivotState {
-            FullDeploy(Degrees.of(2)), 
-            HalfDeploy(Degrees.of(-50)), 
+            FullDeploy(Degrees.of(2)),
+            HalfDeploy(Degrees.of(-50)),
             Stow(Degrees.of(-90)),
             ;
 
@@ -200,10 +187,10 @@ public class Constants {
 
         public static enum RollerState {
             Normal(RPM.of(3000)),
-            Off
-            ;
-            
+            Off;
+
             public AngularVelocity speed;
+
             RollerState() {
                 this.speed = RPM.of(0);
             }
@@ -213,13 +200,10 @@ public class Constants {
             }
         }
 
-
         public static final int pivotMotorID = 30;
         public static final int rollerMotorID = 31;
         public static final int encoderID = 32;
     }
 
-    public static class Vision {
-
-    }
+    public static class Vision {}
 }

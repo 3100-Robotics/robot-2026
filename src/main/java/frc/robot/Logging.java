@@ -1,16 +1,9 @@
 package frc.robot;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
-
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.BooleanSubscriber;
-import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -25,6 +18,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Logging extends SubsystemBase {
     public final DataLog m_log0 = DataLogManager.getLog();
@@ -32,18 +28,26 @@ public class Logging extends SubsystemBase {
     private final NetworkTable evenTable = inst.getTable("EvenLog");
 
     // Drivetrain logging/telemetry objects
-    private final DoubleArrayLogEntry chassisPoseLog = new DoubleArrayLogEntry(m_log0, "DriveState/chassisPose");
-    private final StructPublisher<Pose2d> chassisPoseNT = evenTable.getStructTopic("DriveState/chassisPose", Pose2d.struct).publish();
+    private final DoubleArrayLogEntry chassisPoseLog =
+            new DoubleArrayLogEntry(m_log0, "DriveState/chassisPose");
+    private final StructPublisher<Pose2d> chassisPoseNT =
+            evenTable.getStructTopic("DriveState/chassisPose", Pose2d.struct).publish();
 
-    private final DoubleArrayLogEntry chassisVelocityLog = new DoubleArrayLogEntry(m_log0, "DriveState/chassisVelocity");
-    private final StructPublisher<ChassisSpeeds> chassisVelocityNT = evenTable.getStructTopic("DriveState/chassisVelocity", ChassisSpeeds.struct).publish();
-
+    private final DoubleArrayLogEntry chassisVelocityLog =
+            new DoubleArrayLogEntry(m_log0, "DriveState/chassisVelocity");
+    private final StructPublisher<ChassisSpeeds> chassisVelocityNT =
+            evenTable.getStructTopic("DriveState/chassisVelocity", ChassisSpeeds.struct).publish();
 
     // Drivetrain Pose
-    private final DoubleArrayPublisher fieldPub = evenTable.getDoubleArrayTopic("DriveState/Pose/Robot")
-        .publish(); // If its not called exactly `robot` elastic wont render it as the robot
-    private final StringPublisher fieldTypePub = evenTable.getStringTopic("DriveState/Pose/.type")
-        .publish(); // Tells Elastic how to render it
+    private final DoubleArrayPublisher fieldPub =
+            evenTable
+                    .getDoubleArrayTopic("DriveState/Pose/Robot")
+                    .publish(); // If its not called exactly `robot` elastic wont render it as the
+    // robot
+    private final StringPublisher fieldTypePub =
+            evenTable
+                    .getStringTopic("DriveState/Pose/.type")
+                    .publish(); // Tells Elastic how to render it
     private final double[] poseArray = new double[3];
 
     // Match time and shifts
@@ -53,12 +57,12 @@ public class Logging extends SubsystemBase {
 
     // Who won auton?
     // TODO: Move a lot of crap to constants file
-    private final StringArrayPublisher autonWinner = evenTable.getStringArrayTopic("AutonWinner").publish();
+    private final StringArrayPublisher autonWinner =
+            evenTable.getStringArrayTopic("AutonWinner").publish();
     private final String[] autonWinnerColorNone = new String[] {"#FF0000", "#0000FF"};
     private final String[] autonWinnerColorError = new String[] {"#00FF00", "#00FF00"};
     private final String[] autonWinnerColorRed = new String[] {"#FF0000", "#000000"};
     private final String[] autonWinnerColorBlue = new String[] {"#000000", "#0000FF"};
-
 
     // Debug commands get put on the dashboard
     public List<Pair<String, Command>> debugCommands = new ArrayList<>();
@@ -120,7 +124,7 @@ public class Logging extends SubsystemBase {
             for (Pair<String, Command> debugCommand : debugCommands) {
                 SmartDashboard.putData(debugCommand.getFirst(), debugCommand.getSecond());
             }
-        
+
             for (int i = 0; i < debugKeyTypes.size(); i++) {
                 Pair<String, Class<?>> debugKeyType = debugKeyTypes.get(i);
                 genericSmartDashboardUpdate(debugKeyType.getFirst(), debugKeyType.getSecond(), i);
@@ -134,16 +138,16 @@ public class Logging extends SubsystemBase {
             shiftTimePub.set(matchTime);
         } else {
             if (matchTime > 130) {
-                shiftTimePub.set(matchTime-130);
+                shiftTimePub.set(matchTime - 130);
             } else if (matchTime > 105) {
-                shiftTimePub.set(matchTime-105);
+                shiftTimePub.set(matchTime - 105);
             } else if (matchTime > (80)) {
-                shiftTimePub.set(matchTime-80);
+                shiftTimePub.set(matchTime - 80);
             } else if (matchTime > (55)) {
-                shiftTimePub.set(matchTime-55);
+                shiftTimePub.set(matchTime - 55);
             } else if (matchTime > (30)) {
-                shiftTimePub.set(matchTime-30);
-            } else { 
+                shiftTimePub.set(matchTime - 30);
+            } else {
                 shiftTimePub.set(-3100);
             }
         }
@@ -153,19 +157,17 @@ public class Logging extends SubsystemBase {
 
     public void composeGameMessage() {
         String gameData = DriverStation.getGameSpecificMessage();
-        if(gameData.length() > 0)
-        {
-            switch (gameData.charAt(0))
-            {
+        if (gameData.length() > 0) {
+            switch (gameData.charAt(0)) {
                 case 'B':
                     autonWinner.set(autonWinnerColorBlue);
-                break;
+                    break;
                 case 'R':
                     autonWinner.set(autonWinnerColorRed);
-                break;
+                    break;
                 default:
                     autonWinner.set(autonWinnerColorError);
-                break;
+                    break;
             }
         } else {
             autonWinner.set(autonWinnerColorNone);
@@ -173,17 +175,17 @@ public class Logging extends SubsystemBase {
     }
 
     public void logCTREChassis(SwerveDriveState state) {
-        chassisPoseLog.append(new double[] {
-            state.Pose.getX(), 
-            state.Pose.getY(),
-            state.Pose.getRotation().getDegrees()
-        });
+        chassisPoseLog.append(
+                new double[] {
+                    state.Pose.getX(), state.Pose.getY(), state.Pose.getRotation().getDegrees()
+                });
 
-        chassisVelocityLog.append(new double[] {
-            state.Speeds.vxMetersPerSecond,
-            state.Speeds.vyMetersPerSecond,
-            state.Speeds.omegaRadiansPerSecond * 9.549297 // Gets in Rotations Per Minute
-        });
+        chassisVelocityLog.append(
+                new double[] {
+                    state.Speeds.vxMetersPerSecond,
+                    state.Speeds.vyMetersPerSecond,
+                    state.Speeds.omegaRadiansPerSecond * 9.549297 // Gets in Rotations Per Minute
+                });
 
         chassisPoseNT.set(state.Pose);
         chassisVelocityNT.set(state.Speeds);

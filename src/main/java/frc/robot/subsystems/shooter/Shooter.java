@@ -5,41 +5,29 @@ import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RPM;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Locator;
-import yams.motorcontrollers.SmartMotorControllerConfig;
 
 public class Shooter extends SubsystemBase {
     /*
      * Okay, so Okay :}
-     * 
+     *
      * We split the functions of the shooter into
      * two flywheels and a hood because of how YAMS
      * functions
      */
 
-    // private Angle hoodAngle = Constants.Shooter.minHoodAngle;
-    // private AngularVelocity flywheelSpeed = RPM.of(2000);
-
-    // public Supplier<Angle> angleProvider = () -> hoodAngle;
-    // public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
-
     public static Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
-        var shooterDistToHub = 
-            Locator.getInstance().distanceToHub.get() // Robot center distance from hub
-            .plus(Inches.of(5.4330709)) // Center to fuel exit
-        ;
+        var shooterDistToHub =
+                Locator.getInstance()
+                        .distanceToHub
+                        .get() // Robot center distance from hub
+                        .plus(Inches.of(5.4330709)) // Center to fuel exit
+                ;
         var angleTable = Constants.Shooter.Physical.distanceAngleTable;
         var speedTable = Constants.Shooter.Physical.distanceSpeedTable;
 
@@ -48,18 +36,17 @@ public class Shooter extends SubsystemBase {
             angleOut = Constants.Shooter.minHoodAngle.in(Degrees);
         }
 
-        if (shooterDistToHub.gt(angleTable.get(angleTable.size()-1).getFirst())) {
+        if (shooterDistToHub.gt(angleTable.get(angleTable.size() - 1).getFirst())) {
             angleOut = Constants.Shooter.maxHoodAngle.in(Degrees);
         }
 
-        for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
-            if (shooterDistToHub.gte(angleTable.get(i).getFirst()) && 
-                shooterDistToHub.lte(angleTable.get(i+1).getFirst())
-            ) {
+        for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size() - 1; i++) {
+            if (shooterDistToHub.gte(angleTable.get(i).getFirst())
+                    && shooterDistToHub.lte(angleTable.get(i + 1).getFirst())) {
                 var x1 = angleTable.get(i).getFirst().in(Feet);
-                var x2 = angleTable.get(i+1).getFirst().in(Feet);
+                var x2 = angleTable.get(i + 1).getFirst().in(Feet);
                 var y1 = angleTable.get(i).getSecond();
-                var y2 = angleTable.get(i+1).getSecond();
+                var y2 = angleTable.get(i + 1).getSecond();
 
                 var m = (y2 - y1) / (x2 - x1);
                 var b = y1 - m * x1;
@@ -67,24 +54,22 @@ public class Shooter extends SubsystemBase {
             }
         }
 
-        
         double speedOut = 4000;
         if (shooterDistToHub.lt(speedTable.get(0).getFirst())) {
             speedOut = 31;
         }
 
-        if (shooterDistToHub.gt(speedTable.get(angleTable.size()-1).getFirst())) {
+        if (shooterDistToHub.gt(speedTable.get(angleTable.size() - 1).getFirst())) {
             speedOut = 3100;
         }
 
-        for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
-            if (shooterDistToHub.gte(speedTable.get(i).getFirst()) && 
-                shooterDistToHub.lte(speedTable.get(i+1).getFirst())
-            ) {
+        for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size() - 1; i++) {
+            if (shooterDistToHub.gte(speedTable.get(i).getFirst())
+                    && shooterDistToHub.lte(speedTable.get(i + 1).getFirst())) {
                 var x1 = speedTable.get(i).getFirst().in(Feet);
-                var x2 = speedTable.get(i+1).getFirst().in(Feet);
+                var x2 = speedTable.get(i + 1).getFirst().in(Feet);
                 var y1 = speedTable.get(i).getSecond();
-                var y2 = speedTable.get(i+1).getSecond();
+                var y2 = speedTable.get(i + 1).getSecond();
 
                 var m = (y2 - y1) / (x2 - x1);
                 var b = y1 - m * x1;
@@ -120,8 +105,6 @@ public class Shooter extends SubsystemBase {
     //     return flywheelSpeed;
     // }
 
-
-
     // public Command stopHood() {
     //     return hood.hood.runTo(hood.hood.getAngle(), Degrees.of(360))
     //         .andThen(hood.hood.set(0));
@@ -130,7 +113,6 @@ public class Shooter extends SubsystemBase {
     // public Command goToCurrentAngle() {
     //     return hood.hood.setAngle(angleProvider);
     // }
-
 
     // public Command stopFlywheels() {
     //     return flywheelL.flywheel.set(0)
@@ -142,7 +124,6 @@ public class Shooter extends SubsystemBase {
     //         flywheelSpeed = RPM.of(1000);
     //     });
     // }
-
 
     // public Command runFlywheelsToCurrent() {
     //     return flywheelL.flywheel.setSpeed(speedProvider)

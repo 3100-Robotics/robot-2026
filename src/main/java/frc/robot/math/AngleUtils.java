@@ -13,7 +13,6 @@ public class AngleUtils {
         return crossOne == crossTwo && crossTwo == crossThree;
     }
 
-
     public static double cross_product(double high, double low) {
         var first_x = Math.cos(high);
         var first_y = Math.sin(high);
