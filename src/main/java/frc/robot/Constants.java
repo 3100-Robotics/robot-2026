@@ -23,7 +23,7 @@ public class Constants {
     public static final boolean doLiveTuning = true;
 
     public static final boolean enableShooter = false;
-    public static final boolean enableIndexer = false;
+    public static final boolean enableIndexer = true;
     public static final boolean enableIntake = true;
     public static final boolean enableDrivetrain = false;
 
@@ -122,9 +122,9 @@ public class Constants {
 
         public static final SpeedSet on = new SpeedSet(RPM.of(4414), RPM.of(4414), RPM.of(2377));
 
-        public static final double kickerRatio = 36.0 / 24.0;
-        public static final double ceilingRatio = 20.0 / 24.0;
-        public static final double floorRatio = 20.0 / 24.0;
+        public static final double kickerRatio = 24.0 / 36.0;
+        public static final double ceilingRatio = 24.0 / 20.0;
+        public static final double floorRatio = 24.0 / 20.0;
 
         public static final double kickerRatioRecip = 1.0 / kickerRatio;
         public static final double ceilingRatioRecip = 1.0 / ceilingRatio;

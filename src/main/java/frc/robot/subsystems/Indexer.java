@@ -13,17 +13,28 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
+import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -56,7 +67,7 @@ public class Indexer extends SubsystemBase {
             new SparkMaxConfig()
                     .apply(sparkTypeBaseConfig)
                     .inverted(false)
-                    .apply(new ClosedLoopConfig().p(0.01).apply(new FeedForwardConfig().kV(0.2)));
+                    .apply(new ClosedLoopConfig().p(0.00001).apply(new FeedForwardConfig().kV(0.0013845)));
 
     private SparkBaseConfig ceilingConfig =
             new SparkMaxConfig()
@@ -77,6 +88,35 @@ public class Indexer extends SubsystemBase {
                                     .withStatorCurrentLimit(Amps.of(40))
                                     .withSupplyCurrentLimit(Amps.of(40)));
 
+    private final DCMotor kickerGearbox = DCMotor.getNEO(1);
+    private final SparkClosedLoopController kickerController = kickerMotor.getClosedLoopController();
+    private final RelativeEncoder kickerEncoder = kickerMotor.getEncoder();
+    private final SparkMaxSim kickerMotorSim = new SparkMaxSim(kickerMotor, kickerGearbox);
+    private final FlywheelSim kickerSim = new FlywheelSim(
+        LinearSystemId.createFlywheelSystem(kickerGearbox, 0.0001, Constants.Indexer.kickerRatio),
+        kickerGearbox
+    );
+
+    private final DCMotor ceilingGearbox = DCMotor.getNEO(1);
+    private final SparkClosedLoopController ceilingController = ceilingMotor.getClosedLoopController();
+    private final RelativeEncoder ceilingEncoder = ceilingMotor.getEncoder();
+    private final SparkMaxSim ceilingMotorSim = new SparkMaxSim(ceilingMotor, ceilingGearbox);
+    private final FlywheelSim ceilingSim = new FlywheelSim(
+        LinearSystemId.createFlywheelSystem(ceilingGearbox, 0.0001, Constants.Indexer.ceilingRatio),
+        ceilingGearbox
+    );
+
+    private final DCMotor floorGearbox = DCMotor.getKrakenX60(1);
+
+    // private final SparkClosedLoopController floorController = floorMotor.getClosedLoopController();
+    // private final RelativeEncoder floorEncoder = floorMotor.getEncoder();
+
+    private final TalonFXSimState floorMotorSim = floorMotor.getSimState();
+    private final FlywheelSim floorSim = new FlywheelSim(
+        LinearSystemId.createFlywheelSystem(kickerGearbox, 0.0001, Constants.Indexer.kickerRatio),
+        kickerGearbox
+    );
+
     public Indexer() {
         kickerMotor.configure(
                 kickerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -86,28 +126,69 @@ public class Indexer extends SubsystemBase {
         setDefaultCommand(runToSetpoints());
     }
 
+    @Override
+    public void simulationPeriodic() {
+        double timestep = 20e-3;
+        var inputVoltage = RobotController.getInputVoltage();
+
+        kickerSim.setInputVoltage(kickerMotor.getAppliedOutput() * inputVoltage);
+        kickerSim.update(timestep);
+        kickerMotorSim.iterate(kickerSim.getAngularVelocityRPM(), inputVoltage, timestep);
+
+        ceilingSim.setInputVoltage(ceilingMotor.getAppliedOutput() * inputVoltage);
+        ceilingSim.update(timestep);
+        ceilingMotorSim.iterate(ceilingSim.getAngularVelocityRPM(), inputVoltage, timestep);
+
+        floorSim.setInputVoltage(floorMotor.getDutyCycle().getValueAsDouble() * inputVoltage);
+        floorSim.update(timestep);
+        floorMotorSim.setRawRotorPosition(floorMotorSim.getAngularPosition().times(kGearRatio));
+        floorMotorSim.setRotorVelocity(floorMotorSim.().times(kGearRatio));
+        // floorMotorSim.
+        // floorMotorSim.iterate(floorSim.getAngularVelocityRPM(), inputVoltage, timestep);
+
+        RoboRioSim.setVInVoltage(
+            BatterySim.calculateDefaultBatteryLoadedVoltage(
+                kickerMotor.getOutputCurrent(),
+                ceilingMotor.getOutputCurrent(),
+                floorMotor.getStatorCurrent().getValueAsDouble()
+            )
+        );
+
+    }
+
     public Command setSetpointsOfRollers(SpeedSet velocities) {
         return Commands.runOnce(
                 () -> {
-                    kickerSpeed = velocities.kickerSpeed.times(Constants.Indexer.kickerRatioRecip);
-                    ceilingSpeed =
-                            velocities.ceilingSpeed.times(Constants.Indexer.ceilingRatioRecip);
-                    floorSpeed = velocities.floorSpeed.times(Constants.Indexer.floorRatioRecip);
+                    kickerSpeed = velocities.kickerSpeed.times(Constants.Indexer.kickerRatio);
+                    ceilingSpeed = velocities.ceilingSpeed.times(Constants.Indexer.ceilingRatio);
+                    floorSpeed = velocities.floorSpeed.times(Constants.Indexer.floorRatio);
                 });
     }
 
     private Command runToSetpoints() {
         return run(
                 () -> {
-                    kickerMotor
+                    if (kickerSpeedProvider.get().in(RPM) == 0) {
+                        kickerMotor.set(0);
+                    } else {
+                        kickerMotor
                             .getClosedLoopController()
                             .setSetpoint(kickerSpeedProvider.get().in(RPM), ControlType.kVelocity);
-                    ceilingMotor
+                    }
+
+                    if (ceilingSpeedProvider.get().in(RPM) == 0) {
+                        ceilingMotor.set(0);
+                    } else {
+                        ceilingMotor
                             .getClosedLoopController()
                             .setSetpoint(ceilingSpeedProvider.get().in(RPM), ControlType.kVelocity);
+                    }
+
                     floorMotor.setControl(
-                            floorRequest.withVelocity(
-                                    floorSpeedProvider.get().in(RotationsPerSecond)));
+                        floorRequest.withVelocity(
+                            floorSpeedProvider.get().in(RotationsPerSecond)
+                        )
+                    );
                 });
     }
 
@@ -115,13 +196,16 @@ public class Indexer extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber(
                 "2kickerRPM",
-                kickerMotor.getEncoder().getVelocity() * Constants.Indexer.kickerRatio);
+                kickerMotor.getEncoder().getVelocity() * Constants.Indexer.kickerRatioRecip);
+        SmartDashboard.putNumber(
+                "2kickerMotorRPM",
+                kickerMotor.getEncoder().getVelocity());
         SmartDashboard.putNumber(
                 "2ceilingRPM",
-                ceilingMotor.getEncoder().getVelocity() * Constants.Indexer.ceilingRatio);
+                ceilingMotor.getEncoder().getVelocity() * Constants.Indexer.kickerRatioRecip);
         SmartDashboard.putNumber(
                 "2floorRPM",
-                floorMotor.getVelocity().getValue().in(RPM) * Constants.Indexer.floorRatio);
+                floorMotor.getVelocity().getValue().in(RPM) * Constants.Indexer.kickerRatioRecip);
 
         SmartDashboard.putNumber("2kickerCurrent", kickerMotor.getOutputCurrent());
         SmartDashboard.putNumber("2ceilingCurrent", ceilingMotor.getOutputCurrent());

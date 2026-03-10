@@ -76,7 +76,14 @@ public class RobotContainer {
         if (Constants.enableIndexer) {
             indexer = new Indexer();
         }
+
+        configureBindings();
     }
 
-    private void configureBindings() {}
+    private void configureBindings() {
+        driverCtl
+                .a()
+                .onTrue(indexer.setSetpointsOfRollers(Constants.Indexer.on))
+                .onFalse(indexer.setSetpointsOfRollers(Constants.Indexer.off));
+    }
 }
