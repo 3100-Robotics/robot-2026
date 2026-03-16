@@ -28,7 +28,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.local.SparkWrapper;
 
-public class DoubleFlywheel extends SubsystemBase {
+public class ShooterFlywheel extends SubsystemBase {
     private final DCMotor GEARBOX = DCMotor.getNEO(2);
 
     private final int flywheelIndex;
@@ -53,7 +53,7 @@ public class DoubleFlywheel extends SubsystemBase {
 
     public Supplier<AngularVelocity> speedTargetProvider = () -> RPM.of(0);
 
-    public DoubleFlywheel(int flywheelIndex, int id0, int id1, boolean inversion, double kp, double kv) {
+    public ShooterFlywheel(int flywheelIndex, int id0, int id1, boolean inversion, double kp, double kv) {
         this.flywheelIndex = flywheelIndex;
 
         vendorLead = new SparkMax(id0, MotorType.kBrushless);

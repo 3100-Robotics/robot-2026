@@ -28,7 +28,7 @@ import yams.motorcontrollers.local.SparkWrapper;
 /**
 * Class for the rollers on the intake
 */
-public class Roller extends SubsystemBase {
+public class IntakeRoller extends SubsystemBase {
     private SparkMax rawRollerMotor = new SparkMax(Constants.Intake.rollerMotorID, MotorType.kBrushless);
 
     private SmartMotorControllerConfig rollerMotorConfig = new SmartMotorControllerConfig(this)
@@ -61,7 +61,7 @@ public class Roller extends SubsystemBase {
     private Command dbgDown = roller.set(0).andThen(Commands.waitSeconds(0.01)).andThen(roller.setSpeed(RPM.of(0))).withName("dbgDown");
 
 
-    public Roller() {
+    public IntakeRoller() {
         setName("intakeRoller");
         Logging.registerDebugCommand(Constants.Intake.telemetryNameRoller+"dbgUp", dbgUp);
         Logging.registerDebugCommand(Constants.Intake.telemetryNameRoller+"dbgDown", dbgDown);

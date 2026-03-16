@@ -21,14 +21,12 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
-public class Hood extends SubsystemBase {
-    private TalonFX armMotor = new TalonFX(50);
+public class ShooterHood extends SubsystemBase {
+    private TalonFX armMotor = new TalonFX(Constants.Shooter.hoodMotorID);
 
     private final SmartMotorControllerConfig armMotorConfig = new SmartMotorControllerConfig(this)
         .withStatorCurrentLimit(Amps.of(50))
         .withSupplyCurrentLimit(Amps.of(40))
-
-        
 
         .withIdleMode(MotorMode.COAST)
 
@@ -60,7 +58,7 @@ public class Hood extends SubsystemBase {
     // Arm Mechanism
     public Arm hood = new Arm(hoodConfig);
 
-    public Hood() {
+    public ShooterHood() {
         setName("shooterHood");
     }
 

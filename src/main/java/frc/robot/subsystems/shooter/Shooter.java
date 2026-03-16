@@ -33,9 +33,9 @@ public class Shooter extends SubsystemBase {
     public Supplier<Angle> angleProvider = () -> hoodAngle;
     public Supplier<AngularVelocity> speedProvider = () -> flywheelSpeed;
 
-    public final Hood hood = new Hood();
-    public final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true, 0.003, 0.137);
-    public final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false, 0.003, 0.1399);
+    public final ShooterHood hood = new ShooterHood();
+    public final ShooterFlywheel flywheelL = new ShooterFlywheel(0, 51, 52, true, 0.003, 0.137);
+    public final ShooterFlywheel flywheelR = new ShooterFlywheel(1, 53, 54, false, 0.003, 0.1399);
 
     public final Trigger flywheelsAtRPM = 
         new Trigger(
@@ -55,7 +55,7 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putNumber("testingANGLE", 13);
     }
 
-    public Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
+    public static Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
         var shooterDistToHub = 
             Locator.getInstance().distanceToHub.get() // Robot center distance from hub
             .plus(Inches.of(5.4330709)) // Center to fuel exit

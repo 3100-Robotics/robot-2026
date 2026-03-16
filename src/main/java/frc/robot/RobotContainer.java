@@ -23,20 +23,26 @@ import frc.robot.generated.TunerConstantsArkelon0306Duluth;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakePivot;
+import frc.robot.subsystems.intake.IntakeRoller;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterFlywheel;
+import frc.robot.subsystems.shooter.ShooterHood;
 
 public class RobotContainer {
     private final CommandXboxController driverCtl = new CommandXboxController(0);
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
 
     // Shooter (This one is Evens favorite)
-    private Shooter shooter;
+    private ShooterHood shooterHood;
+    private ShooterFlywheel shooterFlywheel;
 
     // Indexer
     private Indexer indexer;
 
     // Intake
-    private Intake intake;
+    private IntakePivot intakePivot;
+    private IntakeRoller intakeRoller;
 
     // Drivetrain
     private Drivetrain drivetrain;
@@ -137,116 +143,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // Drivetrain
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive
-                    .withVelocityX(-driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis())
-                    .withVelocityY(-driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis())
-                    .withRotationalRate(-driverCtl.getRightX() * MaxAngularRate)
-            )
-        );
-
-        // Reset odometry
-        driverCtl.leftBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
-        // Lockpose!
-        driverCtl.b().or(driverCtl.povDown()).whileTrue(
-            drivetrain.applyRequest(() -> brake)
-        );
-
-        driverCtl.rightBumper().onTrue(Commands.runOnce(() -> {
-            if (vision.usePose == true) {
-                vision.usePose = false;
-            } else {
-                vision.usePose = true;
-            }
-        }));
-
-        // Autoalign to hub
-        driverCtl.a().whileTrue(
-            drivetrain.pointAtPose(() -> locator.hubPose)
-        );
-
-        // driverCtl.y().whileTrue(drivetrain.goToPoseCommand(() -> locator.extentionPose));
-        driverCtl.y().whileTrue(
-            drivetrain.applyRequest(() -> pointWheelsRobotForward)
-        );
-
-        // Idle bindings
-        driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
-            Commands.parallel(
-                intake.stop(),
-                indexer.idle(),
-                shooter.idle()
-            )
-        );
-
-
-
-        /// Intake
-        coDriverCtl.x().or(coDriverCtl.rightBumper()).whileTrue(
-            Commands.parallel(
-                intake.runAtSpeed(RPM.of(3000))
-            )
-        ).whileFalse(intake.stop());
-
-        // Reverse intake rollers
-        coDriverCtl.povLeft().whileTrue(
-            indexer.runRev()
-        ).whileFalse(indexer.idle());
-
-        // Toggle deployed or not
-        coDriverCtl.b().or(coDriverCtl.leftBumper()).onTrue(
-            intake.toggleDeploy()
-        );
-
-
-
-        /// Shooter
-        coDriverCtl.a().whileTrue(
-            Commands.parallel(
-                Commands.run(
-                    () -> {
-                        var targets = shooter.calculateFireAngleAndSpeed();
-                        shooter.setHoodAngleSetpoint(targets.getFirst());
-                        shooter.setSpeedSetpoint(targets.getSecond());
-                    }
-                ),
-                shooter.goToCurrentAngle(),
-                shooter.runFlywheelsToCurrent(),
-                Commands.sequence(
-                    Commands.waitSeconds(1.1),
-                    indexer.run()
-                )
-            )
-        ).whileFalse(
-            Commands.parallel(
-                indexer.idle(),
-                shooter.idle()
-            )
-        );
-
-        coDriverCtl.y().whileTrue(
-            Commands.parallel(
-                Commands.run(
-                    () -> {
-                        shooter.setHoodAngleSetpoint(Degrees.of(17));
-                        shooter.setSpeedSetpoint(RPM.of(2600));
-                    }
-                ),
-                shooter.goToCurrentAngle(),
-                shooter.runFlywheelsToCurrent(),
-                Commands.sequence(
-                    Commands.waitSeconds(1),
-                    indexer.run()
-                )
-            )
-        ).whileFalse(
-            Commands.parallel(
-                indexer.idle(),
-                shooter.idle()
-            )
-        );
+        
     }
 }

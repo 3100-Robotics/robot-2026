@@ -20,14 +20,15 @@ Eg. TunerConstantsArkelon0221Eagan
   * Right Trigger: "Gas Pedal" (how fast does the robot go?)
   * Right Bumper: Toggle vision
   * Left Bumper: Reset odometry rotation
-  * B: Lockpose & brake
-  * Y: Autoalign to preset distance from hub
+  * B / D-Pad down: Lockpose & brake
+  * Y: Counterdef on the tower, points wheels forward
   * A: Autoalign rotation only to hub
   * D-Pad up: Idle subsytems save for drivetrain and intake pivot
 ### Codriver
   * D-Pad up: Idle subsytems save for drivetrain and intake pivot
   * A: Run flywheels, indexer, and hood to setpoint to shoot, based on distance from hub
-  * Y: Run flywheels, indexer, and hood to setpoint to shoot, from static angle and speed
+  * Y: Run flywheels, indexer, and hood to setpoint to shoot, from static angle and speed right up against the hub
   * X / Right Bumper: Run intake roller
   * B / Left Bumper: Toggle intake deploy
+  * D-Pad left: run indexer backward
 
