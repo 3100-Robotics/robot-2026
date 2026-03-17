@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Logging;
+import frc.robot.subsystems.intake.RollerState;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -76,6 +79,9 @@ public class Indexer extends SubsystemBase {
     private Command dbg_stop;
     private Command dbg_runAll;
 
+    private SpeedSet speeds = Constants.Indexer.off;
+    private Supplier<SpeedSet> speedsProvider = () -> speeds;
+
     public Indexer() {
         floorRollers = new Roller(Constants.Indexer.Main.nameFloor, DCMotor.getKrakenX60(1), vendorFloorMotor, floorMotorConfig);
         ceilingRollers = new Roller(Constants.Indexer.Main.nameCeiling, DCMotor.getNEO(1), vendorCeilingMotor, ceilingMotorConfig);
@@ -96,17 +102,37 @@ public class Indexer extends SubsystemBase {
         Logging.registerDebugCommand(dbg_stop.getName(), dbg_stop);
         Logging.registerDebugCommand(dbg_runAll.getName(), dbg_runAll);
 
-        // setDefaultCommand(idle());
+        
     }
 
-    @Override
-    public Command idle() {
-        return Commands.parallel(
-            floorRollers.stop(),
-            ceilingRollers.stop(),
-            kickerRollers.stop()
-        );
+
+    private Command setState() {
+        return roller.run(() -> rollerStateProvider.get().speed);
     }
+
+    private Command setStateSpecialOff() {
+        return roller.set(0);
+    }
+
+
+    public Command on() {
+        return Commands.runOnce(() -> rollerState = RollerState.on);
+    }
+
+    public Command off() {
+        return Commands.runOnce(() -> rollerState = RollerState.off);
+    }
+
+    public Command toggle() {
+        return Commands.runOnce(() -> {
+            if (rollerState==RollerState.on) {
+                rollerState = RollerState.off;
+            } else {
+                rollerState = RollerState.on;
+            }
+        });
+    }
+
 
     public Command run() {
         return Commands.parallel(

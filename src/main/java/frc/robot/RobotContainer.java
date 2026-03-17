@@ -80,16 +80,17 @@ public class RobotContainer {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
 
+        intakePivot = new IntakePivot();
+        intakeRoller = new IntakeRoller();
 
+        // if (Constants.enableDrivetrain) {
+        //     drivetrain = TunerConstantsArkelon0306Duluth.createDrivetrain();
+        //     drivetrain.registerTelemetry(log::logCTREChassis);
 
-        if (Constants.enableDrivetrain) {
-            drivetrain = TunerConstantsArkelon0306Duluth.createDrivetrain();
-            drivetrain.registerTelemetry(log::logCTREChassis);
-
-            vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
-            locator = new Locator(drivetrain::getPos);
-            autoManager = new Auton();
-        }
+        //     vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
+        //     locator = new Locator(drivetrain::getPos);
+        //     autoManager = new Auton();
+        // }
 
         configureBindings();
     }
@@ -99,6 +100,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-
+        driverCtl.a().onTrue(intakePivot.toggle());
+        driverCtl.b().onTrue(intakeRoller.on()).onFalse(intakeRoller.off());
     }
 }

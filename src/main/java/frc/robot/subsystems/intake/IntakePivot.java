@@ -15,6 +15,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -93,6 +94,26 @@ public class IntakePivot extends SubsystemBase {
     private Command setState() {
         return pivot.run(() -> pivotStateProvider.get().angle);
     }
+
+
+    public Command stow() {
+        return Commands.runOnce(() -> pivotState = PivotState.stow);
+    }
+
+    public Command deploy() {
+        return Commands.runOnce(() -> pivotState = PivotState.deploy);
+    }
+
+    public Command toggle() {
+        return Commands.runOnce(() -> {
+            if (pivotState==PivotState.deploy) {
+                pivotState = PivotState.stow;
+            } else {
+                pivotState = PivotState.deploy;
+            }
+        });
+    }
+
 
     @Override
     public void periodic() {
