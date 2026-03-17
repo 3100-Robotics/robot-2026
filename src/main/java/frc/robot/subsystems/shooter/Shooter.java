@@ -21,7 +21,7 @@ import frc.robot.Locator;
 public class Shooter extends SubsystemBase {
     /*
      * Okay, so Okay :}
-     * 
+     *
      * We split the functions of the shooter into
      * two flywheels and a hood because of how YAMS
      * functions
@@ -37,7 +37,7 @@ public class Shooter extends SubsystemBase {
     public final ShooterFlywheel flywheelL = new ShooterFlywheel(0, 51, 52, true, 0.003, 0.137);
     public final ShooterFlywheel flywheelR = new ShooterFlywheel(1, 53, 54, false, 0.003, 0.1399);
 
-    public final Trigger flywheelsAtRPM = 
+    public final Trigger flywheelsAtRPM =
         new Trigger(
             () -> flywheelL.flywheel.getSpeed()
                 .isNear(speedProvider.get(), RPM.of(100)) &&
@@ -56,7 +56,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public static Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
-        var shooterDistToHub = 
+        var shooterDistToHub =
             Locator.getInstance().distanceToHub.get() // Robot center distance from hub
             .plus(Inches.of(5.4330709)) // Center to fuel exit
         ;
@@ -73,7 +73,7 @@ public class Shooter extends SubsystemBase {
         }
 
         for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
-            if (shooterDistToHub.gte(angleTable.get(i).getFirst()) && 
+            if (shooterDistToHub.gte(angleTable.get(i).getFirst()) &&
                 shooterDistToHub.lte(angleTable.get(i+1).getFirst())
             ) {
                 var x1 = angleTable.get(i).getFirst().in(Feet);
@@ -87,7 +87,7 @@ public class Shooter extends SubsystemBase {
             }
         }
 
-        
+
         double speedOut = 4000;
         if (shooterDistToHub.lt(speedTable.get(0).getFirst())) {
             speedOut = 31;
@@ -98,7 +98,7 @@ public class Shooter extends SubsystemBase {
         }
 
         for (int i = 0; i < Constants.Shooter.Physical.distanceAngleTable.size()-1; i++) {
-            if (shooterDistToHub.gte(speedTable.get(i).getFirst()) && 
+            if (shooterDistToHub.gte(speedTable.get(i).getFirst()) &&
                 shooterDistToHub.lte(speedTable.get(i+1).getFirst())
             ) {
                 var x1 = speedTable.get(i).getFirst().in(Feet);

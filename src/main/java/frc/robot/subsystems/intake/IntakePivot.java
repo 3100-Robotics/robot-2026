@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -17,10 +16,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.math.PivotState;
 import frc.robot.Logging;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -54,7 +51,7 @@ public class IntakePivot extends SubsystemBase {
 
         .withTelemetry(Constants.Intake.telemetryYAMSPivot+"Motor", Constants.getAppropriateTelemetryLevel())
     ;
-    
+
     private final SmartMotorController pivotMotorController = new TalonFXWrapper(pivotMotor, DCMotor.getKrakenX60(1), pivotMotorConfig);
 
     private ArmConfig pivotConfig = new ArmConfig(pivotMotorController)
@@ -82,7 +79,7 @@ public class IntakePivot extends SubsystemBase {
         }
         return true;
     });
-    
+
     public PivotState pivotState = PivotState.stow;
     public Supplier<PivotState> pivotStateProvider = () -> pivotState;
 
@@ -100,6 +97,16 @@ public class IntakePivot extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean(getName()+"/dirty", dirty.getAsBoolean());
+
+        SmartDashboard.putNumber("angleintakepivot", pivot.getAngle().in(Degrees));
+
+        pivot.getMechanismSetpoint()
+            .ifPresent(
+                setpoint -> SmartDashboard.putNumber(
+                    Constants.Intake.telemetryNamePivot+"setpoint", setpoint.in(Degrees)
+                )
+            );
+
         pivot.updateTelemetry();
     }
 

@@ -42,7 +42,7 @@ public class ShooterHood extends SubsystemBase {
 
         .withTelemetry(Constants.Shooter.YAMS.nameHood, Constants.getAppropriateTelemetryLevel())
         ;
-    
+
     private final SmartMotorController armMotorController = new TalonFXWrapper(armMotor, DCMotor.getKrakenX60(1), armMotorConfig);
 
     private ArmConfig hoodConfig = new ArmConfig(armMotorController)

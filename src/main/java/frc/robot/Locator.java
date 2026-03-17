@@ -30,7 +30,7 @@ public class Locator extends SubsystemBase {
     private Supplier<Pose2d> getRobotPose = () -> new Pose2d();
     public final Supplier<Distance> distanceToHub = () -> {
         double distance = Math.sqrt(
-            Math.pow(robotPose.getMeasureX().minus(hubPose.getMeasureX()).in(Inches), 2) + 
+            Math.pow(robotPose.getMeasureX().minus(hubPose.getMeasureX()).in(Inches), 2) +
             Math.pow(robotPose.getMeasureY().minus(hubPose.getMeasureY()).in(Inches), 2)
         );
         return Inches.of(distance);
@@ -60,10 +60,10 @@ public class Locator extends SubsystemBase {
                 alliance = Optional.of(allianceColor);
                 hasAppliedAlliance = true;
             });
-        
+
             alliance.ifPresent(
-                allianceColor -> hubPose = allianceColor == Alliance.Red 
-                    ? Constants.hubPoseRed : 
+                allianceColor -> hubPose = allianceColor == Alliance.Red
+                    ? Constants.hubPoseRed :
                     Constants.hubPoseBlue
             );
             SmartDashboard.putString("lookatme", alliance.toString());
@@ -83,8 +83,8 @@ public class Locator extends SubsystemBase {
         field.setRobotPose(robotPose);
         targetHub.setPose(
             new Pose2d(
-                hubPose.getX(), 
-                hubPose.getY(), 
+                hubPose.getX(),
+                hubPose.getY(),
                 new Rotation2d(Math.PI+Math.atan2(hubPose.getY()-robotPose.getY(), hubPose.getX()-robotPose.getX()))
             )
         );

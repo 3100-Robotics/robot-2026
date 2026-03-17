@@ -59,7 +59,7 @@ public class ShooterFlywheel extends SubsystemBase {
         vendorLead = new SparkMax(id0, MotorType.kBrushless);
         vendorFollower = new SparkMax(id1, MotorType.kBrushless);
 
-        flywheelMotor = new SparkWrapper(vendorLead, GEARBOX, 
+        flywheelMotor = new SparkWrapper(vendorLead, GEARBOX,
             flywheelMotorConfig.clone()
                 .withClosedLoopController(kp, 0, 0)
                 .withFeedforward(new SimpleMotorFeedforward(0, kv))
@@ -97,11 +97,11 @@ public class ShooterFlywheel extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber(
-            Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"FollowerCurrent", 
+            Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"FollowerCurrent",
             vendorFollower.getOutputCurrent()
         );
         SmartDashboard.putNumber(
-            Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"LeadCurrent", 
+            Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"LeadCurrent",
             vendorLead.getOutputCurrent()
         );
         flywheel.updateTelemetry();

@@ -115,7 +115,7 @@ public class Logging extends SubsystemBase {
     //             return (double)value;
     //             // break;
     //         default:
-                
+
     //     }
     // }
 
@@ -140,7 +140,7 @@ public class Logging extends SubsystemBase {
             for (Pair<String, Command> debugCommand : debugCommands) {
                 SmartDashboard.putData(debugCommand.getFirst(), debugCommand.getSecond());
             }
-        
+
             for (int i = 0; i < debugKeyTypes.size(); i++) {
                 Pair<String, Class<?>> debugKeyType = debugKeyTypes.get(i);
                 genericSmartDashboardUpdate(debugKeyType.getFirst(), debugKeyType.getSecond(), i);
@@ -148,7 +148,7 @@ public class Logging extends SubsystemBase {
         }
 
 
-        /* Should we be logging? Ask the driver/programmer 
+        /* Should we be logging? Ask the driver/programmer
         * unless FMS is attatched. Logging must be done if it is
         */
         if (DriverStation.isFMSAttached()) {
@@ -174,7 +174,7 @@ public class Logging extends SubsystemBase {
                 shiftTimePub.set(matchTime-55);
             } else if (matchTime > (30)) {
                 shiftTimePub.set(matchTime-30);
-            } else { 
+            } else {
                 shiftTimePub.set(-3100);
             }
         }
@@ -206,7 +206,7 @@ public class Logging extends SubsystemBase {
     public void logCTREChassis(SwerveDriveState state) {
         if (doLogging) {
             chassisPoseLog.append(new double[] {
-                state.Pose.getX(), 
+                state.Pose.getX(),
                 state.Pose.getY(),
                 state.Pose.getRotation().getDegrees()
             });

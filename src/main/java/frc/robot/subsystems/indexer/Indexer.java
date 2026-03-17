@@ -37,7 +37,7 @@ public class Indexer extends SubsystemBase {
         .withGearing(new MechanismGearing(GearBox.fromStages("20:24")))
 
         .withMotorInverted(true)
-    
+
         .withClosedLoopController(0.01, 0, 0)
         .withSimClosedLoopController(0.05, 0, 0)
 
@@ -95,7 +95,7 @@ public class Indexer extends SubsystemBase {
 
         Logging.registerDebugCommand(dbg_stop.getName(), dbg_stop);
         Logging.registerDebugCommand(dbg_runAll.getName(), dbg_runAll);
-    
+
         // setDefaultCommand(idle());
     }
 
@@ -127,17 +127,17 @@ public class Indexer extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber(
-            Constants.join('_', Constants.Indexer.Main.nameFloor, "RPM"), 
+            Constants.join('_', Constants.Indexer.Main.nameFloor, "RPM"),
             floorRollers.motor.getMechanismVelocity().in(RPM)
         );
 
         SmartDashboard.putNumber(
-            Constants.join('_', Constants.Indexer.Main.nameCeiling, "RPM"), 
+            Constants.join('_', Constants.Indexer.Main.nameCeiling, "RPM"),
             ceilingRollers.motor.getMechanismVelocity().in(RPM)
         );
 
         SmartDashboard.putNumber(
-            Constants.join('_', Constants.Indexer.Main.nameKicker, "RPM"), 
+            Constants.join('_', Constants.Indexer.Main.nameKicker, "RPM"),
             kickerRollers.motor.getMechanismVelocity().in(RPM)
         );
 

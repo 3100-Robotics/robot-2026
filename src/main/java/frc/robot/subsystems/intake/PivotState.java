@@ -1,6 +1,5 @@
-package frc.robot.math;
+package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.Constants;

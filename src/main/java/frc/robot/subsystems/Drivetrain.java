@@ -258,8 +258,8 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
             poseSetpoint.get().getRotation().getDegrees()+10,
             poseSetpoint.get().getRotation().getDegrees()-10
         );
-        boolean isAtPose = 
-                Math.abs(relativepose.getX()) < Inches.of(12).in(Meters) && 
+        boolean isAtPose =
+                Math.abs(relativepose.getX()) < Inches.of(12).in(Meters) &&
                 Math.abs(relativepose.getY()) < Inches.of(12).in(Meters) &&
                 angleInRange;
 

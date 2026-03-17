@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.math.SpeedSet;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
@@ -72,7 +72,7 @@ public class Constants {
                 // Distance Speed
                 distanceSpeedTable.add(Pair.of(Meters.of(1.36), 2400.0+(2400*0.05)));
                 distanceSpeedTable.add(Pair.of(Meters.of(5.86), 3960.0+(3960*0.05)));
-               
+
             }
         }
 
@@ -158,6 +158,7 @@ public class Constants {
         // Physical Constants
         public static final Angle pivotDeployAngle = Degrees.of(3);
         public static final Angle pivotStowAngle = Degrees.of(55);
+        public static final AngularVelocity rollerSpeedNominal = RPM.of(3000);
 
         // Software Constants
         public static final int pivotMotorID = 30;
@@ -173,6 +174,6 @@ public class Constants {
     }
 
     public static class Vision {
-        
+
     }
 }

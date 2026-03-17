@@ -77,12 +77,12 @@ public class Roller extends SubsystemBase {
     @Override
     public void periodic() {
         vendorMotorSparkMax.ifPresent(
-            sparkmax -> SmartDashboard.putNumber(getName()+"_Current", 
+            sparkmax -> SmartDashboard.putNumber(getName()+"_Current",
                 sparkmax.getOutputCurrent()
             )
         );
         vendorMotorTalonFX.ifPresent(
-            talonfx -> SmartDashboard.putNumber(getName()+"_Current", 
+            talonfx -> SmartDashboard.putNumber(getName()+"_Current",
                 talonfx.getStatorCurrent().getValue().in(Amps)
             )
         );

@@ -29,8 +29,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -59,7 +57,7 @@ public class Vision extends SubsystemBase {
     public static final Transform3d robotToFrontRight =
         new Transform3d(
             new Translation3d(
-                Inches.of(-7.822376).in(Meters), 
+                Inches.of(-7.822376).in(Meters),
                 Inches.of(-10.446815).in(Meters),
                 Inches.of(28.002807).in(Meters)
             ),
@@ -69,7 +67,7 @@ public class Vision extends SubsystemBase {
     public static final Transform3d robotToFrontLeft =
         new Transform3d(
             new Translation3d(
-                Inches.of(-7.822376).in(Meters), 
+                Inches.of(-7.822376).in(Meters),
                 Inches.of(10.446815).in(Meters),
                 Inches.of(28.002807).in(Meters)
             ),
@@ -183,7 +181,7 @@ public class Vision extends SubsystemBase {
     }
 
     private void updateEstimationStdDevs(
-            Optional<EstimatedRobotPose> estimatedPose, 
+            Optional<EstimatedRobotPose> estimatedPose,
             List<PhotonTrackedTarget> targets
     ) {
         if (estimatedPose.isEmpty()) {

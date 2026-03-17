@@ -1,6 +1,5 @@
 package frc.robot.math;
 
-import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 
@@ -12,7 +11,7 @@ public class SpeedSet {
     public SpeedSet(
         AngularVelocity kickerSpeed,
         AngularVelocity ceilingSpeed,
-        AngularVelocity floorSpeed   
+        AngularVelocity floorSpeed
     ) {
         this.kickerSpeed = kickerSpeed;
         this.ceilingSpeed = ceilingSpeed;

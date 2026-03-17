@@ -4,15 +4,19 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RPM;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Logging;
 import yams.gearing.GearBox;
@@ -25,10 +29,12 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.local.SparkWrapper;
 
-/**
+/*
 * Class for the rollers on the intake
 */
 public class IntakeRoller extends SubsystemBase {
+    private DoubleLogEntry rollerCurrent = new DoubleLogEntry(Logging.getLTInstance().m_log0, "/intake/rollercurrent");
+
     private SparkMax rawRollerMotor = new SparkMax(Constants.Intake.rollerMotorID, MotorType.kBrushless);
 
     private SmartMotorControllerConfig rollerMotorConfig = new SmartMotorControllerConfig(this)
@@ -46,7 +52,7 @@ public class IntakeRoller extends SubsystemBase {
         .withStatorCurrentLimit(Amps.of(40))
         .withSupplyCurrentLimit(Amps.of(40))
         ;
-        
+
     private SmartMotorController rollerMotorController = new SparkWrapper(rawRollerMotor, DCMotor.getNEO(1), rollerMotorConfig);
 
     private final FlyWheelConfig rollerConfig = new FlyWheelConfig(rollerMotorController)
@@ -61,16 +67,66 @@ public class IntakeRoller extends SubsystemBase {
     private Command dbgDown = roller.set(0).andThen(Commands.waitSeconds(0.01)).andThen(roller.setSpeed(RPM.of(0))).withName("dbgDown");
 
 
+    public RollerState rollerState = RollerState.off;
+    public Supplier<RollerState> rollerStateProvider = () -> rollerState;
+    public Trigger runsOffCommand = new Trigger(() -> rollerStateProvider.get()==RollerState.off);
+
     public IntakeRoller() {
         setName("intakeRoller");
         Logging.registerDebugCommand(Constants.Intake.telemetryNameRoller+"dbgUp", dbgUp);
         Logging.registerDebugCommand(Constants.Intake.telemetryNameRoller+"dbgDown", dbgDown);
+        setDefaultCommand(setState().withName("VerifiedSetState"));
+        runsOffCommand.whileTrue(setStateSpecialOff());
     }
+
+    private Command setState() {
+        return roller.run(() -> rollerStateProvider.get().speed);
+    }
+
+    private Command setStateSpecialOff() {
+        return roller.set(0);
+    }
+
+
+    public Command on() {
+        return Commands.runOnce(() -> rollerState = RollerState.on);
+    }
+
+    public Command off() {
+        return Commands.runOnce(() -> rollerState = RollerState.off);
+    }
+
+    public Command toggle() {
+        return Commands.runOnce(() -> {
+            if (rollerState==RollerState.on) {
+                rollerState = RollerState.off;
+            } else {
+                rollerState = RollerState.on;
+            }
+        });
+    }
+
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("intakeRPM", roller.getSpeed().in(RPM));
         SmartDashboard.putNumber("intakeRollerCurrent", rawRollerMotor.getOutputCurrent());
+
+        roller.getMotorController().getMechanismSetpointVelocity()
+            .ifPresent(
+                setpoint -> SmartDashboard.putNumber(Constants.Intake.telemetryNameRoller+"RPM_Setpoint", setpoint.in(RPM))
+            );
+
+        SmartDashboard.putNumber(
+            Constants.Intake.telemetryNameRoller+"RPM_Speed",
+            roller.getSpeed().in(RPM)
+        );
+
+        if (Logging.getLTInstance().doLogging) {
+            roller.getMotor().getSupplyCurrent().ifPresent(current -> rollerCurrent.append(current.in(Amps)));
+        }
+
+
         roller.updateTelemetry();
     }
 
