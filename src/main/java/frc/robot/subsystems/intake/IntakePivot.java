@@ -6,16 +6,21 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.math.PivotState;
 import frc.robot.Logging;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -67,14 +72,34 @@ public class IntakePivot extends SubsystemBase {
     private Command dbg_angle_0 = pivot.setAngle(Constants.Intake.pivotDeployAngle).withName("dbg_angle_0");
     private Command dbg_angle_1 = pivot.setAngle(Constants.Intake.pivotStowAngle).withName("dbg_angle_1");
 
+    // Have we been enabled? Have we been deployed or stowed? If not were dirty
+    public Trigger dirty = new Trigger(() -> {
+        var currentCommand = getCurrentCommand();
+        if (currentCommand!=null) {
+            if (currentCommand.getName() == "VerifiedSetState" && DriverStation.isEnabled()) {
+                return false;
+            }
+        }
+        return true;
+    });
+    
+    public PivotState pivotState = PivotState.stow;
+    public Supplier<PivotState> pivotStateProvider = () -> pivotState;
+
     public IntakePivot() {
         setName("intakePivot");
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_0.getName(), dbg_angle_0);
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_1.getName(), dbg_angle_1);
+        setDefaultCommand(setState().withName("VerifiedSetState"));
+    }
+
+    private Command setState() {
+        return pivot.run(() -> pivotStateProvider.get().angle);
     }
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean(getName()+"/dirty", dirty.getAsBoolean());
         pivot.updateTelemetry();
     }
 

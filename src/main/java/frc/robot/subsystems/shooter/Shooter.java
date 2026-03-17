@@ -126,42 +126,6 @@ public class Shooter extends SubsystemBase {
         }
     }
 
-    public Angle getHoodAngleSetpoint() {
-        return hoodAngle;
-    }
-
-    // get/set flywheel setpoint
-    public void setSpeedSetpoint(AngularVelocity newSpeed) {
-        flywheelSpeed = newSpeed;
-    }
-
-    public AngularVelocity getSpeedSetpoint() {
-        return flywheelSpeed;
-    }
-
-
-    @Override
-    public Command idle() {
-        return Commands.parallel(
-            stopHood(),
-            idleFlywheels()
-        );
-    }
-
-    public Command stopHood() {
-        return hood.hood.runTo(hood.hood.getAngle(), Degrees.of(360))
-            .andThen(hood.hood.set(0));
-    }
-
-    public Command goToCurrentAngle() {
-        return hood.hood.setAngle(angleProvider);
-    }
-
-
-    public Command stopFlywheels() {
-        return flywheelL.flywheel.set(0)
-            .alongWith(flywheelR.flywheel.set(0));
-    }
 
     public Command idleFlywheels() {
         return Commands.runOnce(() -> {

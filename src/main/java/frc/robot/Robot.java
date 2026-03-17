@@ -14,7 +14,7 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     DataLogManager.start();
-    m_robotContainer = new RobotContainer();
+    m_robotContainer = RobotContainer.getInstance();
   }
 
   @Override
@@ -54,9 +54,7 @@ public class Robot extends TimedRobot {
   public void teleopExit() {}
 
   @Override
-  public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
-  }
+  public void testInit() {}
 
   @Override
   public void testPeriodic() {}

@@ -15,14 +15,16 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.Intake;
 import frc.robot.auto.Auton;
 import frc.robot.generated.TunerConstantsArkelon0306Duluth;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
-import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakePivot;
 import frc.robot.subsystems.intake.IntakeRoller;
 import frc.robot.subsystems.shooter.Shooter;
@@ -30,22 +32,32 @@ import frc.robot.subsystems.shooter.ShooterFlywheel;
 import frc.robot.subsystems.shooter.ShooterHood;
 
 public class RobotContainer {
+
+    private static final RobotContainer instance = new RobotContainer();
+    public static RobotContainer getInstance() {
+        return instance;
+    }
+
+
     private final CommandXboxController driverCtl = new CommandXboxController(0);
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
 
+    private final PowerDistribution pdh = new PowerDistribution(60, ModuleType.kRev);
+
     // Shooter (This one is Evens favorite)
-    private ShooterHood shooterHood;
-    private ShooterFlywheel shooterFlywheel;
+    public ShooterHood shooterHood;
+    public ShooterFlywheel shooterFlywheelL;
+    public ShooterFlywheel shooterFlywheelR;
 
     // Indexer
-    private Indexer indexer;
+    public Indexer indexer;
 
     // Intake
-    private IntakePivot intakePivot;
-    private IntakeRoller intakeRoller;
+    public IntakePivot intakePivot;
+    public IntakeRoller intakeRoller;
 
     // Drivetrain
-    private Drivetrain drivetrain;
+    public Drivetrain drivetrain;
     private double MaxSpeed = 1.0 * TunerConstantsArkelon0306Duluth.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -59,51 +71,22 @@ public class RobotContainer {
         .withModuleDirection(Rotation2d.kZero);
 
     // Vision
-    private Vision vision;
+    public Vision vision;
 
     private Logging log = new Logging();
 
-    private Locator locator;
+    public Locator locator;
 
     public Auton autoManager;
 
-    @SuppressWarnings("unused")
-    public RobotContainer() {
+    private RobotContainer() {
         // Gets rid of a extremely minor error message only sim,
         // because it's a very (very!) worrying error on a real robot
         if (Robot.isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
 
-        // Check if any subsystems are disabled
-        if (!Constants.enableShooter ||
-            !Constants.enableIndexer ||
-            !Constants.enableIntake ||
-            !Constants.enableDrivetrain) 
-        {
-            // If any subsystems are disabled live tuning must be on
-            // Crash the code because this is a hardcoded error in
-            // a deploy of the code and must be fixed.
-            if (!Constants.doLiveTuning) {
-                int e = 0;
-                var o = 1/e;
-            } else {
-                // Live tuning is enabled, dont bother configuring bindings,
-                // but go ahead and make the subsytems we want
-            }
-        }
-
-        if (Constants.enableShooter) {
-            shooter = new Shooter();
-        }
-
-        if (Constants.enableIndexer) {
-            indexer = new Indexer();
-        }
-
-        if (Constants.enableIntake) {
-            intake = new Intake();
-        }
+        
 
         if (Constants.enableDrivetrain) {
             drivetrain = TunerConstantsArkelon0306Duluth.createDrivetrain();
@@ -111,38 +94,17 @@ public class RobotContainer {
 
             vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
             locator = new Locator(drivetrain::getPos);
-            autoManager = new Auton(drivetrain, shooter, indexer, intake, this, vision);
+            autoManager = new Auton();
         }
 
-        if (!Constants.doLiveTuning) {
-            // Only bother configuring bindings if live tuning off
-            configureBindings();
-        }
+        configureBindings();
     }
 
-    public Command shoot() {
-        return Commands.parallel(
-            Commands.run(
-                () -> {
-                    var targets = shooter.calculateFireAngleAndSpeed();
-                    shooter.setHoodAngleSetpoint(targets.getFirst());
-                    shooter.setSpeedSetpoint(targets.getSecond());
-                }
-            ),
-            shooter.goToCurrentAngle(),
-            shooter.runFlywheelsToCurrent(),
-            Commands.sequence(
-                Commands.waitSeconds(1.1),
-                indexer.run()
-            )
-        );
-    }
-
-    public Command idleAll() {
-        return Commands.parallel(indexer.idle(), shooter.idleFlywheels());
+    public double getPDHCurrentFromChannel(int channel) {
+        return pdh.getCurrent(channel);
     }
 
     private void configureBindings() {
-        
+
     }
 }
