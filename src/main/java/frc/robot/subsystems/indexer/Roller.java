@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.subsystems.intake.RollerState;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.local.SparkWrapper;
@@ -27,6 +28,11 @@ public class Roller extends SubsystemBase {
     private Optional<TalonFX> vendorMotorTalonFX;
     public SmartMotorController motor;
     private SmartMotorControllerConfig motorConfig;
+
+    public RollerState rollerState = RollerState.off;
+    public Supplier<RollerState> rollerStateProvider = () -> rollerState;
+    public Trigger runsOffCommand = new Trigger(() -> rollerStateProvider.get()==RollerState.off);
+
 
     private void commonSetup(String name, DCMotor motors, SmartMotorControllerConfig motorConfig) {
         setName(Constants.Indexer.YAMS.get(name));
@@ -42,6 +48,9 @@ public class Roller extends SubsystemBase {
         vendorMotorTalonFX.ifPresent(
             vendorTalonFX -> this.motor = new TalonFXWrapper(vendorTalonFX, motors, this.motorConfig)
         );
+
+        setDefaultCommand(setState().withName("VerifiedSetState"));
+        runsOffCommand.whileTrue(setStateSpecialOff());
     }
 
     public Roller(String name, DCMotor motors, SparkMax vendorMotor, SmartMotorControllerConfig motorConfig) {
@@ -56,23 +65,52 @@ public class Roller extends SubsystemBase {
         commonSetup(name, motors, motorConfig);
     }
 
-    public Command stop() {
-        return runOnce(motor::startClosedLoopController)
-            .andThen(runOnce(() -> motor.setVelocity(RPM.of(0))))
-            .andThen(Commands.waitUntil(
-                new Trigger(() -> motor.getMechanismVelocity().isNear(RPM.of(0), RPM.of(6000)))
-                    .debounce(0.1, DebounceType.kRising)
-            ))
-            .andThen(run(() -> motor.setDutyCycle(0)));
+
+    private Command setState() {
+        return roller.run(() -> rollerStateProvider.get().speed);
     }
 
-    public Command runAtSpeed(AngularVelocity speed) {
-        return run(() -> motor.setVelocity(speed));
+    private Command setStateSpecialOff() {
+        return roller.set(0);
     }
 
-    public Command runAtSpeed(Supplier<AngularVelocity> speed) {
-        return run(() -> motor.setVelocity(speed.get()));
+
+    public Command on() {
+        return Commands.runOnce(() -> rollerState = RollerState.on);
     }
+
+    public Command off() {
+        return Commands.runOnce(() -> rollerState = RollerState.off);
+    }
+
+    public Command toggle() {
+        return Commands.runOnce(() -> {
+            if (rollerState==RollerState.on) {
+                rollerState = RollerState.off;
+            } else {
+                rollerState = RollerState.on;
+            }
+        });
+    }
+
+
+    // public Command stop() {
+    //     return runOnce(motor::startClosedLoopController)
+    //         .andThen(runOnce(() -> motor.setVelocity(RPM.of(0))))
+    //         .andThen(Commands.waitUntil(
+    //             new Trigger(() -> motor.getMechanismVelocity().isNear(RPM.of(0), RPM.of(6000)))
+    //                 .debounce(0.1, DebounceType.kRising)
+    //         ))
+    //         .andThen(run(() -> motor.setDutyCycle(0)));
+    // }
+
+    // public Command runAtSpeed(AngularVelocity speed) {
+    //     return run(() -> motor.setVelocity(speed));
+    // }
+
+    // public Command runAtSpeed(Supplier<AngularVelocity> speed) {
+    //     return run(() -> motor.setVelocity(speed.get()));
+    // }
 
     @Override
     public void periodic() {
