@@ -83,6 +83,8 @@ public class RobotContainer {
         intakePivot = new IntakePivot();
         intakeRoller = new IntakeRoller();
 
+        indexer = new Indexer();
+
         // if (Constants.enableDrivetrain) {
         //     drivetrain = TunerConstantsArkelon0306Duluth.createDrivetrain();
         //     drivetrain.registerTelemetry(log::logCTREChassis);
@@ -100,7 +102,10 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driverCtl.a().onTrue(intakePivot.toggle());
-        driverCtl.b().onTrue(intakeRoller.on()).onFalse(intakeRoller.off());
+        // driverCtl.a().onTrue(intakePivot.toggle());
+        // driverCtl.b().onTrue(intakeRoller.on()).onFalse(intakeRoller.off());
+
+        driverCtl.a().onTrue(indexer.on()).onFalse(indexer.off());
+        // driverCtl.b().onTrue(intakeRoller.on()).onFalse(intakeRoller.off());
     }
 }

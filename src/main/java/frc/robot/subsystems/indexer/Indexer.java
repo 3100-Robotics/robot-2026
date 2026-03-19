@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Seconds;
 
-import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -17,10 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.Logging;
-import frc.robot.subsystems.intake.RollerState;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -145,6 +141,9 @@ public class Indexer extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putString("bestie", floorRollers.rollerStateProvider.get().toString());
+        SmartDashboard.putString("bestie2", floorRollers.rollerState.toString());
+
         SmartDashboard.putNumber(
             Constants.join('_', Constants.Indexer.Main.nameFloor, "RPM"),
             floorRollers.motor.getMechanismVelocity().in(RPM)
