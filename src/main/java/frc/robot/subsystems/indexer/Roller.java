@@ -29,9 +29,8 @@ public class Roller extends SubsystemBase {
     public SmartMotorController motor;
     private SmartMotorControllerConfig motorConfig;
 
-    public RollerState rollerState = RollerState.off;
-    public Supplier<RollerState> rollerStateProvider = () -> rollerState;
-    public Trigger runsOffCommand = new Trigger(() -> rollerStateProvider.get()==RollerState.off);
+    public IndexerState rollerState = IndexerState.off;
+    public Supplier<IndexerState> rollerStateProvider = () -> rollerState;
 
 
     private void commonSetup(String name, DCMotor motors, SmartMotorControllerConfig motorConfig) {
@@ -50,7 +49,6 @@ public class Roller extends SubsystemBase {
         );
 
         setDefaultCommand(setState().withName("VerifiedSetState"));
-        runsOffCommand.whileTrue(setStateSpecialOff());
     }
 
     public Roller(String name, DCMotor motors, SparkMax vendorMotor, SmartMotorControllerConfig motorConfig) {
@@ -67,50 +65,18 @@ public class Roller extends SubsystemBase {
 
 
     private Command setState() {
-        return roller.run(() -> rollerStateProvider.get().speed);
-    }
-
-    private Command setStateSpecialOff() {
-        return roller.set(0);
-    }
-
-
-    public Command on() {
-        return Commands.runOnce(() -> rollerState = RollerState.on);
-    }
-
-    public Command off() {
-        return Commands.runOnce(() -> rollerState = RollerState.off);
-    }
-
-    public Command toggle() {
-        return Commands.runOnce(() -> {
-            if (rollerState==RollerState.on) {
-                rollerState = RollerState.off;
+        return Commands.run(() -> {
+            if (rollerStateProvider.get() != IndexerState.off) {
+                motor.setVelocity(rollerStateProvider.get().speed);
             } else {
-                rollerState = RollerState.on;
+                motor.setDutyCycle(0);
             }
         });
     }
 
-
-    // public Command stop() {
-    //     return runOnce(motor::startClosedLoopController)
-    //         .andThen(runOnce(() -> motor.setVelocity(RPM.of(0))))
-    //         .andThen(Commands.waitUntil(
-    //             new Trigger(() -> motor.getMechanismVelocity().isNear(RPM.of(0), RPM.of(6000)))
-    //                 .debounce(0.1, DebounceType.kRising)
-    //         ))
-    //         .andThen(run(() -> motor.setDutyCycle(0)));
-    // }
-
-    // public Command runAtSpeed(AngularVelocity speed) {
-    //     return run(() -> motor.setVelocity(speed));
-    // }
-
-    // public Command runAtSpeed(Supplier<AngularVelocity> speed) {
-    //     return run(() -> motor.setVelocity(speed.get()));
-    // }
+    public void setStateVariable(IndexerState state) {
+        rollerState = state;
+    }
 
     @Override
     public void periodic() {

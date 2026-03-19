@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Logging;
 import frc.robot.subsystems.intake.RollerState;
@@ -72,83 +73,75 @@ public class Indexer extends SubsystemBase {
     private SparkMax vendorCeilingMotor = new SparkMax(Constants.Indexer.ceilingMotorID, MotorType.kBrushless);
     private SparkMax vendorKickerMotor = new SparkMax(Constants.Indexer.kickerMotorID, MotorType.kBrushless);
 
-    private Roller floorRollers;
-    private Roller ceilingRollers;
-    private Roller kickerRollers;
-
-    private Command dbg_stop;
-    private Command dbg_runAll;
-
-    private SpeedSet speeds = Constants.Indexer.off;
-    private Supplier<SpeedSet> speedsProvider = () -> speeds;
+    public Roller floorRollers;
+    public Roller ceilingRollers;
+    public Roller kickerRollers;
 
     public Indexer() {
         floorRollers = new Roller(Constants.Indexer.Main.nameFloor, DCMotor.getKrakenX60(1), vendorFloorMotor, floorMotorConfig);
         ceilingRollers = new Roller(Constants.Indexer.Main.nameCeiling, DCMotor.getNEO(1), vendorCeilingMotor, ceilingMotorConfig);
         kickerRollers = new Roller(Constants.Indexer.Main.nameKicker, DCMotor.getNEO(1), vendorKickerMotor, kickerMotorConfig);
-
-        dbg_stop = Commands.parallel(
-            floorRollers.stop(),
-            ceilingRollers.stop(),
-            kickerRollers.stop()
-        ).withName(Constants.join('/', Constants.Indexer.nameRoot, "stop"));
-
-        dbg_runAll = Commands.parallel(
-            floorRollers.runAtSpeed(RPM.of(2377)),
-            ceilingRollers.runAtSpeed(RPM.of(4414)),
-            kickerRollers.runAtSpeed(RPM.of(4414))
-        ).withName(Constants.join('/', Constants.Indexer.nameRoot, "runAll"));
-
-        Logging.registerDebugCommand(dbg_stop.getName(), dbg_stop);
-        Logging.registerDebugCommand(dbg_runAll.getName(), dbg_runAll);
-
-        
     }
-
-
-    private Command setState() {
-        return roller.run(() -> rollerStateProvider.get().speed);
-    }
-
-    private Command setStateSpecialOff() {
-        return roller.set(0);
-    }
-
 
     public Command on() {
-        return Commands.runOnce(() -> rollerState = RollerState.on);
-    }
-
-    public Command off() {
-        return Commands.runOnce(() -> rollerState = RollerState.off);
-    }
-
-    public Command toggle() {
         return Commands.runOnce(() -> {
-            if (rollerState==RollerState.on) {
-                rollerState = RollerState.off;
-            } else {
-                rollerState = RollerState.on;
-            }
+            floorRollers.setStateVariable(IndexerState.onFloor);
+            ceilingRollers.setStateVariable(IndexerState.onCeiling);
+            kickerRollers.setStateVariable(IndexerState.onKicker);
         });
     }
 
-
-    public Command run() {
-        return Commands.parallel(
-            floorRollers.runAtSpeed(RPM.of(2377)),
-            ceilingRollers.runAtSpeed(RPM.of(4414)),
-            kickerRollers.runAtSpeed(RPM.of(4414))
-        );
+    public Command off() {
+        return Commands.runOnce(() -> {
+            floorRollers.setStateVariable(IndexerState.off);
+            ceilingRollers.setStateVariable(IndexerState.off);
+            kickerRollers.setStateVariable(IndexerState.off);
+        });
     }
 
-    public Command runRev() {
-        return Commands.parallel(
-            floorRollers.runAtSpeed(RPM.of(-2377)),
-            ceilingRollers.runAtSpeed(RPM.of(-4414)),
-            kickerRollers.runAtSpeed(RPM.of(-4414))
-        );
-    }
+    // private Command setState() {
+    //     return roller.run(() -> rollerStateProvider.get().speed);
+    // }
+
+    // private Command setStateSpecialOff() {
+    //     return roller.set(0);
+    // }
+
+
+    // public Command on() {
+    //     return Commands.runOnce(() -> rollerState = RollerState.on);
+    // }
+
+    // public Command off() {
+    //     return Commands.runOnce(() -> rollerState = RollerState.off);
+    // }
+
+    // public Command toggle() {
+    //     return Commands.runOnce(() -> {
+    //         if (rollerState==RollerState.on) {
+    //             rollerState = RollerState.off;
+    //         } else {
+    //             rollerState = RollerState.on;
+    //         }
+    //     });
+    // }
+
+
+    // public Command run() {
+    //     return Commands.parallel(
+    //         floorRollers.runAtSpeed(RPM.of(2377)),
+    //         ceilingRollers.runAtSpeed(RPM.of(4414)),
+    //         kickerRollers.runAtSpeed(RPM.of(4414))
+    //     );
+    // }
+
+    // public Command runRev() {
+    //     return Commands.parallel(
+    //         floorRollers.runAtSpeed(RPM.of(-2377)),
+    //         ceilingRollers.runAtSpeed(RPM.of(-4414)),
+    //         kickerRollers.runAtSpeed(RPM.of(-4414))
+    //     );
+    // }
 
     @Override
     public void periodic() {
