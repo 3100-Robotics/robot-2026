@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Locator;
+import frc.robot.math.Acceleration;
 
 public class Shooter extends SubsystemBase {
     /*
@@ -37,12 +38,22 @@ public class Shooter extends SubsystemBase {
     public final DoubleFlywheel flywheelL = new DoubleFlywheel(0, 51, 52, true, 0.003, 0.137);
     public final DoubleFlywheel flywheelR = new DoubleFlywheel(1, 53, 54, false, 0.003, 0.1399);
 
+    public final Acceleration flywheelLAccel = new Acceleration(1);
+    public final Acceleration flywheelRAccel = new Acceleration(1);
+
     public final Trigger flywheelsAtRPM = 
         new Trigger(
             () -> flywheelL.flywheel.getSpeed()
                 .isNear(speedProvider.get(), RPM.of(100)) &&
                 flywheelR.flywheel.getSpeed()
                 .isNear(speedProvider.get(), RPM.of(100))
+            )
+    ;
+
+    public final Trigger flywheelsAtRPMAcceleration = 
+        new Trigger(
+            () -> flywheelRAccel.getAccel() < 1000 && flywheelLAccel.getAccel() < 1000
+                
             )
     ;
 
@@ -178,6 +189,12 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
+        flywheelLAccel.update(flywheelL.flywheel.getMotor().getMechanismVelocity().in(RPM));
+        flywheelRAccel.update(flywheelR.flywheel.getMotor().getMechanismVelocity().in(RPM));
+
+        SmartDashboard.putNumber("flywheelLAccel", flywheelLAccel.getAccel());
+        SmartDashboard.putNumber("flywheelRAccel", flywheelRAccel.getAccel());
+
         SmartDashboard.putNumber("flywheelSpeed", flywheelSpeed.in(RPM));
 
         SmartDashboard.putNumber("hoodAngle2", hood.hood.getAngle().in(Degrees));
