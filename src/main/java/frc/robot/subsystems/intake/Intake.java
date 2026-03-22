@@ -18,8 +18,8 @@ import frc.robot.Logging;
  * Bird == Flipper == Translation
  */
 public class Intake extends SubsystemBase {
-    private final Pivot pivotSub = new Pivot();
-    private final Roller rollerSub = new Roller();
+    public final Pivot pivotSub = new Pivot();
+    public final Roller rollerSub = new Roller();
 
     public boolean deployed = false;
     public Trigger isDeployed = new Trigger(() -> deployed);

@@ -75,8 +75,8 @@ public class Locator extends SubsystemBase {
         FieldObject2d targetExtension = field.getObject("Extension");
 
         this.extentionPose = new Pose2d(
-            3.36*Math.cos(targetHub.getPose().getRotation().getRadians())+hubPose.getX(),
-            3.36*Math.sin(targetHub.getPose().getRotation().getRadians())+hubPose.getY(),
+            2.1*Math.cos(targetHub.getPose().getRotation().getRadians())+hubPose.getX(),
+            2.1*Math.sin(targetHub.getPose().getRotation().getRadians())+hubPose.getY(),
             targetHub.getPose().getRotation().rotateBy(Rotation2d.k180deg)
         );
 

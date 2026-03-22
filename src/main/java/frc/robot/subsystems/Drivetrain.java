@@ -53,9 +53,9 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController headingController = new PIDController(8, 0.0, 0.05);
 
-    private final PIDController trajectoryxController = new PIDController(0.1, 0.0, 0.0);
-    private final PIDController trajectoryyController = new PIDController(0.1, 0.0, 0.0);
-    private final PIDController trajectoryheadingController = new PIDController(0.1, 0.0, 0.05);
+    private final PIDController trajectoryxController = new PIDController(1, 0.0, 0.0);
+    private final PIDController trajectoryyController = new PIDController(1, 0.0, 0.0);
+    private final PIDController trajectoryheadingController = new PIDController(0.5, 0.0, 0);
 
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
 
@@ -150,6 +150,7 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     @Override
     public void periodic() {
         headingController.enableContinuousInput(-Math.PI+0.000000000000001, Math.PI);
+        trajectoryheadingController.enableContinuousInput(-Math.PI+0.000000000000001, Math.PI);
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.

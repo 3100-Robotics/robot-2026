@@ -132,6 +132,24 @@ public class RobotContainer {
         );
     }
 
+    public Command shootDialed() {
+        return Commands.parallel(
+            Commands.run(
+                () -> {
+                    var targets = shooter.calculateFireAngleAndSpeed();
+                    shooter.setHoodAngleSetpoint(targets.getFirst());
+                    shooter.setSpeedSetpoint(targets.getSecond());
+                }
+            ),
+            shooter.goToCurrentAngle(),
+            shooter.runFlywheelsToCurrent(),
+            Commands.sequence(
+                Commands.waitUntil(shooter.flywheelsAtRPMAcceleration),
+                indexer.run()
+            )
+        );
+    }
+
     public Command idleAll() {
         return Commands.parallel(indexer.idle(), shooter.idleFlywheels());
     }
