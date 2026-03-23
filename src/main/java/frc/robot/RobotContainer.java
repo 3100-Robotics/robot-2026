@@ -144,6 +144,7 @@ public class RobotContainer {
             shooter.goToCurrentAngle(),
             shooter.runFlywheelsToCurrent(),
             Commands.sequence(
+                Commands.waitSeconds(0.08),
                 Commands.waitUntil(shooter.flywheelsAtRPMAcceleration),
                 indexer.run()
             )

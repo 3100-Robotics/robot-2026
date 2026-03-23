@@ -54,7 +54,7 @@ public class Shooter extends SubsystemBase {
         new Trigger(
             () -> flywheelRAccel.getAccel() < 1000 && flywheelLAccel.getAccel() < 1000
                 
-            )
+            ).debounce(0)
     ;
 
     public Shooter() {
@@ -194,6 +194,7 @@ public class Shooter extends SubsystemBase {
 
         SmartDashboard.putNumber("flywheelLAccel", flywheelLAccel.getAccel());
         SmartDashboard.putNumber("flywheelRAccel", flywheelRAccel.getAccel());
+        SmartDashboard.putNumber("flywheelsAtAccel", flywheelsAtRPMAcceleration.getAsBoolean() ? 1000 : 0);
 
         SmartDashboard.putNumber("flywheelSpeed", flywheelSpeed.in(RPM));
 
