@@ -6,6 +6,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.math.Direction;
 import frc.robot.subsystems.Drivetrain;
 
 public class DriveRobotOriented extends Command {
@@ -14,6 +15,7 @@ public class DriveRobotOriented extends Command {
     private LinearVelocity vy;
     private AngularVelocity vtheta;
     private boolean killOnEnd;
+    private Direction side;
 
     public DriveRobotOriented(Drivetrain drivetrain,
         boolean killOnEnd,
@@ -22,6 +24,7 @@ public class DriveRobotOriented extends Command {
         AngularVelocity vtheta
     ) {
         this.drivetrain = drivetrain;
+        this.side = Direction.Right;
         this.killOnEnd = killOnEnd;
         this.vx = vx;
         this.vy = vy;
@@ -35,11 +38,19 @@ public class DriveRobotOriented extends Command {
         AngularVelocity vtheta
     ) {
         this.drivetrain = drivetrain;
+        this.side = Direction.Right;
         this.killOnEnd = true;
         this.vx = vx;
-        this.vy = vy;
-        this.vtheta = vtheta;
+        this.vy = side==Direction.Right ? vy : vy.unaryMinus();
+        this.vtheta = side==Direction.Right ? vtheta : vtheta.unaryMinus();
         addRequirements(drivetrain);
+    }
+
+    public DriveRobotOriented withSide(Direction side) {
+        this.side = side;
+        this.vy = side==Direction.Right ? vy : vy.unaryMinus();
+        this.vtheta = side==Direction.Right ? vtheta : vtheta.unaryMinus();
+        return this;
     }
 
     @Override

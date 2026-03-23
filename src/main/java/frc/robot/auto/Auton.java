@@ -12,6 +12,7 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,6 +28,7 @@ import frc.robot.Locator;
 import frc.robot.RobotContainer;
 import frc.robot.Vision;
 import frc.robot.commands.DriveRobotOriented;
+import frc.robot.math.Direction;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
@@ -72,11 +74,15 @@ public class Auton {
             this.drivetrain
         );
 
+        autoChooser.addRoutine("Development Cross Bump", this::crossBumpDevelopment);
+
+        autoChooser.addRoutine("BiblicalLeft", () -> biblicalGreedAuton(Direction.Left));
+        autoChooser.addRoutine("BiblicalRight", () -> biblicalGreedAuton(Direction.Right));
+
         autoChooser.addRoutine("Left2", this::left2);
         autoChooser.addRoutine("Outpost Only", this::outpostOnly);
         autoChooser.addRoutine("Development Outpost Only", this::developmentOutpostOnly);
         autoChooser.addRoutine("Cross Bump", this::crossBump);
-        autoChooser.addRoutine("Development Cross Bump", this::crossBumpDevelopment);
 
         SmartDashboard.putData("Auton Selector", autoChooser);
         SmartDashboard.putBoolean("astop", false);
@@ -419,6 +425,124 @@ public class Auton {
                     .withTimeout(1), // Get balls
 
                 new DriveRobotOriented(drivetrain, false, MetersPerSecond.of(-3), MetersPerSecond.of(0), RPM.of(0))
+                    .withTimeout(1) // Come back
+            )
+        );
+
+        return routine;
+    }
+
+    @SuppressWarnings("unchecked")
+    public AutoRoutine biblicalGreedAuton(Direction side) {
+        var routine = autoFactory.newRoutine("crossBump"+side.toString());
+        
+        var part1 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part1"));
+        var part2 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part2"));
+        var part25 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part25"));
+        var part3 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part3"));
+        var part4 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part4"));
+
+        var dpart1 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("DEVcrossBump_part1"));
+        var dpart25 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("DEVcrossBump_part25"));
+        var dpart3 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("DEVcrossBump_part3"));
+
+        var big = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBumpBig"));
+        var bigSweep2 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBumpSweep2"));
+
+        var biblical = FlipTrajectory.flipConditional(side, routine, routine.trajectory("biblical"));
+
+        routine.active().onTrue(
+            Commands.sequence(
+                part1.resetOdometry(),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
+                Commands.runOnce(() -> intake.deployed = true),
+
+                // drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
+                //     .withTimeout(0.2), // Go to the total initial pose
+                // drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
+                //     .withTimeout(2), // Go to the other side of the bump
+
+                new DriveRobotOriented(drivetrain,
+                    false,
+                    MetersPerSecond.of(-2.5),
+                    MetersPerSecond.of(-2.5),
+                    RPM.of(0)
+                ).withSide(side).withTimeout(0.7), // Cross bump
+
+                drivetrain.goToPoseCommand(() -> big.getInitialPose().get())
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                big.cmd(), // Line up with fuel
+
+                // intake.runAtSpeed(RPM.of(4000)).withTimeout(0), // Run intake
+                // new DriveRobotOriented(drivetrain, true, MetersPerSecond.of(2), MetersPerSecond.of(0), RPM.of(0))
+                //     .withTimeout(1.5), // Sweep balls
+                // intake.stop().withTimeout(0), // Kill intake
+                drivetrain.goToPoseCommand(() -> biblical.getInitialPose().get())
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                drivetrain.goToPoseCommand(() -> biblical.getFinalPose().get())
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+
+
+                // Max speed (on positions)
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
+                
+
+                drivetrain.goToPoseCommand(() -> dpart3.getFinalPose().get())
+                    .withTimeout(1.3),
+
+                new DriveRobotOriented(drivetrain, true, MetersPerSecond.of(-2), MetersPerSecond.of(2), RPM.of(0))
+                    .withSide(side)
+                    .withTimeout(1),
+
+                Commands.runOnce(() -> vision.usePose = true),
+                // drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
+                //     .withTimeout(3),
+
+                Commands.race(
+                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
+                    Commands.waitSeconds(2.5)
+                ),
+                // drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
+                //     .until(() -> drivetrain.isAtPoseSetpoint(true)),
+
+                Commands.runOnce(() -> intake.deployed = false),
+
+                Commands.parallel(
+                    Commands.parallel(
+                        intake.runAtSpeed(RPM.of(4000)),
+                        rcontainer.shootDialed()
+                    ).withTimeout(5).andThen(
+                        Commands.sequence(
+                            Commands.runOnce(() -> shooter.setSpeedSetpoint(RPM.of(0))),
+                            Commands.parallel(intake.stop(), indexer.idle(),
+                                shooter.runFlywheelsToCurrent()).withTimeout(0)
+                        )
+                    ),
+                    Commands.waitSeconds(4.7)
+                        .andThen(
+                            // Line up for crossing bump
+                            drivetrain.goToPoseCommand(() -> dpart1.getInitialPose().get())
+                                .until(() -> drivetrain.isAtPoseSetpoint(false))
+                        )
+                ),
+                
+                // Line up for crossing bump
+                // drivetrain.goToPoseCommand(() -> dpart1.getInitialPose().get())
+                //     .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                
+                new DriveRobotOriented(drivetrain, false, MetersPerSecond.of(-2.7), MetersPerSecond.of(-2.7), RPM.of(0))
+                    .withSide(side)
+                    .withTimeout(0.8), // Cross bump
+
+                drivetrain.goToPoseCommand(() -> bigSweep2.getInitialPose().get())
+                    .withTimeout(0.7),
+
+                new DriveRobotOriented(drivetrain, false, MetersPerSecond.of(3), MetersPerSecond.of(0), RPM.of(0))
+                    .withSide(side)
+                    .withTimeout(1), // Get balls
+
+                new DriveRobotOriented(drivetrain, false, MetersPerSecond.of(-3), MetersPerSecond.of(0), RPM.of(0))
+                    .withSide(side)
                     .withTimeout(1) // Come back
             )
         );
