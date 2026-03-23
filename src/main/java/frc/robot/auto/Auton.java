@@ -79,11 +79,10 @@ public class Auton {
 
         autoChooser.addRoutine("BiblicalGreeLeft", () -> biblicalGreedAuton(Direction.Left));
         autoChooser.addRoutine("BiblicalGreedRight", () -> biblicalGreedAuton(Direction.Right));
-
-        autoChooser.addRoutine("Left2", this::left2);
-        autoChooser.addRoutine("Outpost Only", this::outpostOnly);
-        autoChooser.addRoutine("Development Outpost Only", this::developmentOutpostOnly);
         autoChooser.addRoutine("Cross Bump", this::crossBump);
+        // autoChooser.addRoutine("Left2", this::left2);
+        // autoChooser.addRoutine("Outpost Only", this::outpostOnly);
+        // autoChooser.addRoutine("Development Outpost Only", this::developmentOutpostOnly);
 
         SmartDashboard.putData("Auton Selector", autoChooser);
         SmartDashboard.putBoolean("astop", false);
