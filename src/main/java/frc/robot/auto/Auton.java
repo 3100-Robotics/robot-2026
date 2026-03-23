@@ -75,14 +75,14 @@ public class Auton {
             this.drivetrain
         );
 
-        autoChooser.addRoutine("Development Cross Bump", this::crossBumpDevelopment);
+        autoChooser.addRoutine("Right DEVELOPMENT FLAG Cross Bump", this::crossBumpDevelopment);
 
-        autoChooser.addRoutine("BiblicalGreeLeft", () -> biblicalGreedAuton(Direction.Left));
-        autoChooser.addRoutine("BiblicalGreedRight", () -> biblicalGreedAuton(Direction.Right));
-        autoChooser.addRoutine("Cross Bump", this::crossBump);
-        // autoChooser.addRoutine("Left2", this::left2);
-        // autoChooser.addRoutine("Outpost Only", this::outpostOnly);
-        // autoChooser.addRoutine("Development Outpost Only", this::developmentOutpostOnly);
+        autoChooser.addRoutine("Left BiblicalGree", () -> biblicalGreedAuton(Direction.Left));
+        autoChooser.addRoutine("Right BiblicalGreed", () -> biblicalGreedAuton(Direction.Right));
+        autoChooser.addRoutine("Right Flagship Cross Bump", this::flagshipCrossBump);
+
+        autoChooser.addRoutine("Right DEVELOPMENT Cross Bump", () -> sideCrossBump(Direction.Right));
+        autoChooser.addRoutine("Left DEVELOPMENT Cross Bump", () -> sideCrossBump(Direction.Left));
 
         SmartDashboard.putData("Auton Selector", autoChooser);
         SmartDashboard.putBoolean("astop", false);
@@ -99,17 +99,7 @@ public class Auton {
             );
     }
 
-    public Command runIntake() {
-        return intake.runAtSpeed(RPM.of(3000)).alongWith(Commands.repeatingSequence(Commands.print("running"))).raceWith(
-            Commands.waitSeconds(0)
-        );
-    }
-
-    public Command killIntake() {
-        return intake.stop().withTimeout(0.0);
-    }
-
-    public AutoRoutine left2() {
+    public AutoRoutine scorePreloadOnly() {
         var routine = autoFactory.newRoutine("Left 2");
         AutoTrajectory leftStart = routine.trajectory("leftStart");
         routine.active().onTrue(
@@ -139,71 +129,7 @@ public class Auton {
         return routine;
     }
 
-    public AutoRoutine developmentOutpostOnly() {
-        var routine = autoFactory.newRoutine("Outpost only");
-        AutoTrajectory rightToOutpost = routine.trajectory("rightToOutpost_part1");
-        AutoTrajectory rightToOutpostEnd = routine.trajectory("rightToOutpost_part2");
-
-        routine.active().onTrue(
-            Commands.parallel(
-                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.2),
-
-                Commands.sequence(
-                    Commands.runOnce(() -> intake.deployed = true),
-                    Commands.runOnce(() -> SmartDashboard.putString("astage", "zeroth")),
-                    autoFactory.resetOdometry("rightToOutpost_part1"),
-                    // rightToOutpost.cmd(),
-                    Commands.runOnce(() -> SmartDashboard.putString("astage", "first")),
-                    drivetrain.goToPoseCommand(() -> rightToOutpost.getFinalPose().get())
-                        .until(() -> drivetrain.isAtPoseSetpoint(false)),
-
-                    Commands.run(() -> drivetrain.setControl(
-                        new SwerveRequest.RobotCentric()
-                            .withVelocityX(MetersPerSecond.of(0.2))
-                            .withVelocityY(0)
-                            .withRotationalRate(0)
-                    ))
-                    .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle()))
-                    .withTimeout(1.7),
-
-                    Commands.runOnce(() -> SmartDashboard.putString("astage", "second")),
-                    Commands.waitSeconds(2),
-                    Commands.runOnce(() -> SmartDashboard.putString("astage", "third")),
-
-                    Commands.runOnce(() -> intake.deployed = false),
-
-                    Commands.runOnce(() -> drivetrain.speedMultiplier = 0.3),
-                    Commands.race(
-                        drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
-                        Commands.waitSeconds(3)
-                    ),
-                    // Commands.runOnce(() -> drivetrain.speedMultiplier = 0.2),
-
-                    Commands.race(
-                        rcontainer.shoot(),
-                        Commands.waitSeconds(5),
-                        intake.runAtSpeed(RPM.of(4000))
-                    ).andThen(rcontainer.idleAll().withTimeout(0.001)),
-
-                    Commands.parallel(indexer.idle(),
-                        shooter.idle(),
-                        shooter.idleFlywheels()).withTimeout(0.001),
-                    // Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
-                    drivetrain.goToPoseCommand(() -> rightToOutpostEnd.getInitialPose().get())
-                        .until(() -> drivetrain.isAtPoseSetpoint(false)),
-                        // .withTimeout(5),
-                    // Commands.runOnce(() -> drivetrain.speedMultiplier = 0.2),
-                    drivetrain.goToPoseCommand(() -> rightToOutpostEnd.getFinalPose().get())
-                        .until(() -> drivetrain.isAtPoseSetpoint(false)),
-                    Commands.runOnce(() -> intake.deployed = true)
-                )
-
-            )
-        );
-        return routine;
-    }
-
-    public AutoRoutine outpostOnly() {
+    public AutoRoutine collectOutpostAndScore() {
         var routine = autoFactory.newRoutine("Outpost only");
         AutoTrajectory rightToOutpost = routine.trajectory("rightToOutpost_part1");
 
@@ -257,7 +183,73 @@ public class Auton {
         return routine;
     }
 
-    public AutoRoutine crossBump() {
+
+    public AutoRoutine sideCrossBump(Direction side) {
+        var routine = autoFactory.newRoutine("crossBump");
+        
+        var part1 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part1"));
+        var part2 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part2"));
+        var part25 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part25"));
+        var part3 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part3"));
+        var part4 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part4"));
+        
+
+        routine.active().onTrue(
+            Commands.sequence(
+                part1.resetOdometry(),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
+                Commands.runOnce(() -> intake.deployed = true),
+                drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
+                    .withTimeout(0.2),
+                drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
+                    .withTimeout(2),
+                drivetrain.goToPoseCommand(() -> part2.getFinalPose().get())
+                    .withTimeout(2),
+                Commands.runOnce(() -> vision.usePose = false),
+                drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
+                    .withTimeout(1.5),
+                // Start intake here
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.75),
+                drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
+                    .alongWith(intake.runAtSpeed(RPM.of(3000)))
+                    .withTimeout(1.5),
+                intake.stop().withTimeout(0),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
+                // End here
+                drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
+                    .withTimeout(1.3),
+                Commands.run(() -> drivetrain.setControl(
+                    new SwerveRequest.RobotCentric()
+                        .withVelocityX(MetersPerSecond.of(-2))
+                        .withVelocityY(0)
+                        .withRotationalRate(0)
+                )).withTimeout(2)
+                .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
+                Commands.runOnce(() -> vision.usePose = true),
+                // drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
+                //     .withTimeout(3),
+                Commands.race(
+                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
+                    Commands.waitSeconds(2.5)
+                ),
+                Commands.runOnce(() -> intake.deployed = false),
+
+                Commands.parallel(
+                    intake.runAtSpeed(RPM.of(4000)),
+                    Commands.race(
+                        rcontainer.shoot(),
+                        Commands.waitSeconds(10)
+                    ).andThen(rcontainer.idleAll())
+                ),
+                Commands.parallel(indexer.idle(),
+                    shooter.idleFlywheels())
+            )
+        );
+
+        return routine;
+    }
+
+    public AutoRoutine flagshipCrossBump() {
         var routine = autoFactory.newRoutine("crossBump");
         
         var part1 = routine.trajectory("crossBump_part1");
@@ -321,6 +313,7 @@ public class Auton {
 
         return routine;
     }
+
 
     public AutoRoutine crossBumpDevelopment() {
         var routine = autoFactory.newRoutine("crossBump");
