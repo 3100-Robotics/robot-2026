@@ -10,6 +10,9 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -66,7 +69,7 @@ public class RobotContainer {
     public Auton autoManager;
 
     private PowerDistribution pdh = new PowerDistribution(60, ModuleType.kRev);
-    private DoubleLogEntry[] currentLogs;
+    private List<DoubleLogEntry> currentLogs = new ArrayList<DoubleLogEntry>();
     private boolean nologging = false;
 
     @SuppressWarnings("unused")
@@ -74,11 +77,12 @@ public class RobotContainer {
         SmartDashboard.putBoolean("isLggingCurrent", true);
         try {
             for (int i = 0; i < pdh.getAllCurrents().length; i++) {
-                currentLogs[i] = 
+                currentLogs.add(i,
                     new DoubleLogEntry(
                         log.m_log0,
                         String.format("/pdhCurrents/_%d", i)
-                    );
+                    )
+                );
             }
             robot.addPeriodic(this::logCurrents, 0.04);
         } catch (Exception e) {
@@ -144,7 +148,7 @@ public class RobotContainer {
         try {
             var allCurrents = pdh.getAllCurrents();
             for (int i = 0; i < allCurrents.length; i++) {
-                currentLogs[i].append(allCurrents[i]);
+                currentLogs.get(i).append(allCurrents[i]);
             }
         } catch (Exception e) {
             nologging = true;
