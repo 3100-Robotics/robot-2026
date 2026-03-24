@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstantsArkelon0306Duluth.TunerSwerveDrivetrain;
 import frc.robot.math.AngleUtils;
 
@@ -51,13 +51,16 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
 
     private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
     private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(8, 0.0, 0.05);
+    private final PIDController headingController = new PIDController(10.0, 0.0, 0.0);
 
     private final PIDController trajectoryxController = new PIDController(1, 0.0, 0.0);
     private final PIDController trajectoryyController = new PIDController(1, 0.0, 0.0);
     private final PIDController trajectoryheadingController = new PIDController(0.5, 0.0, 0);
 
     private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
+
+    public Trigger isAtPoseSetpointDebounce = new Trigger(() -> isAtPoseSetpoint(false))
+        .debounce(0.5);
 
     public double speedMultiplier = 1;
 
@@ -256,12 +259,12 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d relativepose = poseSetpoint.get().relativeTo(getPos());
         boolean angleInRange = AngleUtils.is_between(
             getPos().getRotation().getDegrees(),
-            poseSetpoint.get().getRotation().getDegrees()+10,
-            poseSetpoint.get().getRotation().getDegrees()-10
+            poseSetpoint.get().getRotation().getDegrees()+2,
+            poseSetpoint.get().getRotation().getDegrees()-2
         );
         boolean isAtPose = 
-                Math.abs(relativepose.getX()) < Inches.of(12).in(Meters) && 
-                Math.abs(relativepose.getY()) < Inches.of(12).in(Meters) &&
+                Math.abs(relativepose.getX()) < Inches.of(1.5).in(Meters) && 
+                Math.abs(relativepose.getY()) < Inches.of(1.5).in(Meters) &&
                 angleInRange;
 
         return excludeTranslation ? angleInRange : isAtPose;
