@@ -1,10 +1,13 @@
 package frc.robot.auto;
 
+import static edu.wpi.first.units.Units.FeetPerSecond;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
+
+import java.util.Optional;
 
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 
@@ -86,6 +89,9 @@ public class Auton {
         autoChooser.addRoutine("Left DEVELOPMENT Cross Bump", () -> sideCrossBump(Direction.Left));
 
         autoChooser.addRoutine("Right Outpos", this::collectOutpostAndScore);
+
+        autoChooser.addRoutine("DEBUG_RobotOriented", this::debugRobotOriented);
+        autoChooser.addRoutine("DEBUG_RobotPosition", this::debugPosition);
 
         SmartDashboard.putData("Auton Selector", autoChooser);
         SmartDashboard.putBoolean("astop", false);
@@ -528,6 +534,92 @@ public class Auton {
 
                 new DriveRobotOriented(drivetrain, false, MetersPerSecond.of(-3), MetersPerSecond.of(0), RPM.of(0))
                     .withTimeout(1) // Come back
+            )
+        );
+
+        return routine;
+    }
+
+    // Debug Autons
+    public AutoRoutine debugPosition() {
+        var routine = autoFactory.newRoutine("debugAutonPosition");
+
+        var initPose = new Pose2d();
+        var forward = new Pose2d(2, 0, Rotation2d.kZero);
+        var forwardAndLeft = new Pose2d(2, 2, Rotation2d.kZero);
+        var forwardAndLeftRotated45 = new Pose2d(2, 2, Rotation2d.fromDegrees(45));
+        var forwardAndLeftRotatedMin45 = new Pose2d(2, 2, Rotation2d.fromDegrees(-45));
+        var forwardRotated45 = new Pose2d(2, 0, Rotation2d.fromDegrees(45));
+        var forwardRotatedMin45 = new Pose2d(2, 0, Rotation2d.fromDegrees(-45));
+
+        routine.active().onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> vision.usePose = false),
+                autoFactory.resetOdometry(Optional.of(initPose), false),
+
+                // Test the `.isAtPoseSetpoint`
+                drivetrain.goToPoseCommand(() -> forward)
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                drivetrain.goToPoseCommand(() -> initPose)
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                drivetrain.goToPoseCommand(() -> forward)
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                drivetrain.goToPoseCommand(() -> initPose)
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                drivetrain.goToPoseCommand(() -> forwardAndLeft)
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                
+                Commands.waitSeconds(5),
+                drivetrain.goToPoseCommand(() -> forwardAndLeftRotated45)
+                    .until(drivetrain.isAtPoseSetpointDebounce),
+                Commands.waitSeconds(5),
+                drivetrain.goToPoseCommand(() -> forwardAndLeftRotatedMin45)
+                    .until(drivetrain.isAtPoseSetpointDebounce),
+                Commands.waitSeconds(5),
+                drivetrain.goToPoseCommand(() -> forwardAndLeftRotated45)
+                    .until(drivetrain.isAtPoseSetpointDebounce),
+                drivetrain.goToPoseCommand(() -> forwardRotated45)
+                    .until(drivetrain.isAtPoseSetpointDebounce),
+                drivetrain.goToPoseCommand(() -> forwardRotatedMin45)
+                    //.until(drivetrain.isAtPoseSetpointDebounce)
+            )
+        );
+
+        return routine;
+    }
+
+    public AutoRoutine debugRobotOriented() {
+        var routine = autoFactory.newRoutine("debugAutonRobotOriented");
+
+        var top_speed = FeetPerSecond.of(17.7);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                autoFactory.resetOdometry(Optional.of(new Pose2d()), false),
+                Commands.runOnce(() -> vision.usePose = false),
+                // Move back
+                new DriveRobotOriented(drivetrain, true, MetersPerSecond.of(-1), MetersPerSecond.of(0), RPM.of(0))
+                    .withTimeout(1),
+                
+                // Return to start
+                Commands.waitSeconds(5),
+                new DriveRobotOriented(drivetrain, true, MetersPerSecond.of(1), MetersPerSecond.of(0), RPM.of(0))
+                    .withTimeout(1),
+
+                // Move back and to the right
+                Commands.waitSeconds(5),
+                new DriveRobotOriented(drivetrain, true, MetersPerSecond.of(-1), MetersPerSecond.of(1), RPM.of(0))
+                    .withTimeout(1),
+
+                // Return to start
+                Commands.waitSeconds(5),
+                new DriveRobotOriented(drivetrain, true, MetersPerSecond.of(1), MetersPerSecond.of(-1), RPM.of(0))
+                    .withTimeout(1),
+
+                // Move at top speed for 1/8 second, should travel a little less than 1/8 the top speed
+                Commands.waitSeconds(5),
+                new DriveRobotOriented(drivetrain, true, top_speed, MetersPerSecond.of(0), RPM.of(0))
+                    .withTimeout(0.125)
             )
         );
 
