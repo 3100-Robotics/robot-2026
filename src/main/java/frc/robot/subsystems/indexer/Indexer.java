@@ -28,7 +28,7 @@ public class Indexer extends SubsystemBase {
         .withControlMode(ControlMode.CLOSED_LOOP)
         .withMotorInverted(false)
         .withIdleMode(MotorMode.COAST)
-        .withStatorCurrentLimit(Amps.of(40))
+        .withStatorCurrentLimit(Amps.of(100))
         .withClosedLoopRampRate(Seconds.of(0.25))
         .withOpenLoopRampRate(Seconds.of(0.25));
 

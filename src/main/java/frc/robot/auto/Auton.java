@@ -1,5 +1,6 @@
 package frc.robot.auto;
 
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -83,6 +84,8 @@ public class Auton {
 
         autoChooser.addRoutine("Right DEVELOPMENT Cross Bump", () -> sideCrossBump(Direction.Right));
         autoChooser.addRoutine("Left DEVELOPMENT Cross Bump", () -> sideCrossBump(Direction.Left));
+
+        autoChooser.addRoutine("Right Outpos", this::collectOutpostAndScore);
 
         SmartDashboard.putData("Auton Selector", autoChooser);
         SmartDashboard.putBoolean("astop", false);
@@ -262,33 +265,35 @@ public class Auton {
         routine.active().onTrue(
             Commands.sequence(
                 part1.resetOdometry(),
-                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
-                Commands.runOnce(() -> intake.deployed = true),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
+                Commands.runOnce(() -> intake.deployed = false),
                 drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
-                    .withTimeout(0.2),
+                    .withTimeout(2),
                 drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
                     .withTimeout(2),
                 drivetrain.goToPoseCommand(() -> part2.getFinalPose().get())
                     .withTimeout(2),
                 Commands.runOnce(() -> vision.usePose = false),
                 drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
-                    .withTimeout(1.5),
+                    .withTimeout(2),
                 // Start intake here
+                Commands.runOnce(() -> intake.deployed = true),
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.75),
                 drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
                     .alongWith(intake.runAtSpeed(RPM.of(3000)))
-                    .withTimeout(1.5),
+                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 intake.stop().withTimeout(0),
+                Commands.runOnce(() -> intake.deployed = false),
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
                 // End here
                 drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
                     .withTimeout(1.3),
                 Commands.run(() -> drivetrain.setControl(
                     new SwerveRequest.RobotCentric()
-                        .withVelocityX(MetersPerSecond.of(-2))
-                        .withVelocityY(0)
+                        .withVelocityX(MetersPerSecond.of(-2.5))
+                        .withVelocityY(MetersPerSecond.of(2.5))
                         .withRotationalRate(0)
-                )).withTimeout(2)
+                )).withTimeout(1)
                 .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
                 Commands.runOnce(() -> vision.usePose = true),
                 // drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
@@ -343,11 +348,11 @@ public class Auton {
                 //     .withTimeout(2), // Go to the other side of the bump
 
                 new DriveRobotOriented(drivetrain, false, MetersPerSecond.of(-2.5), MetersPerSecond.of(-2.5), RPM.of(0))
-                    .withTimeout(0.7), // Cross bump
+                    .withTimeout(1.5), // Cross bump
 
                 drivetrain.goToPoseCommand(() -> big.getInitialPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
-                big.cmd(), // Line up with fuel
+                // big.cmd(), // Line up with fuel
 
                 intake.runAtSpeed(RPM.of(4000)).withTimeout(0), // Run intake
                 new DriveRobotOriented(drivetrain, true, MetersPerSecond.of(2), MetersPerSecond.of(0), RPM.of(0))
