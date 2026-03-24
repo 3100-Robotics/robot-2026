@@ -8,3 +8,14 @@
     "outputFolder": "C:\\Users\\turtle\\Documents\\logs"
   }
 }
+
+{
+  "download": {
+    "deleteAfter": false,
+    "localDir": "C:\\Users\\turtle\\Documents\\robot-2026\\robot-2026\\logs",
+    "serverTeam": "10.31.0.2"
+  },
+  "output": {
+    "outputFolder": "C:\\Users\\turtle\\Documents\\robot-2026\\robot-2026\\logs"
+  }
+}
