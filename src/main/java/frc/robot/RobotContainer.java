@@ -141,6 +141,7 @@ public class RobotContainer {
     }
 
     public void logCurrents() {
+        SmartDashboard.putNumber("testPDHCurrent", currentLogs.get(4).getLastValue());
         if (nologging) {
             return;
         }
@@ -229,6 +230,30 @@ public class RobotContainer {
             drivetrain.pointAtPose(() -> locator.hubPose)
         );
 
+        // Spin up flywheels
+        driverCtl.x().onTrue(
+            shooter.toggleKeepSpunUp()
+        );
+
+        shooter.keepSpunUpTrigger.whileTrue(
+            Commands.parallel(
+                Commands.run(
+                    () -> {
+                        var targets = shooter.calculateFireAngleAndSpeed();
+                        shooter.setHoodAngleSetpoint(targets.getFirst());
+                        shooter.setSpeedSetpoint(targets.getSecond());
+                    }
+                ),
+                shooter.goToCurrentAngle(),
+                shooter.runFlywheelsToCurrent()
+            )
+        ).whileFalse(
+            Commands.parallel(
+                indexer.idle(),
+                shooter.idle()
+            )
+        );
+
         // driverCtl.y().whileTrue(drivetrain.goToPoseCommand(() -> locator.extentionPose));
         driverCtl.y().whileTrue(
             drivetrain.applyRequest(() -> pointWheelsRobotForward)
@@ -252,7 +277,7 @@ public class RobotContainer {
             )
         ).whileFalse(intake.stop());
 
-        // Reverse intake rollers
+        // Reverse indexer rollers
         coDriverCtl.povLeft().whileTrue(
             indexer.runRev()
         ).whileFalse(indexer.idle());
@@ -265,28 +290,34 @@ public class RobotContainer {
 
 
         /// Shooter
-        coDriverCtl.a().whileTrue(
-            Commands.parallel(
-                Commands.run(
-                    () -> {
-                        var targets = shooter.calculateFireAngleAndSpeed();
-                        shooter.setHoodAngleSetpoint(targets.getFirst());
-                        shooter.setSpeedSetpoint(targets.getSecond());
-                    }
-                ),
-                shooter.goToCurrentAngle(),
-                shooter.runFlywheelsToCurrent(),
-                Commands.sequence(
-                    Commands.waitSeconds(1.1),
-                    indexer.run()
-                )
-            )
-        ).whileFalse(
+        coDriverCtl.a().whileTrue(shootDialed()).whileFalse(
             Commands.parallel(
                 indexer.idle(),
                 shooter.idle()
             )
         );
+        // coDriverCtl.a().whileTrue(
+        //     Commands.parallel(
+        //         Commands.run(
+        //             () -> {
+        //                 var targets = shooter.calculateFireAngleAndSpeed();
+        //                 shooter.setHoodAngleSetpoint(targets.getFirst());
+        //                 shooter.setSpeedSetpoint(targets.getSecond());
+        //             }
+        //         ),
+        //         shooter.goToCurrentAngle(),
+        //         shooter.runFlywheelsToCurrent(),
+        //         Commands.sequence(
+        //             Commands.waitSeconds(1.1),
+        //             indexer.run()
+        //         )
+        //     )
+        // ).whileFalse(
+        //     Commands.parallel(
+        //         indexer.idle(),
+        //         shooter.idle()
+        //     )
+        // );
 
         coDriverCtl.y().whileTrue(
             Commands.parallel(

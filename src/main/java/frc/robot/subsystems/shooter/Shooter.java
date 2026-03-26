@@ -57,6 +57,9 @@ public class Shooter extends SubsystemBase {
             ).debounce(0)
     ;
 
+    public boolean keepSpunUpBoolean = false;
+    public final Trigger keepSpunUpTrigger = new Trigger(() -> keepSpunUpBoolean);
+
     public Shooter() {
         flywheelR.setDefaultCommand(flywheelR.flywheel.run(speedProvider));
         flywheelL.setDefaultCommand(flywheelL.flywheel.run(speedProvider));
@@ -64,6 +67,17 @@ public class Shooter extends SubsystemBase {
 
         SmartDashboard.putNumber("testingRPM", 1000);
         SmartDashboard.putNumber("testingANGLE", 13);
+    }
+
+    public Command toggleKeepSpunUp() {
+        return Commands.runOnce(() -> {
+                if (keepSpunUpBoolean==true) {
+                    keepSpunUpBoolean = false;
+                } else {
+                    keepSpunUpBoolean = true;
+                }
+            }
+        );
     }
 
     public Pair<Angle, AngularVelocity> calculateFireAngleAndSpeed() {
