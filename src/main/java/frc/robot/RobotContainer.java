@@ -212,9 +212,9 @@ public class RobotContainer {
         // Reset odometry
         driverCtl.leftBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
         // Lockpose!
-        // driverCtl.b().or(driverCtl.povDown()).whileTrue(
-        //     drivetrain.applyRequest(() -> brake)
-        // );
+        driverCtl.b().or(driverCtl.povDown()).whileTrue(
+            drivetrain.applyRequest(() -> brake)
+        );
 
         driverCtl.rightBumper().onTrue(Commands.runOnce(() -> {
             if (vision.usePose == true) {
@@ -247,7 +247,7 @@ public class RobotContainer {
         );
 
         /// Autoshoot
-        driverCtl.povDown()
+        coDriverCtl.povDown()
             .and(drivetrain.isAtPoseSetpointDebounce.debounce(0.0))
             .whileTrue(
                 Commands.waitSeconds(0.08).andThen(shootDialed())
