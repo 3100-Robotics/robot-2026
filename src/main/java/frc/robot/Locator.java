@@ -15,9 +15,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Drivetrain;
 
 public class Locator extends SubsystemBase {
     public static Locator instance;
+    public Drivetrain drivetrain;
 
     public boolean hasAppliedAlliance = false;
     public Optional<Alliance> alliance = Optional.empty();
@@ -38,11 +40,12 @@ public class Locator extends SubsystemBase {
 
     public Pose2d extentionPose = new Pose2d();
 
-    public Locator(Supplier<Pose2d> getRobotPose) {
+    public Locator(Supplier<Pose2d> getRobotPose, Drivetrain drivetrain) {
         if (instance == null) {
             instance = this;
         }
         this.getRobotPose = getRobotPose;
+        this.drivetrain = drivetrain;
     }
 
     public static Locator getInstance() {
@@ -71,8 +74,11 @@ public class Locator extends SubsystemBase {
         }
 
         robotPose = getRobotPose.get();
+        FieldObject2d poseSetpoint = field.getObject("PoseSetpoint");
         FieldObject2d targetHub = field.getObject("Hub");
         FieldObject2d targetExtension = field.getObject("Extension");
+        poseSetpoint.setPose(drivetrain.poseSetpoint.get());
+
 
         this.extentionPose = new Pose2d(
             2.1*Math.cos(targetHub.getPose().getRotation().getRadians())+hubPose.getX(),

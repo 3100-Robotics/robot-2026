@@ -130,7 +130,7 @@ public class RobotContainer {
             drivetrain.registerTelemetry(log::logCTREChassis);
 
             vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
-            locator = new Locator(drivetrain::getPos);
+            locator = new Locator(drivetrain::getPos, drivetrain);
             autoManager = new Auton(drivetrain, shooter, indexer, intake, this, vision);
         }
 
@@ -212,9 +212,9 @@ public class RobotContainer {
         // Reset odometry
         driverCtl.leftBumper().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
         // Lockpose!
-        driverCtl.b().or(driverCtl.povDown()).whileTrue(
-            drivetrain.applyRequest(() -> brake)
-        );
+        // driverCtl.b().or(driverCtl.povDown()).whileTrue(
+        //     drivetrain.applyRequest(() -> brake)
+        // );
 
         driverCtl.rightBumper().onTrue(Commands.runOnce(() -> {
             if (vision.usePose == true) {
@@ -223,11 +223,6 @@ public class RobotContainer {
                 vision.usePose = true;
             }
         }));
-
-        // Autoalign to hub
-        driverCtl.a().whileTrue(
-            drivetrain.pointAtPose(() -> locator.hubPose)
-        );
 
         // driverCtl.y().whileTrue(drivetrain.goToPoseCommand(() -> locator.extentionPose));
         driverCtl.y().whileTrue(
@@ -243,7 +238,25 @@ public class RobotContainer {
             )
         );
 
+        // Autoalign to hub
+        driverCtl.a().whileTrue(
+            drivetrain.pointAtPose(() -> locator.hubPose, 
+                () -> driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis(),
+                () -> driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis()
+            )
+        );
 
+        /// Autoshoot
+        driverCtl.povDown()
+            .and(drivetrain.isAtPoseSetpointDebounce.debounce(0.0))
+            .whileTrue(
+                Commands.waitSeconds(0.08).andThen(shootDialed())
+            )
+            .whileFalse(Commands.parallel(
+                intake.stop(),
+                indexer.idle(),
+                shooter.idle()
+            ));
 
         /// Intake
         coDriverCtl.x().or(coDriverCtl.rightBumper()).whileTrue(
