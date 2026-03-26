@@ -45,7 +45,7 @@ public class Pivot extends SubsystemBase {
         .withExternalEncoderGearing(1)
         .withUseExternalFeedbackEncoder(true)
 
-        .withMotorInverted(false)
+        .withMotorInverted(true)
 
         .withTelemetry(Constants.Intake.telemetryYAMSPivot+"Motor", Constants.getAppropriateTelemetryLevel())
     ;

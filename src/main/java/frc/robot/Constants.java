@@ -156,8 +156,8 @@ public class Constants {
         public static final double rollerRatioRecip = 1.0 / rollerRatio;
 
         // Physical Constants
-        public static final Angle pivotDeployAngle = Degrees.of(3);
-        public static final Angle pivotStowAngle = Degrees.of(55);
+        public static final Angle pivotDeployAngle = Degrees.of(0);
+        public static final Angle pivotStowAngle = Degrees.of(-55);
 
         // Software Constants
         public static final int pivotMotorID = 30;
