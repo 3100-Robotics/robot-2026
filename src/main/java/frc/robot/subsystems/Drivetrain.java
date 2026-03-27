@@ -49,9 +49,9 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
 
-    private final PIDController xController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController yController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController headingController = new PIDController(10.0, 0.0, 0.0);
+    private final PIDController xController = new PIDController(7.0, 0.0, 0.0);
+    private final PIDController yController = new PIDController(7.0, 0.0, 0.0);
+    private final PIDController headingController = new PIDController(8.5, 0.0, 0.0);
 
     private final PIDController trajectoryxController = new PIDController(1, 0.0, 0.0);
     private final PIDController trajectoryyController = new PIDController(1, 0.0, 0.0);
@@ -259,12 +259,12 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d relativepose = poseSetpoint.get().relativeTo(getPos());
         boolean angleInRange = AngleUtils.is_between(
             getPos().getRotation().getDegrees(),
-            poseSetpoint.get().getRotation().getDegrees()+2,
-            poseSetpoint.get().getRotation().getDegrees()-2
+            poseSetpoint.get().getRotation().getDegrees()+2.5,
+            poseSetpoint.get().getRotation().getDegrees()-2.5
         );
         boolean isAtPose = 
-                Math.abs(relativepose.getX()) < Inches.of(1.5).in(Meters) && 
-                Math.abs(relativepose.getY()) < Inches.of(1.5).in(Meters) &&
+                Math.abs(relativepose.getX()) < Inches.of(3.5).in(Meters) && 
+                Math.abs(relativepose.getY()) < Inches.of(3.5).in(Meters) &&
                 angleInRange;
 
         return excludeTranslation ? angleInRange : isAtPose;

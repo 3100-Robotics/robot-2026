@@ -31,7 +31,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 0,
+          "height": 313,
           "series": [
             {
               "color": [
@@ -107,7 +107,10 @@
             }
           ]
         }
-      ]
+      ],
+      "window": {
+        "visible": false
+      }
     },
     "Plot <1>": {
       "plots": [
@@ -118,7 +121,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 629,
+          "height": 798,
           "series": [
             {
               "color": [
@@ -155,6 +158,24 @@
                 1.0
               ],
               "id": "NT:/SmartDashboard/testPDHCurrent"
+            },
+            {
+              "color": [
+                0.5058823823928833,
+                0.44705885648727417,
+                0.7019608020782471,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/flywheel left rpm"
+            },
+            {
+              "color": [
+                0.5764706134796143,
+                0.4705882668495178,
+                0.3764706254005432,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/flywheel right rpm"
             }
           ]
         }

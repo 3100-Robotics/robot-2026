@@ -84,7 +84,7 @@ public class RobotContainer {
                     )
                 );
             }
-            robot.addPeriodic(this::logCurrents, 0.04);
+            robot.addPeriodic(this::logCurrents, 1);
         } catch (Exception e) {
             SmartDashboard.putBoolean("isLggingCurrent", false);
             nologging = true;
@@ -141,10 +141,11 @@ public class RobotContainer {
     }
 
     public void logCurrents() {
-        SmartDashboard.putNumber("testPDHCurrent", currentLogs.get(4).getLastValue());
+        // SmartDashboard.putNumber("testPDHCurrent", pdh.g);//currentLogs.get(4).getLastValue());
         if (nologging) {
             return;
         }
+
 
         try {
             var allCurrents = pdh.getAllCurrents();

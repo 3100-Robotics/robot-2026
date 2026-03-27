@@ -54,7 +54,7 @@ public class Shooter extends SubsystemBase {
         new Trigger(
             () -> flywheelRAccel.getAccel() < 1000 && flywheelLAccel.getAccel() < 1000
                 
-            ).debounce(0)
+            ).debounce(0.05)
     ;
 
     public boolean keepSpunUpBoolean = false;
