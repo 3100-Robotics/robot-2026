@@ -648,32 +648,35 @@ public class Auton {
                 intake.runAtSpeed(RPM.of(4000)).withTimeout(0),
                 drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
+
                 // Start intake here
-                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.25),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.3),
                 drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
                     .alongWith(intake.runAtSpeed(RPM.of(4000)))
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 intake.stop().withTimeout(0),
-                Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 1.1),
                 // End here
 
+                Commands.runOnce(() -> vision.usePose = true),
                 Commands.runOnce(() -> intake.deployed = false),
                 drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 drivetrain.goToPoseCommand(() -> part35.getInitialPose().get())
-                   .withTimeout(1),
- 
-                Commands.runOnce(() -> vision.usePose = true),
+                    .withTimeout(1.5),
 
-                drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose)
-                    .until(() -> drivetrain.isAtPoseSetpoint(false)),
+                // drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose)
+                //     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 
                 Commands.runOnce(() -> intake.deployed = false),
 
                 Commands.parallel(
-                    intake.runAtSpeed(RPM.of(4000)),
-                    rcontainer.shootDialed()
-                ).andThen(rcontainer.idleAll()).withTimeout(5),
+                    intake.runAtSpeed(RPM.of(2000)),
+                    rcontainer.shootDialed(),
+                    drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
+                ).andThen(rcontainer.idleAll())
+                    .withTimeout(4.5)
+                    .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
                 rcontainer.idleAll().withTimeout(0),
                 intake.runAtSpeed(RPM.of(0)).withTimeout(0),
 
@@ -685,7 +688,7 @@ public class Auton {
                 )
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
 
-                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.2),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
 
                 drivetrain.goToPoseCommand(
                     () -> part2.getInitialPose().get()
@@ -695,7 +698,7 @@ public class Auton {
                 )
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
 
-                Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 1.2),
                 Commands.runOnce(() -> vision.usePose = false),
                 intake.runAtSpeed(RPM.of(4000)).withTimeout(0),
                 Commands.runOnce(() -> intake.deployed = true),
