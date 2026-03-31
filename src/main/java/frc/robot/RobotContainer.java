@@ -17,6 +17,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.Auton;
 import frc.robot.generated.TunerConstantsArkelon0306Duluth;
+import frc.robot.math.TimeFunction;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
@@ -68,27 +70,10 @@ public class RobotContainer {
 
     public Auton autoManager;
 
-    private PowerDistribution pdh = new PowerDistribution(60, ModuleType.kRev);
-    private List<DoubleLogEntry> currentLogs = new ArrayList<DoubleLogEntry>();
-    private boolean nologging = false;
-
     @SuppressWarnings("unused")
     public RobotContainer(Robot robot) {
-        SmartDashboard.putBoolean("isLggingCurrent", true);
-        try {
-            for (int i = 0; i < pdh.getAllCurrents().length; i++) {
-                currentLogs.add(i,
-                    new DoubleLogEntry(
-                        log.m_log0,
-                        String.format("/pdhCurrents/_%d", i)
-                    )
-                );
-            }
-            robot.addPeriodic(this::logCurrents, 1);
-        } catch (Exception e) {
-            SmartDashboard.putBoolean("isLggingCurrent", false);
-            nologging = true;
-        }
+        robot.addPeriodic(
+            TimeFunction.time(Logging.getLTInstance()::logCurrents, "logCurrents"), 0.1);
         // Gets rid of a extremely minor error message only sim,
         // because it's a very (very!) worrying error on a real robot
         if (Robot.isSimulation()) {
@@ -137,24 +122,6 @@ public class RobotContainer {
         if (!Constants.doLiveTuning) {
             // Only bother configuring bindings if live tuning off
             configureBindings();
-        }
-    }
-
-    public void logCurrents() {
-        // SmartDashboard.putNumber("testPDHCurrent", pdh.g);//currentLogs.get(4).getLastValue());
-        if (nologging) {
-            return;
-        }
-
-
-        try {
-            var allCurrents = pdh.getAllCurrents();
-            for (int i = 0; i < allCurrents.length; i++) {
-                currentLogs.get(i).append(allCurrents[i]);
-            }
-        } catch (Exception e) {
-            nologging = true;
-            SmartDashboard.putBoolean("isLggingCurrent", false);
         }
     }
 

@@ -22,6 +22,8 @@ import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -73,6 +75,10 @@ public class Logging extends SubsystemBase {
     // public List<Object> debugValues = new ArrayList<>();
     public HashMap<String, Object> debugValues = new HashMap<>();
 
+    private PowerDistribution pdh = new PowerDistribution(60, ModuleType.kRev);
+    private List<DoublePublisher> currentLogs = new ArrayList<DoublePublisher>();
+    private boolean nologging = false;
+
     // YUP WE DOING SIGNLETONS LET IT RIDE
     private static Logging instance;
 
@@ -87,6 +93,7 @@ public class Logging extends SubsystemBase {
         // Initialize the doLogging switch
         instance = this;
         doLoggingNTPub.set(doLogging);
+        initCurrentLogging();
     }
 
     public static void registerDebugCommand(String path, Command command) {
@@ -180,6 +187,39 @@ public class Logging extends SubsystemBase {
         }
         // Give the driver shift time
         composeGameMessage();
+    }
+
+    public void initCurrentLogging() {
+        SmartDashboard.putBoolean("isLggingCurrent", true);
+        try {
+            for (int i = 0; i < pdh.getAllCurrents().length; i++) {
+                currentLogs.add(i, 
+                    evenTable.getDoubleTopic(
+                        String.format("/pdhCurrents/_%d", i)
+                    ).publish() 
+                );
+            }
+        } catch (Exception e) {
+            SmartDashboard.putBoolean("isLggingCurrent", false);
+            nologging = true;
+        }
+    }
+
+    public void logCurrents() {
+        // SmartDashboard.putNumber("testPDHCurrent", pdh.g);//currentLogs.get(4).getLastValue());
+        if (nologging) {
+            return;
+        }
+
+        try {
+            var allCurrents = pdh.getAllCurrents();
+            for (int i = 0; i < allCurrents.length; i++) {
+                currentLogs.get(i).set(allCurrents[i]);
+            }
+        } catch (Exception e) {
+            nologging = true;
+            SmartDashboard.putBoolean("isLggingCurrent", false);
+        }
     }
 
     public void composeGameMessage() {
