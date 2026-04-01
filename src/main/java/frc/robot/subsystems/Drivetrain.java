@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -57,9 +58,16 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController trajectoryyController = new PIDController(1, 0.0, 0.0);
     private final PIDController trajectoryheadingController = new PIDController(0.5, 0.0, 0);
 
-    private Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
+    public Supplier<Pose2d> poseSetpoint = () -> new Pose2d();
+
+    public Trigger isAtPoseSetpoint = new Trigger(() -> isAtPoseSetpoint(false));
+    public Trigger iapsDebounce2 = new Trigger(() -> isAtPoseSetpointVariable(false, 40, 12))
+        .debounce(0.5, DebounceType.kBoth);
 
     public Trigger isAtPoseSetpointDebounce = new Trigger(() -> isAtPoseSetpoint(false))
+        .debounce(0.5);
+
+    public Trigger isAtPoseSetpointDebounceExcludeTranslation = new Trigger(() -> isAtPoseSetpoint(true))
         .debounce(0.5);
 
     public double speedMultiplier = 1;
@@ -154,6 +162,9 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
     public void periodic() {
         headingController.enableContinuousInput(-Math.PI+0.000000000000001, Math.PI);
         trajectoryheadingController.enableContinuousInput(-Math.PI+0.000000000000001, Math.PI);
+        // SmartDashboard.putNumber("isAlignedWhenTurning", isAtPoseSetpointDebounceExcludeTranslation.getAsBoolean() ? 2000 : 0);
+        SmartDashboard.putNumber("isAlignedWhenTurning", iapsDebounce2.getAsBoolean() ? 2000 : 0);
+        
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -270,6 +281,24 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
         return excludeTranslation ? angleInRange : isAtPose;
     }
 
+    public boolean isAtPoseSetpointVariable(boolean excludeTranslation,
+        double angleToleranceInches,
+        double positionTolerance
+    ) {
+        Pose2d relativepose = poseSetpoint.get().relativeTo(getPos());
+        boolean angleInRange = AngleUtils.is_between(
+            getPos().getRotation().getDegrees(),
+            poseSetpoint.get().getRotation().getDegrees()+angleToleranceInches,
+            poseSetpoint.get().getRotation().getDegrees()-angleToleranceInches
+        );
+        boolean isAtPose = 
+                Math.abs(relativepose.getX()) < Inches.of(positionTolerance).in(Meters) && 
+                Math.abs(relativepose.getY()) < Inches.of(positionTolerance).in(Meters) &&
+                angleInRange;
+
+        return excludeTranslation ? angleInRange : isAtPose;
+    }
+
     public void goToPose() {
         // Get the current pose of the robot
         Pose2d pose = getPos();
@@ -294,6 +323,20 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
             // xController.calculate(pose.getX(), poseSetpoint.get().getX()),
             // yController.calculate(pose.getY(), poseSetpoint.get().getY()),
             0,0,
+            headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())
+        );
+
+        // Apply the generated speeds
+        setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds));
+    }
+
+    public void turnToPoseOTM(Supplier<Double> xspeed, Supplier<Double> yspeed) {
+        // Get the current pose of the robot
+        Pose2d pose = getPos();
+
+        // Generate the next speeds for the robot
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            xspeed.get(), yspeed.get(),
             headingController.calculate(pose.getRotation().getRadians(), poseSetpoint.get().getRotation().getRadians())
         );
 
@@ -331,5 +374,21 @@ public class Drivetrain extends TunerSwerveDrivetrain implements Subsystem {
                 )
             );
         }).alongWith(Commands.run(() -> turnToPose()));
+    }
+
+    public Command pointAtPose(Supplier<Pose2d> target, Supplier<Double> xspeed, Supplier<Double> yspeed) {
+        return run(() -> {
+            Pose2d currentPose = getPos();
+            poseSetpoint = () -> new Pose2d(
+                currentPose.getX(),
+                currentPose.getY(),
+                Rotation2d.fromRadians(
+                    Math.atan2(
+                        target.get().getY()-currentPose.getY(),
+                        target.get().getX()-currentPose.getX()
+                    )
+                )
+            );
+        }).alongWith(Commands.run(() -> turnToPoseOTM(xspeed, yspeed)));
     }
 }

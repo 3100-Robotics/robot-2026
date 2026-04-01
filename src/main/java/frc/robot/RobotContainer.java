@@ -115,7 +115,7 @@ public class RobotContainer {
             drivetrain.registerTelemetry(log::logCTREChassis);
 
             vision = new Vision(drivetrain::addVisionMeasurement, drivetrain::getPos);
-            locator = new Locator(drivetrain::getPos);
+            locator = new Locator(drivetrain::getPos, drivetrain);
             autoManager = new Auton(drivetrain, shooter, indexer, intake, this, vision);
         }
 
@@ -193,11 +193,6 @@ public class RobotContainer {
             }
         }));
 
-        // Autoalign to hub
-        driverCtl.a().whileTrue(
-            drivetrain.pointAtPose(() -> locator.hubPose)
-        );
-
         // Spin up flywheels
         driverCtl.x().onTrue(
             shooter.toggleKeepSpunUp()
@@ -236,7 +231,25 @@ public class RobotContainer {
             )
         );
 
+        // Autoalign to hub
+        driverCtl.a().whileTrue(
+            drivetrain.pointAtPose(() -> locator.hubPose, 
+                () -> driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis(),
+                () -> driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis()
+            )
+        );
 
+        /// Autoshoot
+        coDriverCtl.povDown()
+            .and(drivetrain.isAtPoseSetpointDebounce.debounce(0.0))
+            .whileTrue(
+                Commands.waitSeconds(0.08).andThen(shootDialed())
+            )
+            .whileFalse(Commands.parallel(
+                intake.stop(),
+                indexer.idle(),
+                shooter.idle()
+            ));
 
         /// Intake
         coDriverCtl.x().or(coDriverCtl.rightBumper()).whileTrue(
