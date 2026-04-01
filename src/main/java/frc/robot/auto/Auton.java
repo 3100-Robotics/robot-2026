@@ -288,7 +288,7 @@ public class Auton {
                 drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
                     .withTimeout(0.8),
                 // Start intake here
-                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.5),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.3),
                 drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
                     .alongWith(intake.runAtSpeed(RPM.of(3000)))
                     .withTimeout(1.8),
