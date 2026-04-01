@@ -281,40 +281,45 @@ public class Auton {
                 drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
                     .withTimeout(0.2),
                 drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
-                    .withTimeout(2),
+                    .withTimeout(1.5),
                 drivetrain.goToPoseCommand(() -> part2.getFinalPose().get())
-                    .withTimeout(2),
+                    .withTimeout(0.6),
                 Commands.runOnce(() -> vision.usePose = false),
                 drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
-                    .withTimeout(1.5),
+                    .withTimeout(0.8),
                 // Start intake here
-                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.75),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.5),
                 drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
                     .alongWith(intake.runAtSpeed(RPM.of(3000)))
-                    .withTimeout(1.5),
+                    .withTimeout(1.8),
                 intake.stop().withTimeout(0),
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
                 // End here
                 drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
                     .withTimeout(2),
+                drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
+                    .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())).withTimeout(0.2),
+                Commands.runOnce(() -> vision.usePose = true),
+                drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
+                    .withTimeout(0.5),
 
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.9),
                 drivetrain.goToPoseCommand(() -> part35.getInitialPose().get())
                     .withTimeout(2),
-                Commands.runOnce(() -> vision.usePose = true),
                 Commands.runOnce(() -> intake.deployed = false),
 
                 Commands.parallel(
                     drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
                         .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
                     intake.runAtSpeed(RPM.of(1000)),
-                    rcontainer.shoot()
+                    rcontainer.shootDialed()
                 ).withTimeout(5),
                 Commands.parallel(indexer.idle(),
-                    shooter.stopFlywheels(), intake.stop()).withTimeout(0),
+                    Commands.run(() -> shooter.setSpeedSetpoint(RPM.of(0))),
+                    shooter.runFlywheelsToCurrent(), intake.stop()).withTimeout(0),
                 Commands.runOnce(() -> intake.deployed = false),
                 drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
-                    .withTimeout(2),
+                    .withTimeout(0.5),
                 Commands.runOnce(() -> vision.usePose = false),
                 drivetrain.goToPoseCommand(() -> part4.getFinalPose().get())
                     .withTimeout(2)

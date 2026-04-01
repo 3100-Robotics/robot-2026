@@ -150,43 +150,43 @@ public class Vision extends SubsystemBase {
         SmartDashboard.putData("purevision", purevision);
         rightcam3d.set(new Pose3d(robotToFrontRight.getTranslation(), robotToFrontRight.getRotation()));
 
-        if (
-            !leftHasTarget.get() &&
-            rightHasTarget.get()
-        ) {
+        // if (
+        //     !leftHasTarget.get() &&
+        //     rightHasTarget.get()
+        // ) {
 
-            Optional<EstimatedRobotPose> visionEstRight = Optional.empty();
-            for (var result : cameraFrontRight.getAllUnreadResults()) {
-                visionEstRight = photonEstimatorFrontRight.estimateCoprocMultiTagPose(result);
-                if (visionEstRight.isEmpty()) {
-                    visionEstRight = photonEstimatorFrontRight.estimateLowestAmbiguityPose(result);
-                }
-                updateEstimationStdDevs(visionEstRight, result.getTargets());
+        //     Optional<EstimatedRobotPose> visionEstRight = Optional.empty();
+        //     for (var result : cameraFrontRight.getAllUnreadResults()) {
+        //         visionEstRight = photonEstimatorFrontRight.estimateCoprocMultiTagPose(result);
+        //         if (visionEstRight.isEmpty()) {
+        //             visionEstRight = photonEstimatorFrontRight.estimateLowestAmbiguityPose(result);
+        //         }
+        //         updateEstimationStdDevs(visionEstRight, result.getTargets());
 
-                if (Robot.isSimulation()) {
-                    visionEstRight.ifPresentOrElse(
-                        est ->
-                                getSimDebugField()
-                                        .getObject("VisionEstimation")
-                                        .setPose(est.estimatedPose.toPose2d()),
-                        () -> {
-                            getSimDebugField().getObject("VisionEstimation").setPoses();
-                        }
-                    );
-                } else {
-                    visionEstRight.ifPresent(
-                        est -> {
-                            var estStdDevs = getEstimationStdDevs();
-                            purevision.setRobotPose(est.estimatedPose.toPose2d());
-                            if (usePose) {
-                                estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-                            }
-                        }
-                    );
-                }
-            }
+        //         if (Robot.isSimulation()) {
+        //             visionEstRight.ifPresentOrElse(
+        //                 est ->
+        //                         getSimDebugField()
+        //                                 .getObject("VisionEstimation")
+        //                                 .setPose(est.estimatedPose.toPose2d()),
+        //                 () -> {
+        //                     getSimDebugField().getObject("VisionEstimation").setPoses();
+        //                 }
+        //             );
+        //         } else {
+        //             visionEstRight.ifPresent(
+        //                 est -> {
+        //                     var estStdDevs = getEstimationStdDevs();
+        //                     purevision.setRobotPose(est.estimatedPose.toPose2d());
+        //                     if (usePose) {
+        //                         estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+        //                     }
+        //                 }
+        //             );
+        //         }
+        //     }
         
-        }
+        // }
 
 
         // LEft Camera!

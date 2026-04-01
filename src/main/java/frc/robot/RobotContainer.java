@@ -226,8 +226,8 @@ public class RobotContainer {
         // Autoalign to hub
         driverCtl.a().whileTrue(
             drivetrain.pointAtPose(() -> locator.hubPose, 
-                () -> driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis(),
-                () -> driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis()
+                () -> -driverCtl.getLeftY() * MaxSpeed * driverCtl.getRightTriggerAxis(),
+                () -> -driverCtl.getLeftX() * MaxSpeed * driverCtl.getRightTriggerAxis()
             )
         );
 

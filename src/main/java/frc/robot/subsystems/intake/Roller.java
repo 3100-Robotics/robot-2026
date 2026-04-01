@@ -43,7 +43,7 @@ public class Roller extends SubsystemBase {
         // Motor properties to prevent over currenting.
         .withMotorInverted(false)
         .withIdleMode(MotorMode.BRAKE)
-        .withStatorCurrentLimit(Amps.of(100))
+        .withStatorCurrentLimit(Amps.of(80))
         .withSupplyCurrentLimit(Amps.of(40))
         ;
         
