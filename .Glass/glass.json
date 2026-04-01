@@ -1,6 +1,12 @@
 {
   "NetworkTables": {
     "transitory": {
+      "EvenLog": {
+        "open": true,
+        "pdhCurrents": {
+          "open": true
+        }
+      },
       "SmartDashboard": {
         "open": true
       }

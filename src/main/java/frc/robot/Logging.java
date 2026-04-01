@@ -75,9 +75,10 @@ public class Logging extends SubsystemBase {
     // public List<Object> debugValues = new ArrayList<>();
     public HashMap<String, Object> debugValues = new HashMap<>();
 
-    private PowerDistribution pdh = new PowerDistribution(60, ModuleType.kRev);
+    private PowerDistribution pdh = new PowerDistribution(14, ModuleType.kRev);
     private List<DoublePublisher> currentLogs = new ArrayList<DoublePublisher>();
     private boolean nologging = false;
+
 
     // YUP WE DOING SIGNLETONS LET IT RIDE
     private static Logging instance;
@@ -206,15 +207,18 @@ public class Logging extends SubsystemBase {
     }
 
     public void logCurrents() {
-        // SmartDashboard.putNumber("testPDHCurrent", pdh.g);//currentLogs.get(4).getLastValue());
+        SmartDashboard.putNumber("testPDHCurrent", pdh.getCurrent(4));//currentLogs.get(4).getLastValue());
         if (nologging) {
             return;
         }
 
         try {
-            var allCurrents = pdh.getAllCurrents();
-            for (int i = 0; i < allCurrents.length; i++) {
-                currentLogs.get(i).set(allCurrents[i]);
+            List<Double> allCurrents2 = new ArrayList<>();
+            for (int i = 0; i < pdh.getNumChannels(); i++) {
+                allCurrents2.add(pdh.getCurrent(i));
+            }
+            for (int i = 0; i < pdh.getNumChannels(); i++) {
+                currentLogs.get(i).set(allCurrents2.get(i));
             }
         } catch (Exception e) {
             nologging = true;
