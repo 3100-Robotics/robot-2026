@@ -270,7 +270,7 @@ public class Auton {
         var part3 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part3"));
         var part35 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part35"));
         var oldPart3 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("oldCrossBump_part3"));
-        var part4 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part4"));
+        var part4 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("newXBump_part4"));
         
 
         routine.active().onTrue(
@@ -297,23 +297,11 @@ public class Auton {
                 // End here
                 drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
                     .withTimeout(2),
-                // Commands.run(() -> drivetrain.setControl(
-                //     new SwerveRequest.RobotCentric()
-                //         .withVelocityX(MetersPerSecond.of(-2.5))
-                //         .withVelocityY(0)
-                //         .withRotationalRate(0)
-                // )).withTimeout(1.5)
-                // .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
+
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.9),
                 drivetrain.goToPoseCommand(() -> part35.getInitialPose().get())
                     .withTimeout(2),
                 Commands.runOnce(() -> vision.usePose = true),
-                // drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
-                //     .withTimeout(3),
-                // Commands.race(
-                //     drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
-                //     Commands.waitSeconds(2.5)
-                // ),
                 Commands.runOnce(() -> intake.deployed = false),
 
                 Commands.parallel(
@@ -323,10 +311,12 @@ public class Auton {
                     rcontainer.shoot()
                 ).withTimeout(5),
                 Commands.parallel(indexer.idle(),
-                    shooter.idleFlywheels(), intake.stop()).withTimeout(0),
-                drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
+                    shooter.stopFlywheels(), intake.stop()).withTimeout(0),
+                Commands.runOnce(() -> intake.deployed = false),
+                drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
                     .withTimeout(2),
-                drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
+                Commands.runOnce(() -> vision.usePose = false),
+                drivetrain.goToPoseCommand(() -> part4.getFinalPose().get())
                     .withTimeout(2)
                 
             )
