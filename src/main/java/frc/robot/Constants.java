@@ -3,21 +3,17 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RPM;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
-import frc.robot.math.SpeedSet;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
 public class Constants {
@@ -100,18 +96,6 @@ public class Constants {
     }
 
     public static class Indexer {
-        public static final SpeedSet off = new SpeedSet(
-            RPM.of(0),
-            RPM.of(0),
-            RPM.of(0)
-        );
-
-        public static final SpeedSet on = new SpeedSet(
-            RPM.of(4414),
-            RPM.of(4414),
-            RPM.of(2377)
-        );
-
         public static final double kickerRatio = 36.0/24.0;
         public static final double ceilingRatio = 20.0/24.0;
         public static final double floorRatio = 20.0/24.0;

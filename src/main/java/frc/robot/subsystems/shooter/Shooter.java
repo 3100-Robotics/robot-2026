@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Locator;
-import frc.robot.math.Acceleration;
+import frc.robot.utils.Acceleration;
 
 public class Shooter extends SubsystemBase {
     /*

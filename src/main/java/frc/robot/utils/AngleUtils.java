@@ -1,4 +1,4 @@
-package frc.robot.math;
+package frc.robot.utils;
 
 public class AngleUtils {
     public static boolean is_between(double angle, double high, double low) {

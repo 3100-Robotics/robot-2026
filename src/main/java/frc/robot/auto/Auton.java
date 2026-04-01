@@ -33,11 +33,11 @@ import frc.robot.Locator;
 import frc.robot.RobotContainer;
 import frc.robot.Vision;
 import frc.robot.commands.DriveRobotOriented;
-import frc.robot.math.Direction;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.utils.Direction;
 
 @SuppressWarnings("unused")
 public class Auton {

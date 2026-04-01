@@ -3,19 +3,14 @@ package frc.robot.auto;
 import static edu.wpi.first.units.Units.Meters;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
-import choreo.trajectory.TrajectorySample;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
-import frc.robot.Locator;
-import frc.robot.math.Direction;
+import frc.robot.utils.Direction;
 
 public class FlipTrajectory {
     public static AutoTrajectory flipConditional(Direction side, AutoRoutine routine, AutoTrajectory inputTrajectory) {
@@ -65,48 +60,4 @@ public class FlipTrajectory {
             return routine.trajectory(new_trajectory);
         }
     }
-
-    // public static Trajectory flip(Trajectory inputTrajectory) {
-    //     var outputTrajectory = new Trajectory();
-    //     List<State> stateList = new ArrayList<>();
-    //     for (State state : inputTrajectory.getStates()) {
-    //         var newState = new State();
-    //         newState.accelerationMetersPerSecondSq = state.accelerationMetersPerSecondSq;
-    //         newState.curvatureRadPerMeter = state.curvatureRadPerMeter;
-    //         newState.timeSeconds = state.timeSeconds;
-    //         newState.velocityMetersPerSecond = state.velocityMetersPerSecond;
-
-    //         newState.poseMeters = new Pose2d(
-    //             state.poseMeters.getX(),
-    //             (2*(Constants.fieldWidth.in(Meters)/2))-state.poseMeters.getY(),
-    //             state.poseMeters.getRotation().unaryMinus()
-    //         );
-
-    //         stateList.add(newState);
-    //     }
-    //     outputTrajectory.concatenate(new Trajectory(stateList));
-    //     return outputTrajectory;
-    // }
-
-    // public static Trajectory flip2(Trajectory inputTrajectory) {
-    //     var outputTrajectory = new Trajectory();
-    //     List<State> stateList = new ArrayList<>();
-    //     for (State state : inputTrajectory.getStates()) {
-    //         var newState = new State();
-    //         newState.accelerationMetersPerSecondSq = state.accelerationMetersPerSecondSq;
-    //         newState.curvatureRadPerMeter = state.curvatureRadPerMeter;
-    //         newState.timeSeconds = state.timeSeconds;
-    //         newState.velocityMetersPerSecond = state.velocityMetersPerSecond;
-
-    //         newState.poseMeters = new Pose2d(
-    //             state.poseMeters.getX(),
-    //             (2*(Constants.fieldWidth.in(Meters)/2))-state.poseMeters.getY(),
-    //             state.poseMeters.getRotation().unaryMinus()
-    //         );
-
-    //         stateList.add(newState);
-    //     }
-    //     outputTrajectory.concatenate(new Trajectory(stateList));
-    //     return outputTrajectory;
-    // }
 }
