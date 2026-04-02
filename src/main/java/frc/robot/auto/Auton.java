@@ -108,6 +108,9 @@ public class Auton {
             .onTrue(
                 Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll())
                 .alongWith(Commands.runOnce(() -> vision.usePose = true))
+                .alongWith(Commands.parallel(indexer.idle(),
+                    Commands.run(() -> shooter.setSpeedSetpoint(RPM.of(0))),
+                    shooter.runFlywheelsToCurrent(), intake.stop()).withTimeout(0))
             );
     }
 
@@ -271,6 +274,8 @@ public class Auton {
         var part35 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("crossBump_part35"));
         var oldPart3 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("oldCrossBump_part3"));
         var part4 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("newXBump_part4"));
+        var part5 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("newXBump_part5"));
+        var part6 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("newXBump_part6"));
         
 
         routine.active().onTrue(
@@ -320,9 +325,25 @@ public class Auton {
                 Commands.runOnce(() -> intake.deployed = false),
                 drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
                     .withTimeout(0.5),
-                Commands.runOnce(() -> vision.usePose = false),
                 drivetrain.goToPoseCommand(() -> part4.getFinalPose().get())
-                    .withTimeout(2)
+                    .withTimeout(1),
+                Commands.runOnce(() -> vision.usePose = false),
+                drivetrain.goToPoseCommand(() -> part2.getFinalPose().get())
+                    .withTimeout(1.5),
+                drivetrain.goToPoseCommand(() -> part5.getInitialPose().get())
+                    .withTimeout(0.9),
+                Commands.runOnce(() -> intake.deployed = true),
+                intake.runAtSpeed(RPM.of(4000)).withTimeout(0),
+                drivetrain.goToPoseCommand(() -> part5.getFinalPose().get())
+                    .withTimeout(0.9),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.3),
+
+                drivetrain.goToPoseCommand(() -> part6.getInitialPose().get())
+                    .alongWith(intake.runAtSpeed(RPM.of(4000)))
+                    .withTimeout(2),
+                Commands.parallel(indexer.idle(),
+                    Commands.run(() -> shooter.setSpeedSetpoint(RPM.of(0))),
+                    shooter.runFlywheelsToCurrent(), intake.stop()).withTimeout(0)
                 
             )
         );
