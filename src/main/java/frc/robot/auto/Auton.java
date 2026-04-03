@@ -311,12 +311,12 @@ public class Auton {
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.9),
                 drivetrain.goToPoseCommand(() -> part35.getInitialPose().get())
                     .withTimeout(2.5),
-                Commands.runOnce(() -> intake.setDeployed(false)),
 
                 Commands.parallel(
                     drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
                         .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
                     intake.runAtSpeed(RPM.of(1000)),
+                    Commands.waitSeconds(2).andThen(Commands.runOnce(() -> intake.setDeployed(false))),
                     rcontainer.shootDialed()
                 ).withTimeout(5),
                 Commands.parallel(indexer.idle(),
