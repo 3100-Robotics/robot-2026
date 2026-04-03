@@ -244,9 +244,15 @@ public class RobotContainer {
             ));
 
         /// Intake
-        coDriverCtl.x().or(coDriverCtl.rightBumper()).whileTrue(
+        coDriverCtl.rightBumper().whileTrue(
             Commands.parallel(
                 intake.runAtSpeed(RPM.of(3000))
+            )
+        ).whileFalse(intake.stop());
+
+        coDriverCtl.x().whileTrue(
+            Commands.parallel(
+                intake.runAtSpeed(RPM.of(-3000))
             )
         ).whileFalse(intake.stop());
 
@@ -259,6 +265,8 @@ public class RobotContainer {
         coDriverCtl.b().or(coDriverCtl.leftBumper()).onTrue(
             intake.toggleDeploy()
         );
+
+        coDriverCtl.leftTrigger().whileTrue(intake.setSuperStow()).whileFalse(intake.toggleDeploy());
 
 
 

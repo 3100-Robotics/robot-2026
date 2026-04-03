@@ -155,52 +155,16 @@ public class Vision extends SubsystemBase {
         //     rightHasTarget.get()
         // ) {
 
-        //     Optional<EstimatedRobotPose> visionEstRight = Optional.empty();
-        //     for (var result : cameraFrontRight.getAllUnreadResults()) {
-        //         visionEstRight = photonEstimatorFrontRight.estimateCoprocMultiTagPose(result);
-        //         if (visionEstRight.isEmpty()) {
-        //             visionEstRight = photonEstimatorFrontRight.estimateLowestAmbiguityPose(result);
-        //         }
-        //         updateEstimationStdDevs(visionEstRight, result.getTargets());
-
-        //         if (Robot.isSimulation()) {
-        //             visionEstRight.ifPresentOrElse(
-        //                 est ->
-        //                         getSimDebugField()
-        //                                 .getObject("VisionEstimation")
-        //                                 .setPose(est.estimatedPose.toPose2d()),
-        //                 () -> {
-        //                     getSimDebugField().getObject("VisionEstimation").setPoses();
-        //                 }
-        //             );
-        //         } else {
-        //             visionEstRight.ifPresent(
-        //                 est -> {
-        //                     var estStdDevs = getEstimationStdDevs();
-        //                     purevision.setRobotPose(est.estimatedPose.toPose2d());
-        //                     if (usePose) {
-        //                         estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-        //                     }
-        //                 }
-        //             );
-        //         }
-        //     }
-        
-        // }
-
-
-        // LEft Camera!
-
-            Optional<EstimatedRobotPose> visionEstLeft = Optional.empty();
-            for (var result : cameraFrontLeft.getAllUnreadResults()) {
-                visionEstLeft = photonEstimatorFrontLeft.estimateCoprocMultiTagPose(result);
-                if (visionEstLeft.isEmpty()) {
-                    visionEstLeft = photonEstimatorFrontLeft.estimateLowestAmbiguityPose(result);
+            Optional<EstimatedRobotPose> visionEstRight = Optional.empty();
+            for (var result : cameraFrontRight.getAllUnreadResults()) {
+                visionEstRight = photonEstimatorFrontRight.estimateCoprocMultiTagPose(result);
+                if (visionEstRight.isEmpty()) {
+                    visionEstRight = photonEstimatorFrontRight.estimateLowestAmbiguityPose(result);
                 }
-                updateEstimationStdDevs(visionEstLeft, result.getTargets());
+                updateEstimationStdDevs(visionEstRight, result.getTargets());
 
                 if (Robot.isSimulation()) {
-                    visionEstLeft.ifPresentOrElse(
+                    visionEstRight.ifPresentOrElse(
                         est ->
                                 getSimDebugField()
                                         .getObject("VisionEstimation")
@@ -210,10 +174,10 @@ public class Vision extends SubsystemBase {
                         }
                     );
                 } else {
-                    visionEstLeft.ifPresent(
+                    visionEstRight.ifPresent(
                         est -> {
                             var estStdDevs = getEstimationStdDevs();
-                            // purevision.setRobotPose(est.estimatedPose.toPose2d());
+                            purevision.setRobotPose(est.estimatedPose.toPose2d());
                             if (usePose) {
                                 estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
                             }
@@ -221,6 +185,42 @@ public class Vision extends SubsystemBase {
                     );
                 }
             }
+        
+        // }
+
+
+        // LEft Camera!
+
+            // Optional<EstimatedRobotPose> visionEstLeft = Optional.empty();
+            // for (var result : cameraFrontLeft.getAllUnreadResults()) {
+            //     visionEstLeft = photonEstimatorFrontLeft.estimateCoprocMultiTagPose(result);
+            //     if (visionEstLeft.isEmpty()) {
+            //         visionEstLeft = photonEstimatorFrontLeft.estimateLowestAmbiguityPose(result);
+            //     }
+            //     updateEstimationStdDevs(visionEstLeft, result.getTargets());
+
+            //     if (Robot.isSimulation()) {
+            //         visionEstLeft.ifPresentOrElse(
+            //             est ->
+            //                     getSimDebugField()
+            //                             .getObject("VisionEstimation")
+            //                             .setPose(est.estimatedPose.toPose2d()),
+            //             () -> {
+            //                 getSimDebugField().getObject("VisionEstimation").setPoses();
+            //             }
+            //         );
+            //     } else {
+            //         visionEstLeft.ifPresent(
+            //             est -> {
+            //                 var estStdDevs = getEstimationStdDevs();
+            //                 // purevision.setRobotPose(est.estimatedPose.toPose2d());
+            //                 if (usePose) {
+            //                     estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+            //                 }
+            //             }
+            //         );
+            //     }
+            // }
     }
 
     public Matrix<N3, N1> getEstimationStdDevs() {

@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Logging;
+import frc.robot.utils.PivotState;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
@@ -67,10 +69,18 @@ public class Pivot extends SubsystemBase {
     private Command dbg_angle_0 = pivot.setAngle(Constants.Intake.pivotDeployAngle).withName("dbg_angle_0");
     private Command dbg_angle_1 = pivot.setAngle(Constants.Intake.pivotStowAngle).withName("dbg_angle_1");
 
-    public Pivot() {
+    public Supplier<PivotState> pivotStateSupplier;
+
+    public Pivot(Supplier<PivotState> pivotStateSupplier) {
+        this.pivotStateSupplier = pivotStateSupplier;
         setName("intakePivot");
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_0.getName(), dbg_angle_0);
         Logging.registerDebugCommand(Constants.Intake.telemetryNamePivot+dbg_angle_1.getName(), dbg_angle_1);
+        setDefaultCommand(setState());
+    }
+
+    public Command setState() {
+        return pivot.setAngle(() -> pivotStateSupplier.get().angle);
     }
 
     @Override

@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,17 +14,21 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.utils.PivotState;
 import frc.robot.Logging;
 
 /*
  * Bird == Flipper == Translation
  */
 public class Intake extends SubsystemBase {
-    public final Pivot pivotSub = new Pivot();
+    public final Pivot pivotSub;
     public final Roller rollerSub = new Roller();
 
-    public boolean deployed = false;
-    public Trigger isDeployed = new Trigger(() -> deployed);
+    public PivotState pivotState = PivotState.Stow; 
+    public Supplier<PivotState> pivotStateSupplier = () -> pivotState;
+
+    // public boolean deployed = false;
+    // public Trigger isDeployed = new Trigger(() -> deployed);
 
     public DoubleLogEntry rollerCurrent;
 
@@ -30,26 +36,35 @@ public class Intake extends SubsystemBase {
         setName("Intake");
 
         rollerCurrent = new DoubleLogEntry(Logging.getLTInstance().m_log0, "/intake/rollercurrent");
-        isDeployed.whileTrue(deploy()).whileFalse(stow());
+        pivotSub = new Pivot(pivotStateSupplier);
+        // isDeployed.whileTrue(deploy()).whileFalse(stow());
     }
 
     public Command toggleDeploy() {
         return Commands.runOnce(() -> {
-            if (deployed) {
-                deployed = false;
-            } else {
-                deployed = true;
+            if (pivotState==PivotState.Stow) {
+                pivotState = PivotState.Deployed;
+            } else if (pivotState==PivotState.Deployed) {
+                pivotState = PivotState.Stow;
+            } else if (pivotState==PivotState.SuperStow) {
+                pivotState = PivotState.Stow;
             }
         });
     }
 
-    public Command setDeploy() {
-        return Commands.runOnce(() -> deployed = true);
+    public Command setSuperStow() {
+        return Commands.runOnce(() -> {
+            pivotState = PivotState.SuperStow;
+        });
     }
 
-    public Command setStow() {
-        return Commands.runOnce(() -> deployed = false);
-    }
+    // public Command setDeploy() {
+    //     return Commands.runOnce(() -> deployed = true);
+    // }
+
+    // public Command setStow() {
+    //     return Commands.runOnce(() -> deployed = false);
+    // }
 
     public Command stow() {
         return pivotSub.pivot.setAngle(Constants.Intake.pivotStowAngle);
@@ -57,6 +72,10 @@ public class Intake extends SubsystemBase {
 
     public Command halfway() {
         return pivotSub.pivot.setAngle(Degrees.of(50));
+    }
+
+    public Command superStow() {
+        return pivotSub.pivot.setAngle(Constants.Intake.pivotSuperStowAngle);
     }
     
     public Command deploy() {
@@ -73,7 +92,7 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("thinksDeployed", isDeployed.getAsBoolean());
+        // SmartDashboard.putBoolean("thinksDeployed", isDeployed.getAsBoolean());
         rollerSub.roller.getMotorController().getMechanismSetpointVelocity()
             .ifPresent(
                 setpoint -> SmartDashboard.putNumber(Constants.Intake.telemetryNameRoller+"RPM_Setpoint", setpoint.in(RPM))
