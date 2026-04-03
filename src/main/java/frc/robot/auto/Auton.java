@@ -136,7 +136,7 @@ public class Auton {
                     ),
                     Commands.parallel(indexer.idle(),
                         shooter.idle()),
-                    Commands.runOnce(() -> intake.deployed = true)
+                    Commands.runOnce(() -> intake.setDeployed(true))
                 )
 
             )
@@ -153,7 +153,7 @@ public class Auton {
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.2),
 
                 Commands.sequence(
-                    Commands.runOnce(() -> intake.deployed = true),
+                    Commands.runOnce(() -> intake.setDeployed(true)),
                     Commands.runOnce(() -> SmartDashboard.putString("astage", "zeroth")),
                     autoFactory.resetOdometry("rightToOutpost_part1"),
                     // rightToOutpost.cmd(),
@@ -174,7 +174,7 @@ public class Auton {
                     Commands.waitSeconds(3),
                     Commands.runOnce(() -> SmartDashboard.putString("astage", "third")),
 
-                    Commands.runOnce(() -> intake.deployed = false),
+                    Commands.runOnce(() -> intake.setDeployed(false)),
 
                     Commands.race(
                         drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
@@ -190,7 +190,7 @@ public class Auton {
                     Commands.parallel(indexer.idle(),
                         shooter.idle(),
                         shooter.idleFlywheels()),
-                    Commands.runOnce(() -> intake.deployed = true)
+                    Commands.runOnce(() -> intake.setDeployed(true))
                 )
 
             )
@@ -213,7 +213,7 @@ public class Auton {
             Commands.sequence(
                 part1.resetOdometry(),
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
-                Commands.runOnce(() -> intake.deployed = true),
+                Commands.runOnce(() -> intake.setDeployed(true)),
                 drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
                     .withTimeout(0.2),
                 drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
@@ -247,7 +247,7 @@ public class Auton {
                     drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
                     Commands.waitSeconds(2.5)
                 ),
-                Commands.runOnce(() -> intake.deployed = false),
+                Commands.runOnce(() -> intake.setDeployed(false)),
 
                 Commands.parallel(
                     intake.runAtSpeed(RPM.of(4000)),
@@ -282,7 +282,7 @@ public class Auton {
             Commands.sequence(
                 part1.resetOdometry(),
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
-                Commands.runOnce(() -> intake.deployed = true),
+                Commands.runOnce(() -> intake.setDeployed(true)),
                 drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
                     .withTimeout(0.2),
                 drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
@@ -311,7 +311,7 @@ public class Auton {
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.9),
                 drivetrain.goToPoseCommand(() -> part35.getInitialPose().get())
                     .withTimeout(2),
-                Commands.runOnce(() -> intake.deployed = false),
+                Commands.runOnce(() -> intake.setDeployed(false)),
 
                 Commands.parallel(
                     drivetrain.pointAtPose(() -> Locator.getInstance().hubPose)
@@ -322,7 +322,7 @@ public class Auton {
                 Commands.parallel(indexer.idle(),
                     Commands.run(() -> shooter.setSpeedSetpoint(RPM.of(0))),
                     shooter.runFlywheelsToCurrent(), intake.stop()).withTimeout(0),
-                Commands.runOnce(() -> intake.deployed = false),
+                Commands.runOnce(() -> intake.setDeployed(false)),
                 drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
                     .withTimeout(0.5),
                 drivetrain.goToPoseCommand(() -> part4.getFinalPose().get())
@@ -332,7 +332,7 @@ public class Auton {
                     .withTimeout(1.5),
                 drivetrain.goToPoseCommand(() -> part5.getInitialPose().get())
                     .withTimeout(0.9),
-                Commands.runOnce(() -> intake.deployed = true),
+                Commands.runOnce(() -> intake.setDeployed(true)),
                 intake.runAtSpeed(RPM.of(4000)).withTimeout(0),
                 drivetrain.goToPoseCommand(() -> part5.getFinalPose().get())
                     .withTimeout(0.9),
@@ -370,7 +370,7 @@ public class Auton {
                 Commands.runOnce(() -> vision.usePose = true),
                 part1.resetOdometry(),
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
-                Commands.runOnce(() -> intake.deployed = false),
+                Commands.runOnce(() -> intake.setDeployed(false)),
                 drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
@@ -378,7 +378,7 @@ public class Auton {
                 Commands.runOnce(() -> vision.usePose = false),
                 drivetrain.goToPoseCommand(() -> part2.getFinalPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
-                Commands.runOnce(() -> intake.deployed = true),
+                Commands.runOnce(() -> intake.setDeployed(true)),
                 intake.runAtSpeed(RPM.of(4000)).withTimeout(0),
                 drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
@@ -393,7 +393,7 @@ public class Auton {
                 // End here
 
                 Commands.runOnce(() -> vision.usePose = true),
-                Commands.runOnce(() -> intake.deployed = false),
+                Commands.runOnce(() -> intake.setDeployed(false)),
                 drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 drivetrain.goToPoseCommand(() -> part35.getInitialPose().get())
@@ -402,7 +402,7 @@ public class Auton {
                 // drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose)
                 //     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 
-                Commands.runOnce(() -> intake.deployed = false),
+                Commands.runOnce(() -> intake.setDeployed(false)),
 
                 Commands.parallel(
                     intake.runAtSpeed(RPM.of(2000)),
@@ -435,14 +435,14 @@ public class Auton {
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 1.2),
                 Commands.runOnce(() -> vision.usePose = false),
                 intake.runAtSpeed(RPM.of(4000)).withTimeout(0),
-                Commands.runOnce(() -> intake.deployed = true),
+                Commands.runOnce(() -> intake.setDeployed(true)),
                 drivetrain.goToPoseCommand(() -> part1a.getInitialPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 drivetrain.goToPoseCommand(() -> part1a.getFinalPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 intake.runAtSpeed(RPM.of(0)).withTimeout(0),
 
-                Commands.runOnce(() -> intake.deployed = false),
+                Commands.runOnce(() -> intake.setDeployed(false)),
                 drivetrain.goToPoseCommand(() -> parta2.getInitialPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 drivetrain.goToPoseCommand(() -> parta2.getFinalPose().get())

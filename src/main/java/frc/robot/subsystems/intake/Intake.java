@@ -58,6 +58,14 @@ public class Intake extends SubsystemBase {
         });
     }
 
+    public void setDeployed(boolean wetherDeployed) {
+        if (wetherDeployed) {
+            pivotState = PivotState.Deployed;
+        } else {
+            pivotState = PivotState.Stow;
+        }
+    }
+
     // public Command setDeploy() {
     //     return Commands.runOnce(() -> deployed = true);
     // }
