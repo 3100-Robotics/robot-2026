@@ -310,7 +310,7 @@ public class Auton {
 
                 Commands.runOnce(() -> drivetrain.speedMultiplier = 0.9),
                 drivetrain.goToPoseCommand(() -> part35.getInitialPose().get())
-                    .withTimeout(2),
+                    .withTimeout(2.5),
                 Commands.runOnce(() -> intake.setDeployed(false)),
 
                 Commands.parallel(

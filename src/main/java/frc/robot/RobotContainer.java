@@ -265,7 +265,7 @@ public class RobotContainer {
         coDriverCtl.b().or(coDriverCtl.leftBumper()).onTrue(
             intake.toggleDeploy()
         );
-
+ 
         coDriverCtl.leftTrigger().whileTrue(intake.setSuperStow()).whileFalse(intake.toggleDeploy());
 
 
