@@ -262,12 +262,11 @@ public class RobotContainer {
         ).whileFalse(indexer.idle());
 
         // Toggle deployed or not
-        coDriverCtl.b().or(coDriverCtl.leftBumper()).onTrue(
+        driverCtl.leftTrigger().or(coDriverCtl.leftBumper()).onTrue(
             intake.toggleDeploy()
         );
  
         coDriverCtl.leftTrigger().whileTrue(intake.setSuperStow()).whileFalse(intake.toggleDeploy());
-
 
 
         /// Shooter
@@ -277,28 +276,6 @@ public class RobotContainer {
                 shooter.idle()
             )
         );
-        // coDriverCtl.a().whileTrue(
-        //     Commands.parallel(
-        //         Commands.run(
-        //             () -> {
-        //                 var targets = shooter.calculateFireAngleAndSpeed();
-        //                 shooter.setHoodAngleSetpoint(targets.getFirst());
-        //                 shooter.setSpeedSetpoint(targets.getSecond());
-        //             }
-        //         ),
-        //         shooter.goToCurrentAngle(),
-        //         shooter.runFlywheelsToCurrent(),
-        //         Commands.sequence(
-        //             Commands.waitSeconds(1.1),
-        //             indexer.run()
-        //         )
-        //     )
-        // ).whileFalse(
-        //     Commands.parallel(
-        //         indexer.idle(),
-        //         shooter.idle()
-        //     )
-        // );
 
         coDriverCtl.y().whileTrue(
             Commands.parallel(

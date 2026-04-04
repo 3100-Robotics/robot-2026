@@ -88,6 +88,10 @@ public class Auton {
         autoChooser.addRoutine("Left xbump psuedo original",
             () -> crossBumpPsuedoOriginal(Direction.Left));
 
+        autoChooser.addRoutine("R_duluthCrossBump", () -> leftRightDuluthCrossBump(Direction.Right));
+        autoChooser.addRoutine("L_duluthCrossBump", () -> leftRightDuluthCrossBump(Direction.Left));
+        autoChooser.addRoutine("noFlipperDuluthCrossBump", this::duluthCrossBump);
+
         autoChooser.addRoutine("Outpost", this::collectOutpostAndScore);
         autoChooser.addRoutine("Preload", this::scorePreloadOnly);
 
@@ -458,6 +462,133 @@ public class Auton {
                 intake.runAtSpeed(RPM.of(0)).withTimeout(0),
 
                 rcontainer.idleAll().alongWith(intake.runAtSpeed(RPM.of(0))).withTimeout(0)
+            )
+        );
+
+        return routine;
+    }
+
+
+    public AutoRoutine leftRightDuluthCrossBump(Direction side) {
+        var routine = autoFactory.newRoutine("duluthCrossBump");
+        
+        var part1 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("duluthCrossBump_part1"));
+        var part2 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("duluthCrossBump_part2"));
+        var part25 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("duluthCrossBump_part25"));
+        var part3 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("duluthCrossBump_part3"));
+        var part4 = FlipTrajectory.flipConditional(side, routine, routine.trajectory("duluthCrossBump_part4"));
+        
+
+        routine.active().onTrue(
+            Commands.sequence(
+                part1.resetOdometry(),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
+                Commands.runOnce(() -> intake.setDeployed(true)),
+                drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
+                    .withTimeout(0.2),
+                drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
+                    .withTimeout(2),
+                drivetrain.goToPoseCommand(() -> part2.getFinalPose().get())
+                    .withTimeout(2),
+                Commands.runOnce(() -> vision.usePose = false),
+                drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
+                    .withTimeout(1.5),
+                // Start intake here
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.75),
+                drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
+                    .alongWith(intake.runAtSpeed(RPM.of(3000)))
+                    .withTimeout(1.5),
+                intake.stop().withTimeout(0),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
+                // End here
+                drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
+                    .withTimeout(1.3),
+                Commands.run(() -> drivetrain.setControl(
+                    new SwerveRequest.RobotCentric()
+                        .withVelocityX(MetersPerSecond.of(-2))
+                        .withVelocityY(0)
+                        .withRotationalRate(0)
+                )).withTimeout(2)
+                .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
+                Commands.runOnce(() -> vision.usePose = true),
+                Commands.race(
+                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
+                    Commands.waitSeconds(2.5)
+                ),
+                Commands.runOnce(() -> intake.setDeployed(false)),
+
+                Commands.parallel(
+                    intake.runAtSpeed(RPM.of(4000)),
+                    Commands.race(
+                        rcontainer.shoot(),
+                        Commands.waitSeconds(10)
+                    ).andThen(rcontainer.idleAll())
+                ),
+                Commands.parallel(indexer.idle(),
+                    shooter.idleFlywheels())
+            )
+        );
+
+        return routine;
+    }
+
+    public AutoRoutine duluthCrossBump() {
+        var routine = autoFactory.newRoutine("duluthCrossBump");
+        
+        var part1 = routine.trajectory("duluthCrossBump_part1");
+        var part2 = routine.trajectory("duluthCrossBump_part2");
+        var part25 = routine.trajectory("duluthCrossBump_part25");
+        var part3 = routine.trajectory("duluthCrossBump_part3");
+        var part4 = routine.trajectory("duluthCrossBump_part4");
+        
+
+        routine.active().onTrue(
+            Commands.sequence(
+                part1.resetOdometry(),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.4),
+                Commands.runOnce(() -> intake.setDeployed(true)),
+                drivetrain.goToPoseCommand(() -> part1.getInitialPose().get())
+                    .withTimeout(0.2),
+                drivetrain.goToPoseCommand(() -> part2.getInitialPose().get())
+                    .withTimeout(2),
+                drivetrain.goToPoseCommand(() -> part2.getFinalPose().get())
+                    .withTimeout(2),
+                Commands.runOnce(() -> vision.usePose = false),
+                drivetrain.goToPoseCommand(() -> part25.getInitialPose().get())
+                    .withTimeout(1.5),
+                // Start intake here
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 0.75),
+                drivetrain.goToPoseCommand(() -> part3.getInitialPose().get())
+                    .alongWith(intake.runAtSpeed(RPM.of(3000)))
+                    .withTimeout(1.5),
+                intake.stop().withTimeout(0),
+                Commands.runOnce(() -> drivetrain.speedMultiplier = 1),
+                // End here
+                drivetrain.goToPoseCommand(() -> part3.getFinalPose().get())
+                    .withTimeout(1.3),
+                Commands.run(() -> drivetrain.setControl(
+                    new SwerveRequest.RobotCentric()
+                        .withVelocityX(MetersPerSecond.of(-2))
+                        .withVelocityY(0)
+                        .withRotationalRate(0)
+                )).withTimeout(2)
+                .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
+                Commands.runOnce(() -> vision.usePose = true),
+                Commands.race(
+                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
+                    Commands.waitSeconds(2.5)
+                ),
+                Commands.runOnce(() -> intake.setDeployed(false)),
+
+                Commands.parallel(
+                    intake.runAtSpeed(RPM.of(4000)),
+                    Commands.race(
+                        rcontainer.shoot(),
+                        Commands.waitSeconds(10)
+                    ).andThen(rcontainer.idleAll())
+                ),
+                Commands.parallel(indexer.idle(),
+                    shooter.idleFlywheels())
             )
         );
 
