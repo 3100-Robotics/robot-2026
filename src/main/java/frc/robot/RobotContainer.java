@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.Auton;
 import frc.robot.generated.TunerConstantsArkelon0306Duluth;
@@ -210,9 +211,9 @@ public class RobotContainer {
         );
 
         // driverCtl.y().whileTrue(drivetrain.goToPoseCommand(() -> locator.extentionPose));
-        driverCtl.y().whileTrue(
-            drivetrain.applyRequest(() -> pointWheelsRobotForward)
-        );
+        // driverCtl.y().whileTrue(
+        //     drivetrain.applyRequest(() -> pointWheelsRobotForward)
+        // );
 
         // Idle bindings
         driverCtl.povUp().or(coDriverCtl.povUp()).onTrue(
@@ -244,7 +245,7 @@ public class RobotContainer {
             ));
 
         /// Intake
-        coDriverCtl.rightBumper().whileTrue(
+        driverCtl.leftTrigger().or(coDriverCtl.rightBumper()).whileTrue(
             Commands.parallel(
                 intake.runAtSpeed(RPM.of(3000))
             )
@@ -262,7 +263,7 @@ public class RobotContainer {
         ).whileFalse(indexer.idle());
 
         // Toggle deployed or not
-        driverCtl.leftTrigger().or(coDriverCtl.leftBumper()).onTrue(
+        driverCtl.y().or(coDriverCtl.leftBumper()).onTrue(
             intake.toggleDeploy()
         );
  
@@ -270,7 +271,7 @@ public class RobotContainer {
 
 
         /// Shooter
-        coDriverCtl.a().whileTrue(shootDialed()).whileFalse(
+        driverCtl.povLeft().or(coDriverCtl.a()).whileTrue(shootDialed()).whileFalse(
             Commands.parallel(
                 indexer.idle(),
                 shooter.idle()
