@@ -133,10 +133,13 @@ public class RobotContainer {
                 Commands.waitSeconds(1.1),
                 indexer.run()
             )
+            
         );
     }
 
     public Command shootDialed() {
+        //Lockpose while shooting
+        drivetrain.applyRequest(() -> brake);
         return Commands.parallel(
             Commands.run(
                 () -> {
