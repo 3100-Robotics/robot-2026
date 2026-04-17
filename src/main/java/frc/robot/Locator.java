@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Drivetrain;
 
-public class Locator extends SubsystemBase {
+public class Locator {
     public static Locator instance;
     public Drivetrain drivetrain;
 
@@ -28,23 +28,25 @@ public class Locator extends SubsystemBase {
 
     private final Field2d field = new Field2d();
 
-    private Pose2d robotPose = new Pose2d();
-    private Supplier<Pose2d> getRobotPose = () -> new Pose2d();
-    public final Supplier<Distance> distanceToHub = () -> {
-        double distance = Math.sqrt(
-            Math.pow(robotPose.getMeasureX().minus(hubPose.getMeasureX()).in(Inches), 2) + 
-            Math.pow(robotPose.getMeasureY().minus(hubPose.getMeasureY()).in(Inches), 2)
-        );
-        return Inches.of(distance);
-    };
+    // private Pose2d robotPose = new Pose2d();
+    // private Supplier<Pose2d> getRobotPose = () -> new Pose2d();
+    // public final Supplier<Distance> distanceToHub = () -> {
+    //     double distance = Math.sqrt(
+    //         Math.pow(robotPose.getMeasureX().minus(hubPose.getMeasureX()).in(Inches), 2) + 
+    //         Math.pow(robotPose.getMeasureY().minus(hubPose.getMeasureY()).in(Inches), 2)
+    //     );
+    //     return Inches.of(distance);
+    // };
 
-    public Pose2d extentionPose = new Pose2d();
+    // public Pose2d extentionPose = new Pose2d();
 
     public Locator(Supplier<Pose2d> getRobotPose, Drivetrain drivetrain) {
+        Robot.getInstance().addPeriodic(this::periodicAllianceApplied, 1);
+        Robot.getInstance().addPeriodic(this::periodicSmartDashboard, 0.1);
         if (instance == null) {
             instance = this;
         }
-        this.getRobotPose = getRobotPose;
+        // this.getRobotPose = getRobotPose;
         this.drivetrain = drivetrain;
     }
 
@@ -52,12 +54,40 @@ public class Locator extends SubsystemBase {
         return instance;
     }
 
-    @Override
-    public void periodic() {
+    public Pose2d getRobotPose() {
+        return drivetrain.getPos();
+    }
+
+    public Pose2d getExtensionPose() {
+        var thub = new Rotation2d(Math.PI+Math.atan2(hubPose.getY()-getRobotPose().getY(), hubPose.getX()-getRobotPose().getX()));
+        return new Pose2d(
+            2.1*Math.cos(thub.getRadians())+hubPose.getX(),
+            2.1*Math.sin(thub.getRadians())+hubPose.getY(),
+            thub.rotateBy(Rotation2d.k180deg)
+        );
+    }
+
+    public Distance getDistanceToHub() {
+        double distance = Math.sqrt(
+            Math.pow(getRobotPose().getMeasureX().minus(hubPose.getMeasureX()).in(Inches), 2) + 
+            Math.pow(getRobotPose().getMeasureY().minus(hubPose.getMeasureY()).in(Inches), 2)
+        );
+        return Inches.of(distance);
+    }
+
+
+    // Periodics
+
+    // Smartdashboard values every 0.1 seconds
+    public void periodicSmartDashboard() {
         SmartDashboard.putData("best field ever", field);
         SmartDashboard.putBoolean("recvAllianceColor", hasAppliedAlliance);
-        SmartDashboard.putNumber("robotDistanceToHubFeet", distanceToHub.get().in(Feet));
+        // SmartDashboard.putNumber("robotDistanceToHubFeet", distanceToHub.get().in(Feet));
+        field.setRobotPose(getRobotPose());
+    }
 
+    // 1 second
+    public void periodicAllianceApplied() {
         if (!hasAppliedAlliance || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 alliance = Optional.of(allianceColor);
@@ -72,28 +102,5 @@ public class Locator extends SubsystemBase {
             SmartDashboard.putString("lookatme", alliance.toString());
             field.getObject("hubyentoo").setPose(hubPose);
         }
-
-        robotPose = getRobotPose.get();
-        FieldObject2d poseSetpoint = field.getObject("PoseSetpoint");
-        FieldObject2d targetHub = field.getObject("Hub");
-        FieldObject2d targetExtension = field.getObject("Extension");
-        poseSetpoint.setPose(drivetrain.poseSetpoint.get());
-
-
-        this.extentionPose = new Pose2d(
-            2.1*Math.cos(targetHub.getPose().getRotation().getRadians())+hubPose.getX(),
-            2.1*Math.sin(targetHub.getPose().getRotation().getRadians())+hubPose.getY(),
-            targetHub.getPose().getRotation().rotateBy(Rotation2d.k180deg)
-        );
-
-        field.setRobotPose(robotPose);
-        targetHub.setPose(
-            new Pose2d(
-                hubPose.getX(), 
-                hubPose.getY(), 
-                new Rotation2d(Math.PI+Math.atan2(hubPose.getY()-robotPose.getY(), hubPose.getX()-robotPose.getX()))
-            )
-        );
-        targetExtension.setPose(extentionPose);
     }
 }

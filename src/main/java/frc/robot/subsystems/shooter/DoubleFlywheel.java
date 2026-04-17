@@ -104,7 +104,7 @@ public class DoubleFlywheel extends SubsystemBase {
             Constants.Shooter.YAMS.flywheelNames[this.flywheelIndex]+"LeadCurrent", 
             vendorLead.getOutputCurrent()
         );
-        flywheel.updateTelemetry();
+        // flywheel.updateTelemetry();
     }
 
     @Override

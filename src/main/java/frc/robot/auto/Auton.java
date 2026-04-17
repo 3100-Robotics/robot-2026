@@ -181,7 +181,7 @@ public class Auton {
                     Commands.runOnce(() -> intake.setDeployed(false)),
 
                     Commands.race(
-                        drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
+                        drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().getExtensionPose()),
                         Commands.waitSeconds(2.5)
                     ),
                     Commands.parallel(
@@ -248,7 +248,7 @@ public class Auton {
                 // drivetrain.goToPoseCommand(() -> part4.getInitialPose().get())
                 //     .withTimeout(3),
                 Commands.race(
-                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
+                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().getExtensionPose()),
                     Commands.waitSeconds(2.5)
                 ),
                 Commands.runOnce(() -> intake.setDeployed(false)),
@@ -452,7 +452,7 @@ public class Auton {
                 drivetrain.goToPoseCommand(() -> parta2.getFinalPose().get())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 Commands.runOnce(() -> vision.usePose = true),
-                drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose)
+                drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().getExtensionPose())
                     .until(() -> drivetrain.isAtPoseSetpoint(false)),
                 Commands.parallel(
                     intake.runAtSpeed(RPM.of(500)),
@@ -512,7 +512,7 @@ public class Auton {
                 .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
                 Commands.runOnce(() -> vision.usePose = true),
                 Commands.race(
-                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
+                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().getExtensionPose()),
                     Commands.waitSeconds(2.5)
                 ),
                 Commands.runOnce(() -> intake.setDeployed(false)),
@@ -575,7 +575,7 @@ public class Auton {
                 .finallyDo(() -> drivetrain.setControl(new SwerveRequest.Idle())),
                 Commands.runOnce(() -> vision.usePose = true),
                 Commands.race(
-                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().extentionPose),
+                    drivetrain.goToPoseCommandStatic(() -> Locator.getInstance().getExtensionPose()),
                     Commands.waitSeconds(2.5)
                 ),
                 Commands.runOnce(() -> intake.setDeployed(false)),

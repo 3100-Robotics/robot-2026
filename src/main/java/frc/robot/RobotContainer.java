@@ -28,6 +28,16 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.utils.TimeFunction;
 
 public class RobotContainer {
+    public Robot robot;
+
+    private static RobotContainer instance;
+    public static RobotContainer getInstance() {
+        if (instance==null) {
+            instance = new RobotContainer();
+        }
+        return instance;
+    }
+
     private final CommandXboxController driverCtl = new CommandXboxController(0);
     private final CommandXboxController coDriverCtl = new CommandXboxController(1);
 
@@ -64,7 +74,8 @@ public class RobotContainer {
     public Auton autoManager;
 
     @SuppressWarnings("unused")
-    public RobotContainer(Robot robot) {
+    private RobotContainer() {
+        this.robot = Robot.getInstance();
         robot.addPeriodic(
             TimeFunction.time(Logging.getLTInstance()::logCurrents, "logCurrents"), 0.1);
         // Gets rid of a extremely minor error message only sim,
