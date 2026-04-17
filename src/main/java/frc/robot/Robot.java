@@ -12,9 +12,15 @@ public class Robot extends TimedRobot {
   @SuppressWarnings("unused")
   private final RobotContainer m_robotContainer;
 
+  private static Robot instance;
+  public static Robot getInstance() {
+    return instance;
+  }
+
   public Robot() {
+    instance = this;
     DataLogManager.start();
-    m_robotContainer = new RobotContainer(this);
+    m_robotContainer = RobotContainer.getInstance();
   }
 
   @Override

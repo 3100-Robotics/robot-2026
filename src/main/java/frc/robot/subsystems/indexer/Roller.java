@@ -86,7 +86,7 @@ public class Roller extends SubsystemBase {
                 talonfx.getStatorCurrent().getValue().in(Amps)
             )
         );
-        motor.updateTelemetry();
+        // motor.updateTelemetry();
     }
 
     @Override

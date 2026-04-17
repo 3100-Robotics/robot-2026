@@ -71,7 +71,7 @@ public class Roller extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("intakeRPM", roller.getSpeed().in(RPM));
         SmartDashboard.putNumber("intakeRollerCurrent", rawRollerMotor.getOutputCurrent());
-        roller.updateTelemetry();
+        // roller.updateTelemetry();
     }
 
     @Override

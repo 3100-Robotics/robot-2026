@@ -66,7 +66,7 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void periodic() {
-        hood.updateTelemetry();
+        // hood.updateTelemetry();
     }
 
     @Override
