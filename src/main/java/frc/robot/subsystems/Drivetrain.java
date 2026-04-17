@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstantsArkelon0306Duluth.TunerSwerveDrivetrain;
+import frc.robot.generated.TunerConstantsArkelon0416.TunerSwerveDrivetrain;
 import frc.robot.utils.AngleUtils;
 
 /**
